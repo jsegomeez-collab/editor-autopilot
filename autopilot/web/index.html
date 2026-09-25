@@ -82,6 +82,10 @@
         <p class="lista-vacia" id="listaVacia">Todavía no has elegido ningún vídeo.</p>
 
         <div class="panel-subida__pie">
+          <div class="campo">
+            <span class="campo__etiqueta" id="etiquetaEstiloSubida">Estilo</span>
+            <div class="segmentado segmentado--estilo" id="selectEstilo" role="radiogroup" aria-labelledby="etiquetaEstiloSubida" title="Estilo de edición de estos vídeos"></div>
+          </div>
           <div class="fila-campos">
             <label class="campo fila-campos__principal">
               <span class="campo__etiqueta">Perfil de edición</span>
@@ -162,6 +166,52 @@
           </div>
           <button class="boton boton--secundario" id="botonElegirCarpeta" type="button">Elegir carpeta…</button>
           <p class="nota">Los vídeos listos se guardan en esta carpeta. Los vídeos a revisar se guardan en la subcarpeta <code>revisar/</code>.</p>
+        </div>
+
+        <div class="bloque-ajuste campo">
+          <span class="campo__etiqueta" id="etiquetaEstiloAjuste">Estilo de edición</span>
+          <div class="estilos" id="ajusteEstilo" role="radiogroup" aria-labelledby="etiquetaEstiloAjuste">
+            <button type="button" role="radio" class="estilo-opcion" data-valor="motions" aria-checked="false">
+              <span class="estilo-opcion__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span>
+              <svg class="estilo-opcion__esquema" viewBox="0 0 72 128" aria-hidden="true">
+                <rect x="1" y="1" width="70" height="126" rx="10" class="esq-marco"/>
+                <!-- Panel superior: motion graphic -->
+                <rect x="5" y="5" width="62" height="58" rx="6" class="esq-panel"/>
+                <rect x="13" y="40" width="8" height="15" rx="2" class="esq-barra"/>
+                <rect x="25" y="32" width="8" height="23" rx="2" class="esq-barra"/>
+                <rect x="37" y="24" width="8" height="31" rx="2" class="esq-barra"/>
+                <rect x="49" y="14" width="8" height="41" rx="2" class="esq-acento"/>
+                <path d="M12 30 L28 22 L40 17 L55 9" class="esq-linea"/>
+                <!-- Cara abajo -->
+                <rect x="5" y="66" width="62" height="57" rx="6" class="esq-camara"/>
+                <circle cx="36" cy="88" r="10" class="esq-cara"/>
+                <path d="M16 123 C16 107 25 101 36 101 C47 101 56 107 56 123 Z" class="esq-cara"/>
+                <rect x="50" y="70" width="13" height="13" rx="3" transform="rotate(12 56 76)" class="esq-sticker"/>
+              </svg>
+              <span class="estilo-opcion__nombre">Con motions</span>
+              <span class="estilo-opcion__desc">Motion graphics en pantalla partida, con tu cara abajo y stickers.</span>
+            </button>
+            <button type="button" role="radio" class="estilo-opcion" data-valor="titulo" aria-checked="false">
+              <span class="estilo-opcion__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span>
+              <svg class="estilo-opcion__esquema" viewBox="0 0 72 128" aria-hidden="true">
+                <rect x="1" y="1" width="70" height="126" rx="10" class="esq-marco"/>
+                <!-- Cámara en todo el vídeo -->
+                <rect x="5" y="5" width="62" height="118" rx="6" class="esq-camara"/>
+                <circle cx="36" cy="66" r="13" class="esq-cara"/>
+                <path d="M9 123 C9 100 21 88 36 88 C51 88 63 100 63 123 Z" class="esq-cara"/>
+                <!-- Franja de título fija -->
+                <rect x="5" y="5" width="62" height="27" rx="6" class="esq-panel"/>
+                <rect x="12" y="11" width="48" height="5" rx="2.5" class="esq-texto"/>
+                <rect x="18" y="20" width="36" height="5" rx="2.5" class="esq-acento"/>
+                <!-- Subtítulo y sticker -->
+                <rect x="20" y="104" width="32" height="5" rx="2.5" class="esq-texto"/>
+                <rect x="49" y="40" width="14" height="14" rx="3" transform="rotate(12 56 47)" class="esq-sticker"/>
+              </svg>
+              <span class="estilo-opcion__nombre">Con título</span>
+              <span class="estilo-opcion__desc">Título fijo arriba, cámara completa, subtítulos, stickers y muchos efectos de sonido.</span>
+            </button>
+          </div>
+          <p class="nota">Se aplica por defecto a cada subida; puedes cambiarlo antes de editar.</p>
         </div>
 
         <label class="bloque-ajuste campo">

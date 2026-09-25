@@ -137,8 +137,8 @@ def subeventos(g: dict) -> list[dict]:
 def eventos_brutos(layout: dict, graficos: list[dict], alta: bool = False) -> list[dict]:
     ev = []
     vs = layout["ventanas"]
-    if vs and vs[0]["tipo"] == "split":
-        ev.append({"t": 0.0, "tipo": "impacto", "motivo": "gancho en el frame 0"})
+    if vs and vs[0]["tipo"] in ("split", "banda"):
+        ev.append({"t": 0.0, "tipo": "impacto", "motivo": "gancho/título en el frame 0"})
     for a, b in zip(vs, vs[1:]):
         if a["tipo"] != b["tipo"] or (alta and a.get("zoom") != b.get("zoom")):
             ev.append({"t": max(0.0, b["inicio"] - ADELANTO_WHOOSH), "tipo": "whoosh",

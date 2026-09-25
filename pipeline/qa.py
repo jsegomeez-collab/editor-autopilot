@@ -116,7 +116,9 @@ def comprobar_caras(inf: Informe, final: Path, layout: dict) -> None:
         if not ok:
             continue
         _, caras = det.detect(cv2.resize(frame, (540, 960)))
-        caras = [] if caras is None else [c for c in caras if v["tipo"] != "split" or c[1] * 2 >= 960]
+        # En split la cara va en el panel inferior (y ≥ 960); en «título», bajo la franja (y ≥ 520).
+        minimo = {"split": 960, "banda": 520}.get(v["tipo"], 0)
+        caras = [] if caras is None else [c for c in caras if c[1] * 2 >= minimo]
         if not len(caras):
             fallos.append(f"{t:.2f} s ({v['tipo']})")
     cap.release()
@@ -132,6 +134,8 @@ def comprobar_subtitulos(inf: Informe, ass: Path, perfil) -> None:
         if not linea.startswith("Dialogue:"):
             continue
         campos = linea.split(",", 9)
+        if campos[3] == "Titulo":  # el título se ajusta al generarlo (tamaño y ≤ 3 líneas en su franja)
+            continue
         m = re.search(r"\\pos\((\d+),(\d+)\)", campos[9])
         texto = re.sub(r"\{[^}]*\}", "", campos[9])
         x, y = int(m.group(1)), int(m.group(2))

@@ -221,3 +221,51 @@ solaparlos. Empieza por el gancho y termina con el CTA si lo hay. Quédate con l
 TRAMOS DE LA VERSIÓN COMPLETA:
 {tramos_txt}"""
     return claude_json(prompt, esquema, registro)
+
+
+# ---------- 4. estilo «título» ----------
+
+def decidir_titulo(ventanas_txt: str, perfil, perfil_dir: Path, palabra_cta: str | None, registro: list,
+                   errores_previos: str = "", evitar: str = "") -> dict:
+    """Estilo «vídeo con título»: título fijo arriba + stickers muy frecuentes + CTA final."""
+    esquema = {
+        "type": "object", "additionalProperties": False,
+        "required": ["titulo", "destacado", "titulos_alternativos", "stickers", "cta"],
+        "properties": {
+            "titulo": {"type": "string", "description": "5–10 palabras: la idea del vídeo, literal o resumida SIN añadir información"},
+            "destacado": {"type": "string", "description": "1–3 palabras del título a resaltar en el color de acento"},
+            "titulos_alternativos": {"type": "array", "minItems": 2, "maxItems": 3, "items": {"type": "string"}},
+            "stickers": {"type": "array", "items": {
+                "type": "object", "additionalProperties": False, "required": ["inicio", "duracion", "lado", "rotulo"],
+                "properties": {"inicio": {"type": "number"}, "duracion": {"type": "number"},
+                               "icono": {"type": "string"}, "archivo": {"type": "string"},
+                               "lado": {"enum": ["izquierda", "derecha"]}, "rotulo": {"type": "string"},
+                               "sonido": {"type": "string"}}}},
+            "cta": {"type": ["object", "null"], "additionalProperties": False, "required": ["linea1", "palabra"],
+                    "properties": {"linea1": {"type": "string"}, "linea2": {"type": "string"}, "palabra": {"type": "string"}}},
+        },
+    }
+    cta = f'La palabra del CTA es "{palabra_cta.upper()}".' if palabra_cta else "Si no se pide comentar ninguna palabra, cta = null."
+    prompt = f"""Edita este reel en estilo «VÍDEO CON TÍTULO» (básico): la cámara ocupa todo el vídeo, arriba hay un TÍTULO fijo y
+van saltando imágenes pequeñas (stickers) muy a menudo junto a la cara.
+
+1. titulo: 5–10 palabras con la idea central del vídeo, sacadas de lo que se dice (literal o resumido, SIN inventar datos
+   ni cifras que no se digan). Tiene que enganchar y caber en 3 líneas. destacado: 1–3 palabras del título para el acento.
+   titulos_alternativos: 2–3 títulos distintos con las mismas reglas (para variantes A/B).
+2. stickers: MUY frecuentes, uno cada ~2–3 s durante todo el vídeo (salvo el CTA final), en las palabras clave:
+   - usa "icono" (del catálogo de iconos) o "archivo" (imagen de la marca, cuando se nombra esa marca);
+   - inicio ABSOLUTO en segundos 0,25 s antes de la palabra; duración 0,8–1,4 s; sin solaparse entre sí;
+   - alterna lado; rótulo de 1–2 palabras dichas (o "" si no hace falta);
+   - toda cifra en un rótulo tiene que decirse en ese momento.
+3. cta: {cta} linea1/linea2 con las palabras dichas (p. ej. "Escribe" / "la palabra").
+{("ERRORES DE TU RESPUESTA ANTERIOR (corrígelos):\n" + errores_previos) if errores_previos else ""}
+{("VARIANTE A/B: usa OTRO título y OTROS stickers (otros iconos y otros momentos). Ya usado:\n" + evitar) if evitar else ""}
+ICONOS (nombre: significado):
+{catalogo_iconos()}
+
+IMÁGENES DE LA MARCA (campo archivo):
+{catalogo_imagenes(perfil_dir)}
+
+VENTANAS DEL VÍDEO (índice, tipo, inicio–fin en segundos del vídeo; palabras con su segundo RELATIVO al inicio de la ventana):
+{ventanas_txt}"""
+    return claude_json(prompt, esquema, registro)

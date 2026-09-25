@@ -31,7 +31,8 @@ EXTENSIONES = {".mp4", ".mov", ".m4v", ".mkv"}
 PAUSA_LIMITE = timedelta(minutes=30)
 INTENTOS = 2  # 1 intento + 1 reintento
 ESPACIO_MINIMO_GB = 2.5  # un vídeo necesita ~0,5 GB y HyperFrames exige ≥ 2 GB libres
-AJUSTES_POR_DEFECTO = {"carpeta_salida": None, "perfil_por_defecto": "jose", "limite_diario": 20, "variantes": 1}
+AJUSTES_POR_DEFECTO = {"carpeta_salida": None, "perfil_por_defecto": "jose", "limite_diario": 20, "variantes": 1,
+                       "estilo": "motions"}  # estilo de edición: motions | titulo
 
 
 def ahora() -> str:
@@ -54,6 +55,8 @@ def guardar_ajustes(nuevos: dict) -> dict:
         raise ValueError(f"perfil desconocido: {ajustes['perfil_por_defecto']}")
     ajustes["limite_diario"] = max(1, int(ajustes["limite_diario"]))
     ajustes["variantes"] = max(1, min(6, int(ajustes["variantes"])))  # 1 = solo edición; 2–6 = variantes A/B
+    if ajustes["estilo"] not in ("motions", "titulo"):
+        raise ValueError(f"estilo desconocido: {ajustes['estilo']}")
     BASE.mkdir(parents=True, exist_ok=True)
     AJUSTES.write_text(json.dumps(ajustes, ensure_ascii=False, indent=2))
     return ajustes
@@ -94,7 +97,8 @@ class Cola:
                   "hash": h, "estado": "pendiente", "etapa": "en_cola", "progreso": 0, "mensaje": "",
                   "creado": ahora(), "iniciado": None, "terminado": None, "duracion_s": None, "veredicto": None,
                   "avisos": [], "error": None, "intentos": 0, "trabajo": None, "final": None, "salida": None,
-                  "portada": None, "uso": None, "variantes": leer_ajustes()["variantes"], "versiones": []}
+                  "portada": None, "uso": None, "variantes": leer_ajustes()["variantes"], "estilo": leer_ajustes()["estilo"],
+                  "versiones": []}
             self.items.append(it)
             self._guardar()
             return it, False
@@ -154,7 +158,7 @@ class Cola:
             archivo = Path(it["archivo"])
             mover = archivo.parent.parent.name == "entrada"  # solo se mueve lo que está en entrada/ (una vez)
             r = editar(archivo, perfil_dir, ajustes["carpeta_salida"], avisar, mover_original=mover,
-                       variantes=it.get("variantes") or ajustes["variantes"])
+                       variantes=it.get("variantes") or ajustes["variantes"], estilo=it.get("estilo") or ajustes["estilo"])
             with self.cerrojo:
                 it.update(estado="revisar" if r["veredicto"] == "REVISAR" else "listo", veredicto=r["veredicto"],
                           avisos=r["avisos"], terminado=ahora(), duracion_s=r["duracion_video_s"], trabajo=r["trabajo"],

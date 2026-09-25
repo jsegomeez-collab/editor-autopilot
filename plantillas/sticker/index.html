@@ -29,6 +29,7 @@
       box-shadow: 0 0 36px color-mix(in srgb, var(--acento) 55%, transparent), 0 16px 40px rgba(0, 0, 0, 0.55);
     }
     .icono { width: 110px; height: 110px; color: var(--primario); stroke-width: 1.8; overflow: visible; }
+    .imagen { width: 118px; height: 118px; object-fit: contain; }
     #rotulo {
       font-family: "Titulares"; font-size: 46px; color: var(--primario); text-align: center; line-height: 1;
       padding: 8px 18px; border-radius: 12px; background: rgba(18, 24, 39, 0.82); white-space: nowrap;
@@ -44,12 +45,21 @@
   </div>
   <script src="_comun/base.js"></script>
   <script>
-    const { icono, lado = "derecha", rotulo = "", t_aterrizaje = 0.25 } = HF.datos;
+    const { icono = "", archivo = "", lado = "derecha", rotulo = "", y = 470, t_aterrizaje = 0.25 } = HF.datos;
     const st = document.getElementById("sticker");
     const ins = document.getElementById("insignia");
     const rot = document.getElementById("rotulo");
     st.classList.add(lado === "izquierda" ? "izquierda" : "derecha");
-    const ico = HF.svg(icono);
+    st.style.top = y + "px";  // altura configurable (estilo «título»: junto a la cara, bajo la franja)
+    // Icono del catálogo o imagen de marca (logo) del perfil.
+    let ico;
+    if (archivo) {
+      ico = document.createElement("img");
+      ico.src = archivo;
+      ico.className = "imagen";
+    } else {
+      ico = HF.svg(icono);
+    }
     ins.appendChild(ico);
     if (rotulo) rot.textContent = rotulo; else rot.remove();
 
@@ -65,8 +75,10 @@
     } else {
       tl.set(ins, { scale: 1 }, 0);
     }
-    HF.dibujar(tl, ico, t, Math.max(0.2, entrada));
-    tl.fromTo(ico, { color: HF.color("acento") }, { color: HF.color("primario"), duration: 0.4, ease: HF.EASE_SUAVE }, t);
+    if (!archivo) {
+      HF.dibujar(tl, ico, t, Math.max(0.2, entrada));
+      tl.fromTo(ico, { color: HF.color("acento") }, { color: HF.color("primario"), duration: 0.4, ease: HF.EASE_SUAVE }, t);
+    }
     if (rotulo) tl.fromTo(rot, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.2, ease: HF.EASE_ENTRADA }, Math.min(t + 0.08, HF.duracion - 0.4));
     // Vida: leve balanceo mientras está.
     tl.to(ins, { rotate: lado === "izquierda" ? -6 : 6, duration: Math.max(0.1, HF.duracion - t - 0.3), ease: HF.EASE_SUAVE }, t);

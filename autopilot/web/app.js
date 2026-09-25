@@ -48,6 +48,13 @@ const NOMBRE_ETAPA = {
   terminado: "Terminado",
 };
 
+// Estilos de edición: "motions" (pantalla partida con motion graphics) y
+// "titulo" (título fijo arriba, cámara completa, subtítulos y stickers).
+const ESTILOS = {
+  motions: { corto: "Motions", largo: "Con motions", boton: "con motions" },
+  titulo: { corto: "Título", largo: "Con título", boton: "con título" },
+};
+
 const ESTADOS_COLA = ["procesando", "pausado_por_limite", "pendiente", "error"];
 const PRIORIDAD_COLA = { procesando: 0, pausado_por_limite: 1, pendiente: 2, error: 3 };
 
@@ -63,6 +70,9 @@ const ICONO = {
   flecha: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
   pausa: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6v12M15 6v12"/></svg>',
   capas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg>',
+  // Mini-móviles con el layout de cada estilo (para chips y el selector de subida).
+  estilo_motions: '<svg viewBox="0 0 10 16" fill="none"><rect x=".75" y=".75" width="8.5" height="14.5" rx="2" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="2.5" width="5" height="5" rx=".6" fill="currentColor"/></svg>',
+  estilo_titulo: '<svg viewBox="0 0 10 16" fill="none"><rect x=".75" y=".75" width="8.5" height="14.5" rx="2" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="2.5" width="5" height="1.8" rx=".6" fill="currentColor"/><circle cx="5" cy="9.5" r="1.6" fill="currentColor"/></svg>',
   alerta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17v.01"/></svg>',
 };
 
@@ -78,6 +88,9 @@ const app = {
   variantes: 1,          // versiones por vídeo para la próxima subida
   variantesTocado: false,
   variantesBorrador: 1,  // valor en el panel de ajustes aún sin guardar
+  estilo: "motions",     // estilo de edición para la próxima subida
+  estiloTocado: false,
+  estiloBorrador: "motions",
   versionActiva: 0,      // índice de la versión que se ve en el modal
   verVersion: 0,         // ?v= pedido junto a ?ver=
   tarjetasCola: new Map(),
@@ -99,6 +112,15 @@ function escapar(texto) {
 function limitarVariantes(n) {
   const v = parseInt(n, 10);
   return Number.isFinite(v) ? Math.max(1, Math.min(MAX_VARIANTES, v)) : 1;
+}
+
+function normalizarEstilo(e) {
+  return e === "titulo" ? "titulo" : "motions";
+}
+
+function htmlChipEstilo(estilo, clase = "") {
+  const e = normalizarEstilo(estilo);
+  return `<span class="chip chip-estilo ${clase}" data-estilo="${e}" title="Estilo: ${ESTILOS[e].largo}">${ICONO["estilo_" + e]}${ESTILOS[e].corto}</span>`;
 }
 
 function versionesDe(item) {
@@ -220,6 +242,7 @@ function pintarTodo() {
   pintarAvisoCarpeta();
   pintarPerfiles();
   pintarVariantesSubida();
+  pintarEstiloSubida();
   pintarCola();
   pintarResultados();
   pintarVacio();
@@ -324,6 +347,26 @@ function pintarVariantesSubida() {
   fijarSegmentado($("#selectVariantes"), app.variantes);
 }
 
+// Selector segmentado Motions · Título de la subida.
+function montarSegmentadoEstilo(caja, alCambiar) {
+  caja.innerHTML = Object.entries(ESTILOS).map(([clave, e]) =>
+    `<button type="button" role="radio" class="segmentado__opcion" data-valor="${clave}" aria-checked="false">${ICONO["estilo_" + clave]}${e.corto}</button>`).join("");
+  caja.addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-valor]");
+    if (!b || b.disabled) return;
+    fijarSegmentado(caja, b.dataset.valor);
+    alCambiar(b.dataset.valor);
+  });
+}
+
+function pintarEstiloSubida() {
+  if (!app.estiloTocado) {
+    const porDefecto = normalizarEstilo(app.estado?.ajustes?.estilo);
+    if (porDefecto !== app.estilo) { app.estilo = porDefecto; pintarSeleccion(); }
+  }
+  fijarSegmentado($("#selectEstilo"), app.estilo);
+}
+
 // ---------------------------------------------------------
 // Cola
 // ---------------------------------------------------------
@@ -357,6 +400,7 @@ function crearTarjetaCola(item) {
       <div class="cola__fila">
         <span class="cola__nombre"></span>
         <span class="cola__perfil"></span>
+        <span class="cola__estilo"></span>
         <span class="chip chip--acento cola__variantes" hidden></span>
       </div>
       <div class="cola__fila cola__progreso">
@@ -403,6 +447,12 @@ function actualizarTarjetaCola(el, item, posicion) {
   el.querySelector(".cola__nombre").textContent = item.nombre;
   el.querySelector(".cola__nombre").title = item.nombre;
   el.querySelector(".cola__perfil").textContent = `Perfil ${item.perfil}`;
+  const estiloItem = normalizarEstilo(item.estilo);
+  const cajaEstilo = el.querySelector(".cola__estilo");
+  if (cajaEstilo.dataset.estilo !== estiloItem) {
+    cajaEstilo.dataset.estilo = estiloItem;
+    cajaEstilo.innerHTML = htmlChipEstilo(estiloItem);
+  }
   const nVar = limitarVariantes(item.variantes ?? 1);
   const chipVar = el.querySelector(".cola__variantes");
   chipVar.hidden = nVar <= 1;
@@ -540,7 +590,7 @@ function htmlTarjetaResultado(item) {
     </button>
     <div class="resultado__cuerpo">
       <div class="resultado__nombre" title="${escapar(item.nombre)}">${escapar(item.nombre)}</div>
-      <div class="resultado__meta"><span>Perfil ${escapar(item.perfil)}</span><span>·</span><span>${escapar(haceCuanto(item.terminado || item.creado))}</span></div>
+      <div class="resultado__meta">${htmlChipEstilo(item.estilo)}<span class="resultado__meta-texto">Perfil ${escapar(item.perfil)} · ${escapar(haceCuanto(item.terminado || item.creado))}</span></div>
       ${htmlAvisos(item.avisos)}
       <div class="resultado__acciones">
         <button class="boton boton--secundario boton--pequeno" type="button" data-ver="${escapar(item.id)}">${ICONO.ojo}Ver</button>
@@ -556,7 +606,7 @@ function pintarResultados() {
   const elementos = items.map((item) => {
     vivos.add(item.id);
     // Firma: si no cambia, no se toca la tarjeta (se conserva el desplegable abierto).
-    const firma = [item.estado, item.veredicto, item.duracion_s, item.tiene_portada, item.terminado, (item.avisos || []).join("¦"), item.nombre, versionesDe(item).length].join("|");
+    const firma = [item.estado, item.veredicto, item.duracion_s, item.tiene_portada, item.terminado, (item.avisos || []).join("¦"), item.nombre, versionesDe(item).length, normalizarEstilo(item.estilo)].join("|");
     let el = app.tarjetasResultado.get(item.id);
     if (!el) {
       el = document.createElement("article");
@@ -650,6 +700,7 @@ function pintarInfoModal(forzar = false) {
   const datos = [
     ["Duración", formatearDuracion(activa ? activa.duracion_s : item.duracion_s)],
     ["Perfil", item.perfil],
+    ["Estilo", ESTILOS[normalizarEstilo(item.estilo)].largo],
     ["Terminado", item.terminado ? `${fecha(item.terminado).toLocaleDateString("es-ES", { day: "numeric", month: "short" })}, ${hora(item.terminado)}` : "—"],
     ["Guardado en", (activa ? activa.salida : null) || item.salida || "Pendiente de carpeta"],
   ];
@@ -755,7 +806,7 @@ function pintarSeleccion() {
   $("#contadorSeleccion").textContent = `${n} / ${MAX_ARCHIVOS}`;
   $("#botonEditar").disabled = n === 0 || app.subiendo;
   const v = app.variantes;
-  const sufijo = v > 1 ? ` · ${v} versiones${n > 1 ? " c/u" : ""}` : "";
+  const sufijo = ` · ${ESTILOS[app.estilo].boton}` + (v > 1 ? ` · ${v} versiones${n > 1 ? " c/u" : ""}` : "");
   $("#botonEditarTexto").textContent = app.subiendo
     ? "Subiendo…"
     : n === 0 ? "Editar vídeos" : `Editar ${n} ${n === 1 ? "vídeo" : "vídeos"}${sufijo}`;
@@ -794,6 +845,11 @@ montarSegmentado($("#selectVariantes"), (valor) => {
   app.variantesTocado = true;
   pintarSeleccion();
 });
+montarSegmentadoEstilo($("#selectEstilo"), (valor) => {
+  app.estilo = normalizarEstilo(valor);
+  app.estiloTocado = true;
+  pintarSeleccion();
+});
 
 function mostrarProgresoSubida(pct, texto) {
   $("#progresoSubida").hidden = false;
@@ -808,6 +864,7 @@ function subir() {
   const datos = new FormData();
   datos.append("perfil", perfil);
   datos.append("variantes", String(app.variantes));
+  datos.append("estilo", app.estilo);
   app.seleccion.forEach((f) => datos.append("archivos", f, f.name));
 
   const total = app.seleccion.reduce((s, f) => s + f.size, 0);
@@ -867,7 +924,7 @@ async function abrirAjustes() {
   let ajustes = app.estado?.ajustes;
   try { ajustes = await pedir("/api/ajustes"); } catch (_) { /* usamos los del estado */ }
   if (!app.ajustesAbiertos) return;
-  ajustes = ajustes || { carpeta_salida: null, perfil_por_defecto: "", limite_diario: 10, variantes: 1 };
+  ajustes = ajustes || { carpeta_salida: null, perfil_por_defecto: "", limite_diario: 10, variantes: 1, estilo: "motions" };
 
   app.carpetaBorrador = ajustes.carpeta_salida || null;
   pintarRuta(app.carpetaBorrador);
@@ -876,9 +933,19 @@ async function abrirAjustes() {
   $("#ajusteLimite").value = ajustes.limite_diario ?? "";
   app.variantesBorrador = limitarVariantes(ajustes.variantes ?? 1);
   fijarSegmentado($("#ajusteVariantes"), app.variantesBorrador);
+  app.estiloBorrador = normalizarEstilo(ajustes.estilo);
+  fijarSegmentado($("#ajusteEstilo"), app.estiloBorrador);
 }
 
 montarSegmentado($("#ajusteVariantes"), (valor) => { app.variantesBorrador = valor; });
+
+// Tarjetas de estilo (su HTML ya viene en index.html; fijarSegmentado marca la activa).
+$("#ajusteEstilo").addEventListener("click", (ev) => {
+  const b = ev.target.closest("[data-valor]");
+  if (!b) return;
+  app.estiloBorrador = normalizarEstilo(b.dataset.valor);
+  fijarSegmentado($("#ajusteEstilo"), app.estiloBorrador);
+});
 
 function cerrarAjustes() {
   app.ajustesAbiertos = false;
@@ -921,6 +988,7 @@ $("#botonGuardarAjustes").addEventListener("click", async (ev) => {
     perfil_por_defecto: $("#ajustePerfil").value,
     limite_diario: limite,
     variantes: app.variantesBorrador,
+    estilo: app.estiloBorrador,
   };
   const boton = ev.currentTarget;
   boton.disabled = true;
@@ -929,6 +997,7 @@ $("#botonGuardarAjustes").addEventListener("click", async (ev) => {
     if (app.estado && guardados) app.estado.ajustes = guardados;
     app.perfilTocado = false;
     app.variantesTocado = false;
+    app.estiloTocado = false;
     toast("Ajustes guardados", "ok");
     cerrarAjustes();
     sondear();

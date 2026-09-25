@@ -28,7 +28,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ / "pipeline"))
 sys.path.insert(0, str(RAIZ / "autopilot"))
-from decidir import LimiteDeUso, decidir_cortes, decidir_graficos, decidir_version_corta  # noqa: E402,F401
+from decidir import LimiteDeUso, decidir_cortes, decidir_graficos, decidir_titulo, decidir_version_corta  # noqa: E402,F401
 from perfil import cargar  # noqa: E402
 
 BASE = Path.home() / "VideoAutopilot"
@@ -90,11 +90,14 @@ def texto_ventanas(layout: dict, palabras: list[dict]) -> str:
     return "\n".join(lineas)
 
 
-def construir_graficos(dec: dict, layout: dict) -> tuple[list[dict], list[str]]:
+STICKER_Y = {"motions": 470, "titulo": 760}  # en «título», junto a la cara bajo la franja
+
+
+def construir_graficos(dec: dict, layout: dict, sticker_y: int = 470) -> tuple[list[dict], list[str]]:
     """Convierte la respuesta de Claude en graficos.json: ventana -> tiempos; stickers ajustados a su ventana full."""
     vs, graficos, notas = layout["ventanas"], [], []
     usadas = set()
-    for g in dec["graficos"]:
+    for g in dec.get("graficos", []):
         i = g["ventana"]
         if not 0 <= i < len(vs) or i in usadas:
             notas.append(f"gráfico descartado: ventana {i} inexistente o repetida")
@@ -109,13 +112,19 @@ def construir_graficos(dec: dict, layout: dict) -> tuple[list[dict], list[str]]:
     fin_previo = -1.0
     for j, s in enumerate(sorted(dec["stickers"], key=lambda s: s["inicio"])):
         v = next((w for w in vs if w["inicio"] <= s["inicio"] < w["fin"]), None)
-        if not v or v["tipo"] != "full" or v.get("motivo") == "cta" or s["inicio"] < fin_previo:
-            notas.append(f"sticker {s['icono']} a {s['inicio']:.2f}s descartado (fuera de una ventana full o solapado)")
+        if not v or v["tipo"] not in ("full", "banda") or v.get("motivo") == "cta" or s["inicio"] < fin_previo:
+            notas.append(f"sticker {s.get('icono') or s.get('archivo')} a {s['inicio']:.2f}s descartado (fuera de ventana o solapado)")
             continue
         dur = round(min(s["duracion"], v["fin"] - s["inicio"] - 0.02, 1.4), 3)
         if dur < 0.45:
             continue
-        datos = {"icono": s["icono"], "lado": s["lado"], "rotulo": s["rotulo"], "t_aterrizaje": min(0.25, dur - 0.2)}
+        datos = {"lado": s["lado"], "rotulo": s.get("rotulo", ""), "t_aterrizaje": min(0.25, dur - 0.2), "y": sticker_y}
+        if s.get("archivo"):
+            datos["archivo"] = s["archivo"]
+        elif s.get("icono"):
+            datos["icono"] = s["icono"]
+        else:
+            continue
         if s.get("sonido"):
             datos["sonido"] = s["sonido"]
         graficos.append({"id": f"s{j:02d}", "plantilla": "sticker", "inicio": s["inicio"], "duracion": dur, "datos": datos})
@@ -209,6 +218,7 @@ def montar(t: Path, fuente: Path, trans_ruta: Path, corr_ruta: Path, caras: Path
     corr = json.loads(corr_ruta.read_text())
     edl = json.loads((edit / "edl.json").read_text())
     titular = opciones.get("titular") or cortes["titular_gancho"]
+    estilo_edicion = opciones.get("estilo", "motions")
 
     prog("cara_y_layout", "Encuadre y alternancia split/full")
     extra = []
@@ -216,6 +226,7 @@ def montar(t: Path, fuente: Path, trans_ruta: Path, corr_ruta: Path, caras: Path
         extra += ["--proporcion-split", str(opciones["proporcion_split"])]
     paso(RAIZ / "pipeline/planificar_layout.py", "--edl", edit / "edl.json", "--transcripcion", corr_ruta,
          "--caras", caras, "--perfil", perfil_dir, "--punch-inicio", str(opciones.get("punch_inicio", 0)),
+         "--estilo", estilo_edicion,
          *extra, "-o", edit / "layout.json")
     layout = json.loads((edit / "layout.json").read_text())
 
@@ -223,10 +234,23 @@ def montar(t: Path, fuente: Path, trans_ruta: Path, corr_ruta: Path, caras: Path
     from planificar_layout import palabras_en_salida
     ventanas_txt = texto_ventanas(layout, palabras_en_salida(edl, corr))
     errores, fallos = "", []
+    titulo_video = {}
     for _ in range(2):
-        dec = decidir_graficos(ventanas_txt, perfil, perfil_dir, titular, cortes["palabra_cta"], uso_claude,
-                               errores, opciones.get("evitar", ""))
-        graficos, notas = construir_graficos(dec, layout)
+        if estilo_edicion == "titulo":
+            dec = decidir_titulo(ventanas_txt, perfil, perfil_dir, cortes["palabra_cta"], uso_claude, errores,
+                                 opciones.get("evitar", ""))
+            titulo_video = {"titulo": con_glosario(opciones.get("titulo") or dec["titulo"], perfil_dir, perfil.identidad.idioma),
+                            "destacado": dec["destacado"],
+                            "alternativos": [con_glosario(x, perfil_dir, perfil.identidad.idioma) for x in dec["titulos_alternativos"]]}
+            if opciones.get("titulo"):  # variante: su título manda; el destacado se ajusta a él
+                titulo_video["destacado"] = titulo_video["titulo"].split()[-1]
+            ult = len(layout["ventanas"]) - 1
+            dec = {"graficos": ([{"ventana": ult, "plantilla": "cta", "datos": {**dec["cta"], "t_aterrizaje": 0.8}}]
+                                if dec.get("cta") else []), "stickers": dec["stickers"]}
+        else:
+            dec = decidir_graficos(ventanas_txt, perfil, perfil_dir, titular, cortes["palabra_cta"], uso_claude,
+                                   errores, opciones.get("evitar", ""))
+        graficos, notas = construir_graficos(dec, layout, STICKER_Y[estilo_edicion])
         for g in graficos:  # el gancho de cada versión es el suyo (Claude solo lo recibe como sugerencia)
             if g["plantilla"] == "gancho":
                 g["datos"]["titular"] = titular
@@ -241,11 +265,12 @@ def montar(t: Path, fuente: Path, trans_ruta: Path, corr_ruta: Path, caras: Path
     graficos = [respaldo(g, "no pasó la validación") if g["id"] in malos and g["plantilla"] != "sticker" else g
                 for g in graficos if not (g["id"] in malos and g["plantilla"] == "sticker")]
     con_grafico = {g["id"] for g in graficos}
-    for i, v in enumerate(layout["ventanas"]):  # toda ventana split lleva algo
+    for i, v in enumerate(layout["ventanas"]):  # toda ventana split lleva algo (en «título» no hay splits)
         if v["tipo"] == "split" and f"v{i:02d}" not in con_grafico:
             graficos.append(respaldo({"id": f"v{i:02d}", "inicio": v["inicio"], "duracion": round(v["fin"] - v["inicio"], 3)},
                                      "ventana sin gráfico"))
-    (edit / "graficos.json").write_text(json.dumps({"graficos": graficos, "notas": notas}, ensure_ascii=False, indent=1))
+    (edit / "graficos.json").write_text(json.dumps({"graficos": graficos, "notas": notas, **titulo_video},
+                                                   ensure_ascii=False, indent=1))
 
     prog("renderizando_graficos", f"{len(graficos)} gráficos")
     paso(RAIZ / "pipeline/render_plantillas.py", edit / "graficos.json", "--perfil", perfil_dir, "--edit", edit,
@@ -253,10 +278,12 @@ def montar(t: Path, fuente: Path, trans_ruta: Path, corr_ruta: Path, caras: Path
 
     prog("montaje", "Subtítulos, capas y composición")
     estilo = opciones.get("estilo_subtitulos")
+    extra_subs = (["--basico", "--titulo", titulo_video["titulo"], "--destacado", titulo_video["destacado"]]
+                  if estilo_edicion == "titulo" else [])
     paso(RAIZ / "pipeline/subtitulos_ass.py", "--edl", edit / "edl.json", "--transcripcion", corr_ruta,
          "--layout", edit / "layout.json", "--perfil", perfil_dir, *(["--estilo", estilo] if estilo else []),
-         "-o", edit / "subtitulos.ass")
-    dens = opciones.get("densidad_sfx")
+         *extra_subs, "-o", edit / "subtitulos.ass")
+    dens = opciones.get("densidad_sfx") or ("alta" if estilo_edicion == "titulo" else None)  # «título»: SFX muy frecuentes
     paso(RAIZ / "pipeline/planificar_sfx.py", "--layout", edit / "layout.json", "--graficos", edit / "graficos.json",
          "--perfil", perfil_dir, "--edl", edit / "edl.json", "--transcripcion", corr_ruta, "--semilla", t.name,
          *(["--densidad", dens] if dens else []), "-o", edit / "sfx_timeline.json")
@@ -274,7 +301,9 @@ def montar(t: Path, fuente: Path, trans_ruta: Path, corr_ruta: Path, caras: Path
     paso(RAIZ / "pipeline/exportar.py", "--video", edit / "compuesto.mp4", "--audio", edit / "mezcla.wav",
          "--edl", edit / "edl.json", "--transcripcion", corr_ruta, "--graficos", edit / "graficos.json",
          "--perfil", perfil_dir, "--sufijo", opciones.get("sufijo", ""),
-         *(["--nombre-base", opciones["nombre_base"]] if opciones.get("nombre_base") else []), "-o", t / "salida")
+         *(["--nombre-base", opciones.get("nombre_base") or (time.strftime("%Y%m%d") + "_" + perfil_dir.name + "_"
+                                                             + slug(titulo_video["titulo"]))]
+           if opciones.get("nombre_base") or titulo_video else []), "-o", t / "salida")
     salida_qa = paso(RAIZ / "pipeline/qa.py", "--trabajo", t, "--perfil", perfil_dir, "--sin-limpieza")
     veredicto = "REVISAR" if "REVISAR" in salida_qa.splitlines()[0] else "LISTO"
     entregado = Path(salida_qa.strip().splitlines()[-1].split("entregado: ", 1)[-1])
@@ -283,7 +312,9 @@ def montar(t: Path, fuente: Path, trans_ruta: Path, corr_ruta: Path, caras: Path
     return {"veredicto": veredicto, "final": entregado, "portada": t / "salida" / "portada.jpg",
             "avisos": [l[4:].strip() for l in informe.splitlines() if l.startswith("- ⚠️")],
             "duracion_s": json.loads((edit / "edl.json").read_text())["total_duration_s"],
-            "titular": titular, "estilo_subtitulos": estilo or perfil.subtitulos.estilo_por_defecto,
+            "titular": titulo_video.get("titulo") or titular, "estilo_edicion": estilo_edicion,
+            "titulos_alternativos": titulo_video.get("alternativos", []),
+            "estilo_subtitulos": estilo or perfil.subtitulos.estilo_por_defecto,
             "estado_musica": estado_musica, "pista": musica.get("archivo"),
             "densidad_sfx": dens or perfil.audio.densidad_sfx,
             "graficos": len([g for g in graficos if g["plantilla"] != "sticker"]),
@@ -293,7 +324,7 @@ def montar(t: Path, fuente: Path, trans_ruta: Path, corr_ruta: Path, caras: Path
 # ---------- flujo ----------
 
 def editar(video: Path, perfil_dir: Path, carpeta_salida: Path | None = None, avisar=None,
-           mover_original: bool = False, concurrencia: int = 2, variantes: int = 1) -> dict:
+           mover_original: bool = False, concurrencia: int = 2, variantes: int = 1, estilo: str = "motions") -> dict:
     from qa import limpiar_trabajo
     perfil = cargar(perfil_dir)
     inicio_total = time.time()
@@ -304,7 +335,9 @@ def editar(video: Path, perfil_dir: Path, carpeta_salida: Path | None = None, av
     prog = Progreso(trabajo, avisar)
     prog.total = variantes
     uso_claude: list = []
-    resumen = {"trabajo": str(trabajo), "video": video.name, "perfil": perfil_dir.name, "variantes_pedidas": variantes}
+    estilo = estilo if estilo in ("motions", "titulo") else "motions"
+    resumen = {"trabajo": str(trabajo), "video": video.name, "perfil": perfil_dir.name, "variantes_pedidas": variantes,
+               "estilo_edicion": estilo}
 
     # 1) Original: se mueve (nunca se copia ni se borra) a trabajos/<id>/original/.
     prog("normalizando", "Preparando la copia de trabajo")
@@ -357,12 +390,17 @@ def editar(video: Path, perfil_dir: Path, carpeta_salida: Path | None = None, av
     sufijo = "_V1" if variantes > 1 else ""
     versiones = [{"variante": "V1" if variantes > 1 else "", "cambios": "edición base",
                   **montar(trabajo, fuente, trans_ruta, corr_ruta, edit / "caras.json", perfil_dir, perfil, cortes,
-                           prog, uso_claude, concurrencia, {"sufijo": sufijo})}]
+                           prog, uso_claude, concurrencia, {"sufijo": sufijo, "estilo": estilo})}]
 
     # 5) Variantes creativas V2…Vn (reutilizan transcripción, EDL y cara; nunca re-transcriben).
     for k in range(2, variantes + 1):
         prog.version = k
         plan = plan_variante(k, perfil, cortes)
+        plan["estilo"] = estilo
+        if estilo == "titulo":  # en «título» la variante cambia el título en vez del gancho
+            alts = versiones[0].get("titulos_alternativos") or [versiones[0]["titular"]]
+            plan["titulo"] = alts[(k - 2) % len(alts)]
+            plan["titular"] = plan["titulo"]
         t = trabajo / "variantes" / f"V{k}"
         (t / "edit").mkdir(parents=True, exist_ok=True)
         if plan["corta"]:
@@ -393,7 +431,7 @@ def editar(video: Path, perfil_dir: Path, carpeta_salida: Path | None = None, av
         plan.update(sufijo=f"_V{k}", evitar=resumen_graficos(edit), nombre_base=nombre_base)
         r = montar(t, fuente, trans_ruta, corr_ruta, edit / "caras.json", perfil_dir, perfil, cortes, prog,
                    uso_claude, concurrencia, plan)
-        cambios = [f"gancho «{plan['titular']}»", f"subtítulos {plan['estilo_subtitulos']}",
+        cambios = [f"{'título' if estilo == 'titulo' else 'gancho'} «{plan['titular']}»", f"subtítulos {plan['estilo_subtitulos']}",
                    f"música {plan['estado_musica']}", f"SFX {plan['densidad_sfx']}",
                    "zoom invertido" if plan["punch_inicio"] else "zoom base", "gráficos distintos"]
         if plan.get("proporcion_split"):
@@ -455,11 +493,13 @@ def main() -> None:
     ap.add_argument("--perfil", type=Path, required=True)
     ap.add_argument("--salida", type=Path, help="carpeta donde copiar el vídeo final")
     ap.add_argument("--variantes", type=int, default=1, help="1 = solo la edición; 2–6 = variantes creativas A/B")
+    ap.add_argument("--estilo", choices=["motions", "titulo"], default="motions",
+                    help="motions = motion graphics en split; titulo = título fijo arriba, stickers y subtítulos básicos")
     ap.add_argument("--mover-original", action="store_true")
     args = ap.parse_args()
     r = editar(args.video, args.perfil, args.salida,
                avisar=lambda e: print(f"[{e['progreso']:3d}%] {e['etapa']}: {e['mensaje']}", flush=True),
-               mover_original=args.mover_original, variantes=args.variantes)
+               mover_original=args.mover_original, variantes=args.variantes, estilo=args.estilo)
     print(json.dumps({k: r[k] for k in ("veredicto", "final", "salida_usuario", "duracion_ejecucion_s",
                                         "coste_claude_estimado_usd", "modelos_claude", "avisos", "versiones")},
                      ensure_ascii=False, indent=1))

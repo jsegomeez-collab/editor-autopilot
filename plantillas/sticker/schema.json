@@ -4,14 +4,58 @@
   "description": "Icono pequeño con glow que salta junto a la cara en ventanas FULL al decir una palabra clave.",
   "formato": "pantalla",
   "type": "object",
-  "required": ["icono", "t_aterrizaje"],
+  "required": [
+    "t_aterrizaje"
+  ],
   "additionalProperties": false,
   "properties": {
-    "icono": { "type": "string" },
-    "lado": { "enum": ["izquierda", "derecha"] },
-    "rotulo": { "type": "string", "maxPalabras": 2 },
-    "sonido": { "type": "string" },
-    "t_aterrizaje": { "type": "number", "minimum": 0 }
+    "icono": {
+      "type": "string"
+    },
+    "lado": {
+      "enum": [
+        "izquierda",
+        "derecha"
+      ]
+    },
+    "rotulo": {
+      "type": "string",
+      "maxPalabras": 2
+    },
+    "sonido": {
+      "type": "string"
+    },
+    "t_aterrizaje": {
+      "type": "number",
+      "minimum": 0
+    },
+    "archivo": {
+      "type": "string",
+      "description": "Imagen del catálogo del perfil (en vez de icono)"
+    },
+    "y": {
+      "type": "number",
+      "minimum": 230,
+      "maximum": 1300,
+      "description": "Altura del sticker en px (por defecto 470)"
+    }
   },
-  "ejemplo": { "icono": "rocket", "lado": "derecha", "rotulo": "nivel", "t_aterrizaje": 0.25 }
+  "ejemplo": {
+    "icono": "rocket",
+    "lado": "derecha",
+    "rotulo": "nivel",
+    "t_aterrizaje": 0.25
+  },
+  "anyOf": [
+    {
+      "required": [
+        "icono"
+      ]
+    },
+    {
+      "required": [
+        "archivo"
+      ]
+    }
+  ]
 }

@@ -51,6 +51,7 @@ def publico(it: dict) -> dict:
     d = {k: it.get(k) for k in CAMPOS_PUBLICOS}
     d["tiene_portada"] = bool(it.get("portada") and Path(it["portada"]).exists())
     d["variantes"] = it.get("variantes") or 1
+    d["estilo"] = it.get("estilo") or "motions"
     d["versiones"] = [{"indice": k, "variante": v["variante"], "veredicto": v["veredicto"],
                        "duracion_s": v["duracion_s"], "cambios": v["cambios"], "salida": v.get("salida_usuario")}
                       for k, v in enumerate(it.get("versiones") or [])]
@@ -69,7 +70,8 @@ def estado() -> dict:
 
 
 @app.post("/api/subir")
-async def subir(perfil: str = Form(...), archivos: list[UploadFile] = File(...), variantes: int | None = Form(None)) -> dict:
+async def subir(perfil: str = Form(...), archivos: list[UploadFile] = File(...), variantes: int | None = Form(None),
+                estilo: str | None = Form(None)) -> dict:
     if perfil not in perfiles():
         raise HTTPException(400, f"perfil desconocido: {perfil}")
     carpeta = BASE / "entrada" / perfil
@@ -94,10 +96,12 @@ async def subir(perfil: str = Form(...), archivos: list[UploadFile] = File(...),
             destino.unlink()  # la copia recién subida sobra: el mismo vídeo ya está en la cola (el original no se toca)
             duplicados.append(nombre)
         else:
-            if variantes:
-                with cola.cerrojo:
+            with cola.cerrojo:
+                if variantes:
                     it["variantes"] = max(1, min(6, variantes))
-                    cola._guardar()
+                if estilo in ("motions", "titulo"):
+                    it["estilo"] = estilo
+                cola._guardar()
             anadidos.append(it["id"])
     return {"añadidos": anadidos, "duplicados": duplicados}
 

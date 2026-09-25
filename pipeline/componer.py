@@ -9,6 +9,7 @@ El layout se aplica con tres cadenas que avanzan a la vez sobre una sola decodif
   full   : recorte 9:16 (x,y variables por ventana, tamaño fijo) -> 1080x1920
   punch  : recorte 9:16 con zoom 1,12 -> 1080x1920, visible solo en ventanas con zoom
   split  : recorte 9:8 de la cara -> panel inferior 1080x960 sobre el color de fondo
+  banda  : estilo «título»: franja superior de 520 px con el título y la cámara debajo
 Cada cadena tiene un recorte de tamaño fijo y posición por ventana, así no hay que
 trocear el vídeo en N ramas (lo que obligaría a ffmpeg a acumular frames en memoria).
 
@@ -28,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from perfil import cargar  # noqa: E402
 
 W, H, PANEL_H = 1080, 1920, 960
+BANDA_H = 520  # estilo «título»: franja superior con el título (la zona segura acaba en 220)
 FADE_AUDIO = 0.03
 DESTELLO_S = (0.08, 0.22)  # subida y bajada del destello
 COLOR_DESTELLO = "0xFFE3A3"
@@ -87,36 +89,37 @@ def activo(ventanas: list[dict]) -> str:
     return "+".join(f"between(t,{v['inicio']:.3f},{v['fin'] - 0.001:.3f})" for v in ventanas) or "0"
 
 
-def filtro_layout(layout: dict, fondo: str) -> tuple[str, str]:
-    """Devuelve (filtergraph, etiqueta de salida) para el layout sobre [0:v]."""
-    vs = layout["ventanas"]
-    full = [v for v in vs if v["tipo"] == "full" and v["zoom"] == 1.0]
-    punch = [v for v in vs if v["tipo"] == "full" and v["zoom"] != 1.0]
-    split = [v for v in vs if v["tipo"] == "split"]
-    partes, n = [], 1 + bool(punch) + bool(split)
-    partes.append(f"[0:v]split={n}" + "".join(f"[c{i}]" for i in range(n)))
+def filtro_layout(layout: dict, fondo: str, fps: float = 30) -> tuple[str, str]:
+    """Devuelve (filtergraph, etiqueta de salida) para el layout sobre [0:v].
 
-    def cadena(entrada: str, grupo: list[dict], salida: str, destino: tuple[int, int], extra: str = "") -> None:
+    Un grupo por tipo de ventana (recorte de tamaño fijo, posición por ventana):
+      full / full con zoom  -> 1080x1920
+      split                 -> cara en el panel inferior 1080x960 sobre el color de marca
+      banda / banda con zoom-> estilo «título»: cámara en 1080x(1920-BANDA_H) bajo la franja del título
+    """
+    vs = layout["ventanas"]
+    alto_banda = layout.get("banda_h", BANDA_H)
+    grupos = [  # (ventanas, destino WxH, extra tras escalar)
+        ([v for v in vs if v["tipo"] == "full" and v["zoom"] == 1.0], (W, H), ""),
+        ([v for v in vs if v["tipo"] == "full" and v["zoom"] != 1.0], (W, H), ""),
+        ([v for v in vs if v["tipo"] == "split"], (W, PANEL_H), f",pad={W}:{H}:0:{PANEL_H}:color={fondo}"),
+        ([v for v in vs if v["tipo"] == "banda" and v["zoom"] == 1.0], (W, H - alto_banda),
+         f",pad={W}:{H}:0:{alto_banda}:color={fondo}"),
+        ([v for v in vs if v["tipo"] == "banda" and v["zoom"] != 1.0], (W, H - alto_banda),
+         f",pad={W}:{H}:0:{alto_banda}:color={fondo}"),
+    ]
+    grupos = [g for g in grupos if g[0]]
+    partes = [f"[0:v]split={len(grupos)}" + "".join(f"[c{i}]" for i in range(len(grupos)))]
+    # Lienzo del color de marca debajo de todo (cubre cualquier hueco).
+    partes.append(f"color=c={fondo}:s={W}x{H}:r={fps:g},format=yuv420p[lienzo]")
+    actual = "lienzo"
+    for i, (grupo, destino, extra) in enumerate(grupos):
         cw, ch = grupo[0]["recorte"][2], grupo[0]["recorte"][3]
         x = por_ventana(grupo, lambda v: v["recorte"][0], grupo[0]["recorte"][0])
         y = por_ventana(grupo, lambda v: v["recorte"][1], grupo[0]["recorte"][1])
-        partes.append(f"[{entrada}]crop=w={cw}:h={ch}:x='{x}':y='{y}',"
-                      f"scale={destino[0]}:{destino[1]}:flags=lanczos,setsar=1{extra}[{salida}]")
-
-    base_grupo = full or punch or split
-    if base_grupo is split:
-        # Sin ventanas full: el fondo es un lienzo del color de marca.
-        partes.append(f"color=c={fondo}:s={W}x{H}:r=30,format=yuv420p[fullv];[c0]nullsink")
-    else:
-        cadena("c0", full or punch, "fullv", (W, H))
-    actual, i = "fullv", 1
-    if punch and full:
-        cadena(f"c{i}", punch, "punchv", (W, H))
-        partes.append(f"[{actual}][punchv]overlay=0:0:enable='{activo(punch)}'[l{i}]")
-        actual, i = f"l{i}", i + 1
-    if split:
-        cadena(f"c{i}", split, "carav", (W, PANEL_H), f",pad={W}:{H}:0:{PANEL_H}:color={fondo}")
-        partes.append(f"[{actual}][carav]overlay=0:0:enable='{activo(split)}'[l{i}]")
+        partes.append(f"[c{i}]crop=w={cw}:h={ch}:x='{x}':y='{y}',"
+                      f"scale={destino[0]}:{destino[1]}:flags=lanczos,setsar=1{extra}[g{i}]")
+        partes.append(f"[{actual}][g{i}]overlay=0:0:shortest=1:enable='{activo(grupo)}'[l{i}]")
         actual = f"l{i}"
     return ";".join(partes), actual
 
@@ -158,7 +161,7 @@ def componer(edl: dict, layout: dict, perfil_dir: Path, trabajo: Path, salida: P
     duracion = layout["duracion"]
 
     fondo = "0x" + perfil.colores.fondo.lstrip("#")
-    grafo, actual = filtro_layout(layout, fondo)
+    grafo, actual = filtro_layout(layout, fondo, fps)
     g_dest, actual = filtro_destellos(layout, actual, duracion)
     entradas = ["-i", str(base)]
     overlays = overlays or []

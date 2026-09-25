@@ -39,6 +39,7 @@ from perfil import Perfil, cargar  # noqa: E402
 
 SALIDA_W, SALIDA_H = 1080, 1920
 PANEL_H = 960
+BANDA_H = 520  # estilo «título»: franja superior con el título; la cámara ocupa 1080x1400 debajo
 ZOOM_PUNCH = 1.12
 FIN_FRASE = re.compile(r"[.?!…]»?$")
 PISTAS_VISUALES = re.compile(
@@ -156,7 +157,15 @@ def recorte_estatico(caras: dict, edl: dict, ini: float, fin: float, tipo: str, 
     ojos_y = statistics.median((m["ojos"][0][1] + m["ojos"][1][1]) / 2 for m in ms)
     barbilla = statistics.median(m["caja"][1] + m["caja"][3] for m in ms)
     W, H = caras["ancho"], caras["alto"]
-    if tipo == "split":
+    if tipo == "banda":
+        # Cámara en 1080x1400 bajo la franja del título; ojos al 30 % de esa zona.
+        alto_zona = SALIDA_H - BANDA_H
+        w = min(W, H * SALIDA_W / alto_zona) / zoom
+        h = w * alto_zona / SALIDA_W
+        y = ojos_y - h * 0.30
+        escala = h / alto_zona
+        y = max(y, barbilla - (alto_zona - zona_inferior - MARGEN_ZONA) * escala)
+    elif tipo == "split":
         # Panel 1080x960 (9:8). Con fuente vertical: ancho completo, ojos a 1/3 del panel.
         w = min(W, H * 9 / 8) / zoom
         h = w * 8 / 9
@@ -194,8 +203,40 @@ def inicio_cta(ws: list[dict], cands: list[dict], duracion: float) -> float:
     return max(0.0, duracion - 3.0)
 
 
+def planificar_titulo(edl: dict, ws: list[dict], cands: list[dict], caras: dict, perfil: Perfil,
+                      punch_inicio: int = 0) -> dict:
+    """Estilo «título»: todo el vídeo en banda (título arriba, cámara abajo). El cambio visual lo dan
+    los zooms alternos en cada límite (ventanas de full_s del perfil) y los stickers."""
+    duracion = round(edl["total_duration_s"], 3)
+    v = perfil.layout.ventanas
+    t_cta = inicio_cta(ws, cands, duracion)
+    ventanas, t, k = [], 0.0, punch_inicio
+    while t < t_cta - 0.05:
+        fin = siguiente_fin(cands, t, v.full_s, t_cta)
+        ventanas.append({"inicio": t, "fin": fin, "tipo": "banda", "motivo": "titulo",
+                         "zoom": ZOOM_PUNCH if k % 2 else 1.0})
+        t, k = fin, k + 1
+    ventanas.append({"inicio": t_cta, "fin": duracion, "tipo": "banda", "motivo": "cta",
+                     "zoom": ZOOM_PUNCH if k % 2 else 1.0})
+    avisos = []
+    for w in ventanas:
+        w["inicio"], w["fin"] = round(w["inicio"], 3), round(w["fin"], 3)
+        rec = recorte_estatico(caras, edl, w["inicio"], w["fin"], "banda", w["zoom"], perfil.zonas_seguras.inferior)
+        if rec is None:
+            avisos.append(f"{w['inicio']:.2f}-{w['fin']:.2f}s: sin cara, recorte centrado")
+            alto = SALIDA_H - BANDA_H
+            rec = [0, int((caras["alto"] - alto) / 2) // 2 * 2, caras["ancho"] // 2 * 2, alto]
+        w["recorte"] = rec
+        w["destello"] = False
+    return {"ancho": SALIDA_W, "alto": SALIDA_H, "duracion": duracion, "fin_gancho": 0.0, "estilo": "titulo",
+            "banda_h": BANDA_H, "ventanas": ventanas, "avisos": avisos}
+
+
 def planificar(edl: dict, transcripcion: dict, caras: dict, perfil: Perfil, momentos: list[dict] | None,
-               proporcion_split: float | None = None, punch_inicio: int = 0) -> dict:
+               proporcion_split: float | None = None, punch_inicio: int = 0, estilo: str = "motions") -> dict:
+    if estilo == "titulo":
+        ws = palabras_en_salida(edl, transcripcion)
+        return planificar_titulo(edl, ws, limites(ws, cortes_edl(edl)), caras, perfil, punch_inicio)
     if proporcion_split is not None:  # variantes: más o menos cámara
         perfil.layout.ventanas.proporcion_split = proporcion_split
     ws = palabras_en_salida(edl, transcripcion)
@@ -312,12 +353,13 @@ def main() -> None:
     ap.add_argument("--momentos", type=Path)
     ap.add_argument("--proporcion-split", type=float, help="sustituye la del perfil (variantes)")
     ap.add_argument("--punch-inicio", type=int, default=0, choices=[0, 1], help="1 = el primer full va con zoom")
+    ap.add_argument("--estilo", choices=["motions", "titulo"], default="motions", help="estilo de edición")
     ap.add_argument("-o", "--salida", type=Path, required=True)
     args = ap.parse_args()
     leer = lambda p: json.loads(p.read_text(encoding="utf-8"))  # noqa: E731
     momentos = leer(args.momentos)["momentos"] if args.momentos else None
     plan = planificar(leer(args.edl), leer(args.transcripcion), leer(args.caras), cargar(args.perfil), momentos,
-                      args.proporcion_split, args.punch_inicio)
+                      args.proporcion_split, args.punch_inicio, args.estilo)
     args.salida.write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"guardado: {args.salida} — {len(plan['ventanas'])} ventanas, gancho hasta {plan['fin_gancho']} s")
     for w in plan["ventanas"]:
