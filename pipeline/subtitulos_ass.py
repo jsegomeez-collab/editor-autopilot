@@ -35,7 +35,8 @@ Y_SPLIT = 960
 Y_BANDA = 1400          # estilo «título»: bajo la cara, por encima de la zona segura inferior
 TITULO_Y = (235, 505)   # franja del título (la zona segura superior acaba en 220; la banda en 520)
 TITULO_X = (120, 960)   # respeta la zona segura derecha
-TITULO_MAX = 92
+TITULO_MAX = 118
+ANCHO_LETRA_TITULO = 0.50  # ancho medio de un carácter de Inter ExtraBold (fracción del cuerpo)
 Y_CTA = 900
 TAM_FUENTE = 66
 PUNTUACION_FINAL = re.compile(r"[.,;:…]+$")
@@ -120,23 +121,30 @@ def titulo_ass(titulo: str, destacado: str, perfil: Perfil) -> tuple[str, int]:
     """Texto ASS del título en la franja superior: tamaño que cabe en ≤ 3 líneas y saltos de línea manuales."""
     ancho = TITULO_X[1] - TITULO_X[0]
     alto = TITULO_Y[1] - TITULO_Y[0]
-    palabras = titulo.split()
+    # Las palabras destacadas (p. ej. "Claude Code") no se parten entre líneas: van unidas por un espacio duro.
+    unido = titulo
+    if len(destacado.split()) > 1 and destacado.lower() in titulo.lower():
+        i = titulo.lower().index(destacado.lower())
+        unido = titulo[:i] + titulo[i:i + len(destacado)].replace(" ", "\u00a0") + titulo[i + len(destacado):]
+    palabras = unido.split(" ")
     for tam in range(TITULO_MAX, 40, -2):
         lineas, actual = [], []
         for p in palabras:
             prueba = " ".join(actual + [p])
-            if actual and len(prueba) * tam * 0.56 > ancho:
+            if actual and len(prueba) * tam * ANCHO_LETRA_TITULO > ancho:
                 lineas.append(actual)
                 actual = [p]
             else:
                 actual.append(p)
         lineas.append(actual)
-        if len(lineas) <= 3 and len(lineas) * tam * 1.12 <= alto and all(len(" ".join(l)) * tam * 0.56 <= ancho for l in lineas):
+        if len(lineas) <= 3 and len(lineas) * tam * 1.12 <= alto and \
+                all(len(" ".join(l)) * tam * ANCHO_LETRA_TITULO <= ancho for l in lineas):
             break
     acento = ass_color(perfil.colores.acentos[0])
     blanco = ass_color(perfil.colores.primario)
-    marcar = {m.lower().strip(".,¿?¡!") for m in destacado.split()}
-    fmt = lambda w: f"{{\\c{acento}}}{w}{{\\c{blanco}}}" if w.lower().strip(".,¿?¡!") in marcar else w  # noqa: E731
+    marcar = {m.lower().strip(".,¿?¡!") for m in destacado.replace("\u00a0", " ").split()}
+    fmt = lambda w: " ".join(f"{{\\c{acento}}}{x}{{\\c{blanco}}}" if x.lower().strip(".,¿?¡!") in marcar else x  # noqa: E731
+                             for x in w.split("\u00a0"))
     texto = "\\N".join(" ".join(fmt(w) for w in l) for l in lineas)
     if perfil.subtitulos.mayusculas:
         texto = texto.upper()

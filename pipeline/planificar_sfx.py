@@ -176,7 +176,9 @@ def eventos_brutos(layout: dict, graficos: list[dict], alta: bool = False) -> li
         elif p == "comparativa":
             ev.append({"t": t0 + d["t_derecha"], "tipo": "swipe", "motivo": "cambio de lado"})
         elif p == "sticker":
-            ev.append({"t": t0 + d.get("t_aterrizaje", 0), "tipo": propio or "pop", "motivo": f"sticker {d['icono']}"})
+            icono = d.get("icono")
+            ev.append({"t": t0 + d.get("t_aterrizaje", 0), "tipo": propio or (sonido_icono(icono) if icono else None) or "pop",
+                       "motivo": f"sticker {icono or d.get('archivo')}"})
         elif p == "grafico":
             ev.append({"t": t0 + d["t_aterrizaje"], "tipo": "pop", "motivo": "gráfico"})
         elif p != "gancho":  # el gancho ya tiene su impacto

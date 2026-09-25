@@ -80,3 +80,9 @@ def test_densidad_alta_suena_cada_subelemento():
                  "datos": {"iconos": ["a", "b", "c", "d"], "t_aterrizaje": 1.0}}]
     ev = eventos_brutos(LAYOUT, graficos, alta=True)
     assert [e["tipo"] for e in ev if 4.0 <= e["t"] <= 5.0].count("click") == 3  # 3 satélites + aterrizaje "red"
+
+
+def test_sticker_con_logo_o_icono():
+    graficos = [{"plantilla": "sticker", "inicio": 1.0, "duracion": 1.0, "datos": {"archivo": "claude/logo.png", "t_aterrizaje": 0.25}},
+                {"plantilla": "sticker", "inicio": 3.0, "duracion": 1.0, "datos": {"icono": "coins", "t_aterrizaje": 0.25}}]
+    assert tipos(eventos_brutos({"duracion": 10, "ventanas": []}, graficos)) == ["pop", "moneda"]

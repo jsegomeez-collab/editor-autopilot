@@ -60,6 +60,16 @@ Añade a perfiles/cristian/correcciones.md que quiero los subtítulos un poco m�
 2. ⚙️ **Ajustes**: elige tu carpeta de destino, tu perfil por defecto y cuántas versiones quieres por vídeo (1 = solo la edición; 2–6 = variantes para Trial Reels).
 3. Arrastra tus vídeos (uno o muchos) y pulsa **Editar**. Se editan de uno en uno y los tienes en tu carpeta al terminar.
 
+### Estilo de edición
+En Ajustes (o al subir) elige el estilo:
+- **Con motions:** motion graphics en pantalla partida que representan lo que dices, más stickers, subtítulos con palabra activa y efectos con sentido.
+- **Con título:** más básico y rápido (~4–7 min por vídeo):
+  - un título fijo arriba, sacado de lo que dices, con palabras clave en tu color de acento;
+  - la cámara en todo el vídeo con zooms alternos;
+  - subtítulos básicos;
+  - imágenes (iconos y logos de tu marca) saltando junto a tu cara cada 2–3 s;
+  - efectos de sonido muy frecuentes.
+
 ## Prompts útiles para después
 - **Actualizar el editor:**
   ```

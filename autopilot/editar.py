@@ -239,6 +239,7 @@ def montar(t: Path, fuente: Path, trans_ruta: Path, corr_ruta: Path, caras: Path
         if estilo_edicion == "titulo":
             dec = decidir_titulo(ventanas_txt, perfil, perfil_dir, cortes["palabra_cta"], uso_claude, errores,
                                  opciones.get("evitar", ""))
+            (edit / "decision_claude.json").write_text(json.dumps(dec, ensure_ascii=False, indent=1))  # diagnóstico
             titulo_video = {"titulo": con_glosario(opciones.get("titulo") or dec["titulo"], perfil_dir, perfil.identidad.idioma),
                             "destacado": dec["destacado"],
                             "alternativos": [con_glosario(x, perfil_dir, perfil.identidad.idioma) for x in dec["titulos_alternativos"]]}
@@ -250,6 +251,7 @@ def montar(t: Path, fuente: Path, trans_ruta: Path, corr_ruta: Path, caras: Path
         else:
             dec = decidir_graficos(ventanas_txt, perfil, perfil_dir, titular, cortes["palabra_cta"], uso_claude,
                                    errores, opciones.get("evitar", ""))
+            (edit / "decision_claude.json").write_text(json.dumps(dec, ensure_ascii=False, indent=1))  # diagnóstico
         graficos, notas = construir_graficos(dec, layout, STICKER_Y[estilo_edicion])
         for g in graficos:  # el gancho de cada versión es el suyo (Claude solo lo recibe como sugerencia)
             if g["plantilla"] == "gancho":

@@ -73,3 +73,7 @@ def test_max_palabras_del_schema():
 
 def test_nombres_de_icono_no_son_cifras():
     assert numeros_de_datos({"icono": "trash-2", "iconos": ["share-2"], "rotulo": "a la basura"}) == set()
+
+
+def test_posicion_no_es_cifra():
+    assert numeros_de_datos({"icono": "rocket", "y": 760, "rotulo": "otro nivel"}) == set()

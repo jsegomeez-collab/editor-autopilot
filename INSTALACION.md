@@ -27,6 +27,16 @@ Tiempo: ~20–30 minutos, la mayor parte esperando descargas.
 3. Arrastra tus vídeos (1 o muchos), elige el perfil y pulsa **Editar**. Se editan de uno en uno y ves el progreso de cada uno.
 4. En **Terminados** los ves, lees su informe de calidad y los abres en Finder.
 
+### Estilo de edición
+En Ajustes (o al subir) elige el estilo:
+- **Con motions:** motion graphics en pantalla partida que representan lo que dices, más stickers, subtítulos con palabra activa y efectos con sentido.
+- **Con título:** más básico y rápido (~4–7 min por vídeo):
+  - un título fijo arriba, sacado de lo que dices, con palabras clave en tu color de acento;
+  - la cámara en todo el vídeo con zooms alternos;
+  - subtítulos básicos;
+  - imágenes (iconos y logos de tu marca) saltando junto a tu cara cada 2–3 s;
+  - efectos de sonido muy frecuentes.
+
 ### Versiones para Trial Reels
 En Ajustes (o al subir) elige **Versiones por vídeo**. Con 1 se hace solo la edición. Con 2–6 se generan además variantes creativas reales del mismo vídeo (`…_V1`, `…_V2`…), cada una con:
 - otro gancho;

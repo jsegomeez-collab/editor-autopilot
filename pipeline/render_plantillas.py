@@ -111,6 +111,7 @@ def entorno_node() -> dict:
 # ---------- validación ----------
 
 TECNICOS = ("icono", "archivo", "sonido", "movimiento", "direccion", "tipo", "prompt")
+POSICION = {"x", "y", "lado"}  # colocación en pantalla: no son cifras que se muestren
 
 
 def textos(valor) -> list[str]:
@@ -131,7 +132,7 @@ def numeros_de_datos(datos) -> set[float]:
     tecnicos = TECNICOS  # no se muestran como texto ("trash-2" es un icono, no la cifra 2)
 
     def recorrer(v, clave=""):
-        if isinstance(v, bool) or any(t in clave for t in tecnicos):
+        if isinstance(v, bool) or any(t in clave for t in tecnicos) or clave in POSICION:
             return
         if isinstance(v, (int, float)) and not clave.startswith("t_") and clave not in ("t", "decimales"):
             nums.add(float(v))
