@@ -78,6 +78,12 @@ def comprobar_tecnico(inf: Informe, final: Path, edl: dict, base: Path | None) -
     inf.comprobar(espec, "Formato: H.264 High 1080x1920 yuv420p BT.709, AAC 48 kHz",
                   f"Formato fuera de especificación: {v['codec_name']} {v.get('profile')} {v['width']}x{v['height']} "
                   f"{v['pix_fmt']} {v.get('color_primaries')} / {a['codec_name']} {a['sample_rate']}")
+    etiquetas = {k.lower(): v for k, v in (s["format"].get("tags") or {}).items()}
+    for st in s["streams"]:
+        etiquetas.update({k.lower(): v for k, v in (st.get("tags") or {}).items()})
+    sensibles = sorted(k for k in etiquetas if any(x in k for x in ("location", "make", "model", "creation_time", "gps")))
+    inf.comprobar(not sensibles, "Metadatos limpios (sin dispositivo, ubicación ni fecha de grabación)",
+                  f"Metadatos del dispositivo en el vídeo final: {sensibles}")
     negros = re.findall(r"black_start:([\d.]+) black_end:([\d.]+)", ff("-i", str(final), "-vf", "blackdetect=d=0.1:pix_th=0.05",
                                                                         "-an", "-f", "null", "-"))
     inf.comprobar(not negros, "Sin frames negros", "Frames negros en: " + ", ".join(f"{a}–{b} s" for a, b in negros))

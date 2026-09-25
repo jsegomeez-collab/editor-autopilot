@@ -6,6 +6,8 @@
 - portada.jpg: frame del gancho con la cartela ya visible.
 - transcripcion.txt: texto limpio de lo que queda en el vídeo (para escribir el copy del post).
 - Nombre: <AAAAMMDD>_<perfil>_<slug-del-gancho>.mp4
+- Metadatos limpios: sin datos del dispositivo, GPS ni fecha de grabación (privacidad). No se añaden
+  metadatos falsos de ningún tipo.
 
 Uso:
   python pipeline/exportar.py --video compuesto.mp4 --audio mezcla.wav --edl edl.json \
@@ -55,6 +57,8 @@ def exportar(video: Path, audio: Path, edl: dict, transcripcion: dict, graficos:
     final = destino / f"{nombre}.mp4"
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(video), "-i", str(audio),
                     "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy",
+                    # Metadatos limpios: nada del dispositivo, ubicación ni fecha de grabación.
+                    "-map_metadata", "-1", "-map_chapters", "-1",
                     "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-shortest",
                     "-movflags", "+faststart", str(final)], check=True)
     t_portada = min(T_PORTADA, gancho["duracion"] - 0.05) if gancho else 0.5

@@ -114,6 +114,7 @@ def normalizar(fuente: Path, destino: Path, ficha: dict) -> Path:
     cmd = [
         "ffmpeg", "-y", "-v", "error", "-i", str(fuente),  # autorotate (por defecto) aplica la rotación
         "-map", "0:v:0", "-map", "0:a:0",
+        "-map_metadata", "-1", "-map_chapters", "-1",  # sin GPS, modelo ni fecha del dispositivo (privacidad)
         "-vf", ",".join(filtros),
         "-c:v", "libx264", "-preset", "medium", "-crf", "14", "-pix_fmt", "yuv420p",
         "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-color_range", "tv",
