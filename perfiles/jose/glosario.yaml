@@ -16,3 +16,5 @@ terminos:
     variantes: ["black rock", "blackrock"]
   - forma: "Wall Street"
     variantes: ["wall street", "wol street"]
+  - forma: "Google"
+    variantes: ["google"]
