@@ -7,9 +7,9 @@
   "required": ["titular"],
   "additionalProperties": false,
   "properties": {
-    "titular": { "type": "string", "minLength": 1, "maxPalabras": 7 },
+    "titular": { "type": "string", "minLength": 1, "maxPalabras": 4, "description": "≤ 4 palabras: el gancho cabe en 2 líneas" },
     "destacado": { "type": "string", "description": "Palabra(s) del titular a resaltar con el color de acento" },
     "t_aterrizaje": { "type": "number", "minimum": 0, "description": "Siempre 0: el gancho se lee en el frame 0" }
   },
-  "ejemplo": { "titular": "Nunca uses Claude Code sin esto", "destacado": "Claude Code", "t_aterrizaje": 0 }
+  "ejemplo": { "titular": "Nunca uses Claude Code", "destacado": "Claude Code", "t_aterrizaje": 0 }
 }

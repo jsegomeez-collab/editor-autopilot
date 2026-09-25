@@ -98,7 +98,7 @@ def decidir_cortes(transcripcion: dict, perfil, correcciones: str, registro: lis
                                "beat": {"type": "string"}, "motivo": {"type": "string"}}}},
             "estado_musica": {"enum": estados},
             "palabra_cta": {"type": ["string", "null"], "description": "palabra que pide comentar, o null"},
-            "titular_gancho": {"type": "string", "description": "≤ 7 palabras literales del gancho"},
+            "titular_gancho": {"type": "string", "description": "MÁXIMO 4 palabras literales del gancho (2 líneas en pantalla)"},
         },
     }
     prompt = f"""Decide los cortes de este vídeo de una persona hablando a cámara.
@@ -111,6 +111,7 @@ REGLAS (obligatorias):
 - Los silencios los recorta el sistema; tú eliges PALABRAS (índices entre paréntesis, ambos incluidos).
 - estado_musica según el tono: educativo/informativo → neutra; motivacional/logro → inspiradora; errores/riesgos → tension; historia personal → emocional; ritmo alto/listas rápidas → energetica (solo entre: {", ".join(estados)}; por defecto {perfil.audio.estado_animo_por_defecto}).
 - palabra_cta: la palabra que se pide comentar/escribir al final (tal cual, sin comillas), o null si no hay.
+- titular_gancho: MÁXIMO 4 palabras literales con la idea central del gancho (p. ej. "Nunca uses Claude Code"); en pantalla ocupa como mucho 2 líneas.
 
 CORRECCIONES DEL CLIENTE (prioridad sobre el perfil):
 {correcciones.strip() or "(ninguna)"}

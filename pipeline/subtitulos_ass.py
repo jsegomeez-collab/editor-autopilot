@@ -5,6 +5,7 @@
   ("$10.000", "10%", "4 complementos").
 - MAYÚSCULAS o minúsculas según el perfil. Sin puntos, comas ni punto y coma finales.
 - La palabra activa se resalta con el color de acento (un evento por palabra).
+- Sin subtítulos mientras se ve la cartela del gancho (primera ventana split): no se satura el arranque.
 - Posición según el layout: en split, centrados sobre la divisoria (y≈960); en full, a
   `posicion_full_pct` del alto; durante el CTA, por encima de su cartela. Siempre fuera de
   las zonas seguras.
@@ -141,6 +142,9 @@ def generar(edl: dict, transcripcion: dict, layout: dict, perfil: Perfil, estilo
     acento = ass_color(perfil.colores.acentos[0])
     blanco = ass_color(perfil.colores.primario)
     lineas = [cabecera(perfil)]
+    primera = layout["ventanas"][0]
+    fin_gancho = primera["fin"] if primera["tipo"] == "split" else 0.0
+    ws = [w for w in ws if w["o_start"] >= fin_gancho - 0.01]
     grupos = bloques(ws, perfil.subtitulos.palabras_por_bloque)
     for k, b in enumerate(grupos):
         ini = b[0]["o_start"]

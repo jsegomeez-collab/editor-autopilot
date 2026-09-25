@@ -4,7 +4,7 @@
 Cada ventana **split** debe REPRESENTAR VISUALMENTE lo que se dice en ella, no repetirlo en texto. El texto solo aparece como rótulo corto (≤ 4 palabras, literal de lo dicho). Ritmo "dopamínico": algo nuevo en pantalla casi todo el tiempo.
 
 ## Ventanas split: qué plantilla usar (en este orden de preferencia)
-1. Primera ventana → `gancho` (titular ≤ 7 palabras literales del gancho, con 1–2 palabras destacadas).
+1. Primera ventana → `gancho`: titular de **máximo 4 palabras** (tiene que caber en 2 líneas), literal y con la idea central, p. ej. "Nunca uses Claude Code". Con 1–2 palabras destacadas. Mientras se ve el gancho no hay subtítulos.
 2. Hay una cifra, dinero o porcentaje dicho en la ventana:
    - crecimiento o evolución → `crecimiento`;
    - solo el dato → `cifra`;
