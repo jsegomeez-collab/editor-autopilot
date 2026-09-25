@@ -45,7 +45,7 @@ audio:
   niveles:
     voz_lufs: -14
     musica_db_bajo_voz: 20
-    sfx_db_bajo_pico_voz: 6
+    sfx_db_bajo_pico_voz: 9   # efectos discretos (petición del cliente)
 
 cta_por_defecto: "Comenta la palabra {palabra}"   # la palabra sale de lo que dice al final
 ctas_alternativos: ["Sígueme para más", "Guárdalo para después"]

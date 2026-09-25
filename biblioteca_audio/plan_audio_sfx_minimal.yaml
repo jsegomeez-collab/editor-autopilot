@@ -1,0 +1,328 @@
+# SFX v2: minimalistas y limpios (petición del cliente tras escuchar la v1 tech, 2026-09-25).
+# Estimado ~600 créditos. La v1 está en _descartados/sfx_v1.
+items:
+- id: sfx_impacto_min1
+  clase: sfx
+  categoria: impacto
+  duracion_s: 0.8
+  prompt: soft low sub thump, gentle deep hit, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_impacto_min2
+  clase: sfx
+  categoria: impacto
+  duracion_s: 0.8
+  prompt: soft low sub thump, gentle deep hit, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_impacto_min3
+  clase: sfx
+  categoria: impacto
+  duracion_s: 0.8
+  prompt: soft low sub thump, gentle deep hit, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_whoosh_min1
+  clase: sfx
+  categoria: whoosh
+  duracion_s: 0.5
+  prompt: soft airy whoosh, quick gentle swish of air, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_whoosh_min2
+  clase: sfx
+  categoria: whoosh
+  duracion_s: 0.5
+  prompt: soft airy whoosh, quick gentle swish of air, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_whoosh_min3
+  clase: sfx
+  categoria: whoosh
+  duracion_s: 0.5
+  prompt: soft airy whoosh, quick gentle swish of air, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_pop_min1
+  clase: sfx
+  categoria: pop
+  duracion_s: 0.5
+  prompt: soft minimal UI pop, gentle bubble tap, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_pop_min2
+  clase: sfx
+  categoria: pop
+  duracion_s: 0.5
+  prompt: soft minimal UI pop, gentle bubble tap, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_pop_min3
+  clase: sfx
+  categoria: pop
+  duracion_s: 0.5
+  prompt: soft minimal UI pop, gentle bubble tap, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_click_min1
+  clase: sfx
+  categoria: click
+  duracion_s: 0.5
+  prompt: soft minimal UI click, gentle tap, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_click_min2
+  clase: sfx
+  categoria: click
+  duracion_s: 0.5
+  prompt: soft minimal UI click, gentle tap, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_click_min3
+  clase: sfx
+  categoria: click
+  duracion_s: 0.5
+  prompt: soft minimal UI click, gentle tap, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_tick_min1
+  clase: sfx
+  categoria: tick
+  duracion_s: 0.5
+  prompt: tiny soft tick, delicate click for a number counter, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_tick_min2
+  clase: sfx
+  categoria: tick
+  duracion_s: 0.5
+  prompt: tiny soft tick, delicate click for a number counter, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_tick_min3
+  clase: sfx
+  categoria: tick
+  duracion_s: 0.5
+  prompt: tiny soft tick, delicate click for a number counter, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_ding_min1
+  clase: sfx
+  categoria: ding
+  duracion_s: 0.8
+  prompt: soft clean bell ding, gentle single chime, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_ding_min2
+  clase: sfx
+  categoria: ding
+  duracion_s: 0.8
+  prompt: soft clean bell ding, gentle single chime, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_ding_min3
+  clase: sfx
+  categoria: ding
+  duracion_s: 0.8
+  prompt: soft clean bell ding, gentle single chime, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_alerta_min1
+  clase: sfx
+  categoria: alerta
+  duracion_s: 0.7
+  prompt: soft low warning tone, gentle two-note alert, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_alerta_min2
+  clase: sfx
+  categoria: alerta
+  duracion_s: 0.7
+  prompt: soft low warning tone, gentle two-note alert, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_alerta_min3
+  clase: sfx
+  categoria: alerta
+  duracion_s: 0.7
+  prompt: soft low warning tone, gentle two-note alert, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_swipe_min1
+  clase: sfx
+  categoria: swipe
+  duracion_s: 0.5
+  prompt: soft quick swipe, gentle slide, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_swipe_min2
+  clase: sfx
+  categoria: swipe
+  duracion_s: 0.5
+  prompt: soft quick swipe, gentle slide, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_swipe_min3
+  clase: sfx
+  categoria: swipe
+  duracion_s: 0.5
+  prompt: soft quick swipe, gentle slide, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_notificacion_min1
+  clase: sfx
+  categoria: notificacion
+  duracion_s: 0.8
+  prompt: soft pleasant notification chime, gentle two-note, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_notificacion_min2
+  clase: sfx
+  categoria: notificacion
+  duracion_s: 0.8
+  prompt: soft pleasant notification chime, gentle two-note, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_notificacion_min3
+  clase: sfx
+  categoria: notificacion
+  duracion_s: 0.8
+  prompt: soft pleasant notification chime, gentle two-note, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_moneda_min1
+  clase: sfx
+  categoria: moneda
+  duracion_s: 0.6
+  prompt: soft single coin clink, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_moneda_min2
+  clase: sfx
+  categoria: moneda
+  duracion_s: 0.6
+  prompt: soft single coin clink, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_moneda_min3
+  clase: sfx
+  categoria: moneda
+  duracion_s: 0.6
+  prompt: soft single coin clink, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_papel_min1
+  clase: sfx
+  categoria: papel
+  duracion_s: 0.6
+  prompt: soft paper crumple, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_papel_min2
+  clase: sfx
+  categoria: papel
+  duracion_s: 0.6
+  prompt: soft paper crumple, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_papel_min3
+  clase: sfx
+  categoria: papel
+  duracion_s: 0.6
+  prompt: soft paper crumple, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_despegue_min1
+  clase: sfx
+  categoria: despegue
+  duracion_s: 0.7
+  prompt: soft rising airy swoosh, gentle upward sweep, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_despegue_min2
+  clase: sfx
+  categoria: despegue
+  duracion_s: 0.7
+  prompt: soft rising airy swoosh, gentle upward sweep, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_despegue_min3
+  clase: sfx
+  categoria: despegue
+  duracion_s: 0.7
+  prompt: soft rising airy swoosh, gentle upward sweep, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_red_min1
+  clase: sfx
+  categoria: red
+  duracion_s: 0.6
+  prompt: soft digital blips connecting, gentle and sparse, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_red_min2
+  clase: sfx
+  categoria: red
+  duracion_s: 0.6
+  prompt: soft digital blips connecting, gentle and sparse, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_red_min3
+  clase: sfx
+  categoria: red
+  duracion_s: 0.6
+  prompt: soft digital blips connecting, gentle and sparse, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_teclado_min1
+  clase: sfx
+  categoria: teclado
+  duracion_s: 0.8
+  prompt: soft quiet laptop keyboard typing, few gentle keystrokes, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_teclado_min2
+  clase: sfx
+  categoria: teclado
+  duracion_s: 0.8
+  prompt: soft quiet laptop keyboard typing, few gentle keystrokes, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_teclado_min3
+  clase: sfx
+  categoria: teclado
+  duracion_s: 0.8
+  prompt: soft quiet laptop keyboard typing, few gentle keystrokes, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_candado_min1
+  clase: sfx
+  categoria: candado
+  duracion_s: 0.5
+  prompt: soft small lock click, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_candado_min2
+  clase: sfx
+  categoria: candado
+  duracion_s: 0.5
+  prompt: soft small lock click, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_candado_min3
+  clase: sfx
+  categoria: candado
+  duracion_s: 0.5
+  prompt: soft small lock click, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_reloj_min1
+  clase: sfx
+  categoria: reloj
+  duracion_s: 0.7
+  prompt: soft quiet clock ticks, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_reloj_min2
+  clase: sfx
+  categoria: reloj
+  duracion_s: 0.7
+  prompt: soft quiet clock ticks, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_reloj_min3
+  clase: sfx
+  categoria: reloj
+  duracion_s: 0.7
+  prompt: soft quiet clock ticks, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_subida_min1
+  clase: sfx
+  categoria: subida
+  duracion_s: 0.6
+  prompt: soft gentle rising tone, positive, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_subida_min2
+  clase: sfx
+  categoria: subida
+  duracion_s: 0.6
+  prompt: soft gentle rising tone, positive, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_subida_min3
+  clase: sfx
+  categoria: subida
+  duracion_s: 0.6
+  prompt: soft gentle rising tone, positive, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_bajada_min1
+  clase: sfx
+  categoria: bajada
+  duracion_s: 0.6
+  prompt: soft gentle falling tone, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_bajada_min2
+  clase: sfx
+  categoria: bajada
+  duracion_s: 0.6
+  prompt: soft gentle falling tone, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_bajada_min3
+  clase: sfx
+  categoria: bajada
+  duracion_s: 0.6
+  prompt: soft gentle falling tone, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_transformacion_min1
+  clase: sfx
+  categoria: transformacion
+  duracion_s: 0.7
+  prompt: soft gentle shimmer, delicate sparkle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_transformacion_min2
+  clase: sfx
+  categoria: transformacion
+  duracion_s: 0.7
+  prompt: soft gentle shimmer, delicate sparkle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_transformacion_min3
+  clase: sfx
+  categoria: transformacion
+  duracion_s: 0.7
+  prompt: soft gentle shimmer, delicate sparkle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_camara_min1
+  clase: sfx
+  categoria: camara
+  duracion_s: 0.5
+  prompt: soft camera shutter click, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_camara_min2
+  clase: sfx
+  categoria: camara
+  duracion_s: 0.5
+  prompt: soft camera shutter click, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_camara_min3
+  clase: sfx
+  categoria: camara
+  duracion_s: 0.5
+  prompt: soft camera shutter click, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_mensaje_min1
+  clase: sfx
+  categoria: mensaje
+  duracion_s: 0.5
+  prompt: soft message sent bubble, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_mensaje_min2
+  clase: sfx
+  categoria: mensaje
+  duracion_s: 0.5
+  prompt: soft message sent bubble, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_mensaje_min3
+  clase: sfx
+  categoria: mensaje
+  duracion_s: 0.5
+  prompt: soft message sent bubble, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_engranaje_min1
+  clase: sfx
+  categoria: engranaje
+  duracion_s: 0.6
+  prompt: soft small mechanical gear turning click, gentle, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- id: sfx_engranaje_min2
+  clase: sfx
+  categoria: engranaje
+  duracion_s: 0.6
+  prompt: soft gentle clockwork ratchet tick, very minimal and clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound design

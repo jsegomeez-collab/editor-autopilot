@@ -1,0 +1,37 @@
+pistas:
+- archivo: sfx_impacto_tech1.flac
+  duracion_s: 1.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: futuristic tech impact hit, deep digital bass thump with a short glitchy
+    sub drop, clean, short tail, no voice
+- archivo: sfx_impacto_tech2.flac
+  duracion_s: 1.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: futuristic tech impact hit, deep digital bass thump with a short glitchy
+    sub drop, clean, short tail, brighter and lighter, no voice
+- archivo: sfx_impacto_tech3.flac
+  duracion_s: 1.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: futuristic tech impact hit, deep digital bass thump with a short glitchy
+    sub drop, clean, short tail, deeper and warmer, no voice
+- archivo: sfx_impacto_tech4.flac
+  duracion_s: 1.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: futuristic tech impact hit, deep digital bass thump with a short glitchy
+    sub drop, clean, short tail, slightly glitchy texture, no voice

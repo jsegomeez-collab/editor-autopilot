@@ -1,27 +1,39 @@
 pistas:
-- archivo: sfx_subida_1.flac
-  duracion_s: 1.0
+- archivo: sfx_subida_min1.flac
+  duracion_s: 0.389
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: rising digital synth sweep, positive, growth, short, no voice
-- archivo: sfx_subida_2.flac
-  duracion_s: 1.0
+  prompt: soft gentle rising tone, positive, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: sfx_subida_min2.flac
+  duracion_s: 0.6
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: rising digital synth sweep, positive, growth, short, subtle variation, no
-    voice
-- archivo: sfx_subida_3.flac
-  duracion_s: 1.0
+  prompt: soft gentle rising tone, positive, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: sfx_subida_min3.flac
+  duracion_s: 0.6
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: rising digital synth sweep, positive, growth, short, slightly brighter,
-    no voice
+  prompt: soft gentle rising tone, positive, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: jose_punch_stop_riser.flac
+  duracion_s: 0.809
+  fuente: librería personal de Jose Gomez (creados por él)
+  licencia: 'propia (autor: Jose Gomez)'
+  uso_permitido:
+  - organico
+  - anuncios
+  propio: true

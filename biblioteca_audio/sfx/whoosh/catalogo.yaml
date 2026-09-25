@@ -1,37 +1,31 @@
 pistas:
-- archivo: sfx_whoosh_tech1.flac
-  duracion_s: 0.8
+- archivo: sfx_whoosh_min1.flac
+  duracion_s: 0.48
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: fast digital whoosh transition, sci-fi interface swoosh, airy synth sweep,
-    short and clean, no voice
-- archivo: sfx_whoosh_tech2.flac
-  duracion_s: 0.8
+  prompt: soft airy whoosh, quick gentle swish of air, very minimal and clean, soft
+    and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality
+    UI sound design
+- archivo: sfx_whoosh_min2.flac
+  duracion_s: 0.48
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: fast digital whoosh transition, sci-fi interface swoosh, airy synth sweep,
-    short and clean, brighter and lighter, no voice
-- archivo: sfx_whoosh_tech3.flac
-  duracion_s: 0.8
+  prompt: soft airy whoosh, quick gentle swish of air, very minimal and clean, soft
+    and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality
+    UI sound design
+- archivo: sfx_whoosh_min3.flac
+  duracion_s: 0.431
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: fast digital whoosh transition, sci-fi interface swoosh, airy synth sweep,
-    short and clean, deeper and warmer, no voice
-- archivo: sfx_whoosh_tech4.flac
-  duracion_s: 0.8
-  fuente: ElevenLabs Sound Effects
-  licencia: ElevenLabs plan starter — uso comercial incluido
-  uso_permitido:
-  - organico
-  - anuncios
-  prompt: fast digital whoosh transition, sci-fi interface swoosh, airy synth sweep,
-    short and clean, slightly glitchy texture, no voice
+  prompt: soft airy whoosh, quick gentle swish of air, very minimal and clean, soft
+    and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality
+    UI sound design

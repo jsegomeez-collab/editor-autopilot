@@ -1,37 +1,39 @@
 pistas:
-- archivo: sfx_impacto_tech1.flac
-  duracion_s: 1.48
+- archivo: sfx_impacto_min1.flac
+  duracion_s: 0.8
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: futuristic tech impact hit, deep digital bass thump with a short glitchy
-    sub drop, clean, short tail, no voice
-- archivo: sfx_impacto_tech2.flac
-  duracion_s: 1.48
+  prompt: soft low sub thump, gentle deep hit, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: sfx_impacto_min2.flac
+  duracion_s: 0.8
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: futuristic tech impact hit, deep digital bass thump with a short glitchy
-    sub drop, clean, short tail, brighter and lighter, no voice
-- archivo: sfx_impacto_tech3.flac
-  duracion_s: 1.48
+  prompt: soft low sub thump, gentle deep hit, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: sfx_impacto_min3.flac
+  duracion_s: 0.799
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: futuristic tech impact hit, deep digital bass thump with a short glitchy
-    sub drop, clean, short tail, deeper and warmer, no voice
-- archivo: sfx_impacto_tech4.flac
-  duracion_s: 1.48
-  fuente: ElevenLabs Sound Effects
-  licencia: ElevenLabs plan starter — uso comercial incluido
+  prompt: soft low sub thump, gentle deep hit, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: jose_cinematic_impact.flac
+  duracion_s: 2.299
+  fuente: librería personal de Jose Gomez (creados por él)
+  licencia: 'propia (autor: Jose Gomez)'
   uso_permitido:
   - organico
   - anuncios
-  prompt: futuristic tech impact hit, deep digital bass thump with a short glitchy
-    sub drop, clean, short tail, slightly glitchy texture, no voice
+  propio: true

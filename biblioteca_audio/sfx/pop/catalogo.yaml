@@ -1,44 +1,31 @@
 pistas:
-- archivo: sfx_pop_1.flac
+- archivo: sfx_pop_min1.flac
   duracion_s: 0.48
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: soft minimal UI pop, short clean bubble pop, no reverb
-- archivo: sfx_pop_tech1.flac
+  prompt: soft minimal UI pop, gentle bubble tap, very minimal and clean, soft and
+    subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality
+    UI sound design
+- archivo: sfx_pop_min2.flac
   duracion_s: 0.48
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: digital UI pop, futuristic interface blip, short clean synth pop, no voice
-- archivo: sfx_pop_tech2.flac
+  prompt: soft minimal UI pop, gentle bubble tap, very minimal and clean, soft and
+    subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality
+    UI sound design
+- archivo: sfx_pop_min3.flac
   duracion_s: 0.48
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: digital UI pop, futuristic interface blip, short clean synth pop, brighter
-    and lighter, no voice
-- archivo: sfx_pop_tech3.flac
-  duracion_s: 0.48
-  fuente: ElevenLabs Sound Effects
-  licencia: ElevenLabs plan starter — uso comercial incluido
-  uso_permitido:
-  - organico
-  - anuncios
-  prompt: digital UI pop, futuristic interface blip, short clean synth pop, deeper
-    and warmer, no voice
-- archivo: sfx_pop_tech4.flac
-  duracion_s: 0.48
-  fuente: ElevenLabs Sound Effects
-  licencia: ElevenLabs plan starter — uso comercial incluido
-  uso_permitido:
-  - organico
-  - anuncios
-  prompt: digital UI pop, futuristic interface blip, short clean synth pop, slightly
-    glitchy texture, no voice
+  prompt: soft minimal UI pop, gentle bubble tap, very minimal and clean, soft and
+    subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality
+    UI sound design

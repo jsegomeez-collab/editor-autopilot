@@ -55,3 +55,21 @@ def test_sonido_con_sentido_en_plantillas_visuales():
     ]
     ev = [e for e in eventos_brutos({"duracion": 10, "ventanas": []}, graficos)]
     assert tipos(ev) == ["moneda", "whoosh", "bajada"]
+
+
+def test_preferencia_por_efectos_propios_con_rotacion():
+    import random
+    from planificar_sfx import elegir_variante
+    rng = random.Random(0)
+    # Un solo efecto propio: se alterna con los generados (nunca dos iguales seguidos).
+    seq, ultima = [], None
+    for _ in range(6):
+        ultima = elegir_variante(rng, ["mio"], ["gen1", "gen2"], ultima)
+        seq.append(ultima)
+    assert seq[0] == "mio" and all(a != b for a, b in zip(seq, seq[1:])) and seq.count("mio") == 3
+    # Varios propios: solo rotan los propios.
+    seq, ultima = [], None
+    for _ in range(6):
+        ultima = elegir_variante(rng, ["mio1", "mio2"], ["gen1"], ultima)
+        seq.append(ultima)
+    assert set(seq) == {"mio1", "mio2"} and all(a != b for a, b in zip(seq, seq[1:]))

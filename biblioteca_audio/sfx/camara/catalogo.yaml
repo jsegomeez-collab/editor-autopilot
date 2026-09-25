@@ -1,25 +1,47 @@
 pistas:
-- archivo: sfx_camara_1.flac
-  duracion_s: 0.6
+- archivo: sfx_camara_min1.flac
+  duracion_s: 0.154
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: camera shutter click, clean, short, no voice
-- archivo: sfx_camara_2.flac
-  duracion_s: 0.306
+  prompt: soft camera shutter click, gentle, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: sfx_camara_min2.flac
+  duracion_s: 0.48
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: camera shutter click, clean, short, subtle variation, no voice
-- archivo: sfx_camara_3.flac
-  duracion_s: 0.6
+  prompt: soft camera shutter click, gentle, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: sfx_camara_min3.flac
+  duracion_s: 0.48
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: camera shutter click, clean, short, slightly brighter, no voice
+  prompt: soft camera shutter click, gentle, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: jose_camera_clicks.flac
+  duracion_s: 0.327
+  fuente: librería personal de Jose Gomez (creados por él)
+  licencia: 'propia (autor: Jose Gomez)'
+  uso_permitido:
+  - organico
+  - anuncios
+  propio: true
+- archivo: jose_camera_shutter.flac
+  duracion_s: 0.299
+  fuente: librería personal de Jose Gomez (creados por él)
+  licencia: 'propia (autor: Jose Gomez)'
+  uso_permitido:
+  - organico
+  - anuncios
+  propio: true

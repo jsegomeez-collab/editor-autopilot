@@ -227,14 +227,14 @@ iconos:
     - configuración
     - engranaje
     - sistema
-    sonido: click
+    sonido: engranaje
   workflow:
     etiquetas:
     - flujo
     - proceso
     - sistema
     - automatización
-    sonido: red
+    sonido: engranaje
   repeat:
     etiquetas:
     - repetir
@@ -248,7 +248,7 @@ iconos:
     - cambiar
     - rotar
     - renovar
-    sonido: transformacion
+    sonido: engranaje
   search:
     etiquetas:
     - buscar
@@ -881,7 +881,7 @@ iconos:
     - herramienta
     - arreglar
     - ajustar
-    sonido: click
+    sonido: engranaje
   party-popper:
     etiquetas:
     - celebrar

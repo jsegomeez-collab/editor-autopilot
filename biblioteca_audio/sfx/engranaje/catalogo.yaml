@@ -1,0 +1,29 @@
+pistas:
+- archivo: jose_gear.flac
+  duracion_s: 0.65
+  fuente: librería personal de Jose Gomez (creados por él)
+  licencia: 'propia (autor: Jose Gomez)'
+  uso_permitido:
+  - organico
+  - anuncios
+  propio: true
+- archivo: sfx_engranaje_min1.flac
+  duracion_s: 0.387
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: soft small mechanical gear turning click, gentle, very minimal and clean,
+    soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high
+    quality UI sound design
+- archivo: sfx_engranaje_min2.flac
+  duracion_s: 0.6
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: soft gentle clockwork ratchet tick, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design

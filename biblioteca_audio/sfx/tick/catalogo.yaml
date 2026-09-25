@@ -1,28 +1,31 @@
 pistas:
-- archivo: sfx_tick_tech1.flac
-  duracion_s: 0.48
+- archivo: sfx_tick_min1.flac
+  duracion_s: 0.078
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: digital counter tick, very short electronic blip for a number counter, no
-    voice
-- archivo: sfx_tick_tech2.flac
-  duracion_s: 0.48
+  prompt: tiny soft tick, delicate click for a number counter, very minimal and clean,
+    soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high
+    quality UI sound design
+- archivo: sfx_tick_min2.flac
+  duracion_s: 0.053
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: digital counter tick, very short electronic blip for a number counter, brighter
-    and lighter, no voice
-- archivo: sfx_tick_tech4.flac
-  duracion_s: 0.48
+  prompt: tiny soft tick, delicate click for a number counter, very minimal and clean,
+    soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high
+    quality UI sound design
+- archivo: sfx_tick_min3.flac
+  duracion_s: 0.405
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: digital counter tick, very short electronic blip for a number counter, slightly
-    glitchy texture, no voice
+  prompt: tiny soft tick, delicate click for a number counter, very minimal and clean,
+    soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high
+    quality UI sound design

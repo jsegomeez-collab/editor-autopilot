@@ -1,0 +1,25 @@
+pistas:
+- archivo: sfx_camara_1.flac
+  duracion_s: 0.6
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: camera shutter click, clean, short, no voice
+- archivo: sfx_camara_2.flac
+  duracion_s: 0.306
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: camera shutter click, clean, short, subtle variation, no voice
+- archivo: sfx_camara_3.flac
+  duracion_s: 0.6
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: camera shutter click, clean, short, slightly brighter, no voice

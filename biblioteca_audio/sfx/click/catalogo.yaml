@@ -1,36 +1,39 @@
 pistas:
-- archivo: sfx_click_tech1.flac
+- archivo: sfx_click_min1.flac
   duracion_s: 0.48
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: crisp futuristic UI click, digital interface tap, very short, no voice
-- archivo: sfx_click_tech2.flac
+  prompt: soft minimal UI click, gentle tap, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: sfx_click_min2.flac
   duracion_s: 0.48
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: crisp futuristic UI click, digital interface tap, very short, brighter and
-    lighter, no voice
-- archivo: sfx_click_tech3.flac
-  duracion_s: 0.48
+  prompt: soft minimal UI click, gentle tap, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: sfx_click_min3.flac
+  duracion_s: 0.217
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: crisp futuristic UI click, digital interface tap, very short, deeper and
-    warmer, no voice
-- archivo: sfx_click_tech4.flac
-  duracion_s: 0.48
-  fuente: ElevenLabs Sound Effects
-  licencia: ElevenLabs plan starter — uso comercial incluido
+  prompt: soft minimal UI click, gentle tap, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: jose_mouse_click.flac
+  duracion_s: 0.173
+  fuente: librería personal de Jose Gomez (creados por él)
+  licencia: 'propia (autor: Jose Gomez)'
   uso_permitido:
   - organico
   - anuncios
-  prompt: crisp futuristic UI click, digital interface tap, very short, slightly glitchy
-    texture, no voice
+  propio: true

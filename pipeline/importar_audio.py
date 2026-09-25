@@ -37,7 +37,7 @@ ESTADOS = {"energetica", "inspiradora", "tension", "neutra", "emocional"}
 TIPOS_SFX = {"impacto", "whoosh", "pop", "click", "tick", "ding", "alerta", "swipe", "notificacion",
              # semánticos (motion graphics visuales, PLAN §10)
              "moneda", "papel", "despegue", "red", "teclado", "candado", "reloj", "subida", "bajada",
-             "transformacion", "camara", "mensaje"}
+             "transformacion", "camara", "mensaje", "engranaje"}
 
 
 def ffmpeg(*args: str) -> str:
@@ -122,6 +122,8 @@ def importar(biblioteca: Path) -> None:
                  "fuente": meta["fuente"], "licencia": meta["licencia"], "uso_permitido": meta["uso_permitido"]}
         if meta.get("prompt"):
             ficha["prompt"] = meta["prompt"]
+        if meta.get("propio"):
+            ficha["propio"] = True  # efecto del cliente: tiene preferencia al elegir variante
         cat_ruta = carpeta / "catalogo.yaml"
         catalogo = yaml.safe_load(cat_ruta.read_text(encoding="utf-8")) if cat_ruta.exists() else None
         catalogo = catalogo or {"pistas": []}

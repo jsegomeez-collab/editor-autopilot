@@ -1,0 +1,27 @@
+pistas:
+- archivo: sfx_bajada_1.flac
+  duracion_s: 1.0
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: descending digital synth sweep, falling, negative, short, no voice
+- archivo: sfx_bajada_2.flac
+  duracion_s: 1.0
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: descending digital synth sweep, falling, negative, short, subtle variation,
+    no voice
+- archivo: sfx_bajada_3.flac
+  duracion_s: 1.0
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: descending digital synth sweep, falling, negative, short, slightly brighter,
+    no voice

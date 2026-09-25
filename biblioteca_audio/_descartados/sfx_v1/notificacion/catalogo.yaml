@@ -1,0 +1,37 @@
+pistas:
+- archivo: sfx_notificacion_tech1.flac
+  duracion_s: 1.2
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: modern tech app notification sound, clean digital chime, futuristic, no
+    voice
+- archivo: sfx_notificacion_tech2.flac
+  duracion_s: 1.2
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: modern tech app notification sound, clean digital chime, futuristic, brighter
+    and lighter, no voice
+- archivo: sfx_notificacion_tech3.flac
+  duracion_s: 1.2
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: modern tech app notification sound, clean digital chime, futuristic, deeper
+    and warmer, no voice
+- archivo: sfx_notificacion_tech4.flac
+  duracion_s: 1.2
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: modern tech app notification sound, clean digital chime, futuristic, slightly
+    glitchy texture, no voice

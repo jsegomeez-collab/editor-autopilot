@@ -1,37 +1,39 @@
 pistas:
-- archivo: sfx_notificacion_tech1.flac
-  duracion_s: 1.2
+- archivo: sfx_notificacion_min1.flac
+  duracion_s: 0.8
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: modern tech app notification sound, clean digital chime, futuristic, no
-    voice
-- archivo: sfx_notificacion_tech2.flac
-  duracion_s: 1.2
+  prompt: soft pleasant notification chime, gentle two-note, very minimal and clean,
+    soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high
+    quality UI sound design
+- archivo: sfx_notificacion_min2.flac
+  duracion_s: 0.8
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: modern tech app notification sound, clean digital chime, futuristic, brighter
-    and lighter, no voice
-- archivo: sfx_notificacion_tech3.flac
-  duracion_s: 1.2
+  prompt: soft pleasant notification chime, gentle two-note, very minimal and clean,
+    soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high
+    quality UI sound design
+- archivo: sfx_notificacion_min3.flac
+  duracion_s: 0.8
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: modern tech app notification sound, clean digital chime, futuristic, deeper
-    and warmer, no voice
-- archivo: sfx_notificacion_tech4.flac
-  duracion_s: 1.2
-  fuente: ElevenLabs Sound Effects
-  licencia: ElevenLabs plan starter — uso comercial incluido
+  prompt: soft pleasant notification chime, gentle two-note, very minimal and clean,
+    soft and subtle, short, no distortion, no glitch, no reverb tail, no voice, high
+    quality UI sound design
+- archivo: jose_iphone_charging.flac
+  duracion_s: 0.94
+  fuente: librería personal de Jose Gomez (creados por él)
+  licencia: 'propia (autor: Jose Gomez)'
   uso_permitido:
   - organico
   - anuncios
-  prompt: modern tech app notification sound, clean digital chime, futuristic, slightly
-    glitchy texture, no voice
+  propio: true

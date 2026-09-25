@@ -1,0 +1,27 @@
+pistas:
+- archivo: sfx_despegue_1.flac
+  duracion_s: 1.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: short futuristic rocket launch whoosh rising in pitch, tech, clean, no voice
+- archivo: sfx_despegue_2.flac
+  duracion_s: 1.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: short futuristic rocket launch whoosh rising in pitch, tech, clean, subtle
+    variation, no voice
+- archivo: sfx_despegue_3.flac
+  duracion_s: 1.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: short futuristic rocket launch whoosh rising in pitch, tech, clean, slightly
+    brighter, no voice

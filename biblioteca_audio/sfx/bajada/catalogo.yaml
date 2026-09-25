@@ -1,27 +1,28 @@
 pistas:
-- archivo: sfx_bajada_1.flac
-  duracion_s: 1.0
+- archivo: sfx_bajada_min1.flac
+  duracion_s: 0.6
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: descending digital synth sweep, falling, negative, short, no voice
-- archivo: sfx_bajada_2.flac
-  duracion_s: 1.0
+  prompt: soft gentle falling tone, very minimal and clean, soft and subtle, short,
+    no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- archivo: sfx_bajada_min2.flac
+  duracion_s: 0.294
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: descending digital synth sweep, falling, negative, short, subtle variation,
-    no voice
-- archivo: sfx_bajada_3.flac
-  duracion_s: 1.0
+  prompt: soft gentle falling tone, very minimal and clean, soft and subtle, short,
+    no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- archivo: sfx_bajada_min3.flac
+  duracion_s: 0.6
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: descending digital synth sweep, falling, negative, short, slightly brighter,
-    no voice
+  prompt: soft gentle falling tone, very minimal and clean, soft and subtle, short,
+    no distortion, no glitch, no reverb tail, no voice, high quality UI sound design

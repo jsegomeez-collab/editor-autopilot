@@ -1,25 +1,31 @@
 pistas:
-- archivo: sfx_reloj_1.flac
-  duracion_s: 0.612
+- archivo: sfx_reloj_min1.flac
+  duracion_s: 0.552
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: clock ticking fast, short, clean, no voice
-- archivo: sfx_reloj_2.flac
-  duracion_s: 0.598
+  prompt: soft quiet clock ticks, gentle, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: sfx_reloj_min2.flac
+  duracion_s: 0.68
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: clock ticking fast, short, clean, subtle variation, no voice
-- archivo: sfx_reloj_3.flac
-  duracion_s: 0.895
+  prompt: soft quiet clock ticks, gentle, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: sfx_reloj_min3.flac
+  duracion_s: 0.407
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: clock ticking fast, short, clean, slightly brighter, no voice
+  prompt: soft quiet clock ticks, gentle, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design

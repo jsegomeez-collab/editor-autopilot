@@ -1,25 +1,28 @@
 pistas:
-- archivo: sfx_papel_1.flac
-  duracion_s: 0.8
+- archivo: sfx_papel_min1.flac
+  duracion_s: 0.6
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: paper crumple and toss into a bin, short, clean, no voice
-- archivo: sfx_papel_2.flac
-  duracion_s: 0.602
+  prompt: soft paper crumple, gentle, very minimal and clean, soft and subtle, short,
+    no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- archivo: sfx_papel_min2.flac
+  duracion_s: 0.6
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: paper crumple and toss into a bin, short, clean, subtle variation, no voice
-- archivo: sfx_papel_3.flac
-  duracion_s: 0.8
+  prompt: soft paper crumple, gentle, very minimal and clean, soft and subtle, short,
+    no distortion, no glitch, no reverb tail, no voice, high quality UI sound design
+- archivo: sfx_papel_min3.flac
+  duracion_s: 0.6
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: paper crumple and toss into a bin, short, clean, slightly brighter, no voice
+  prompt: soft paper crumple, gentle, very minimal and clean, soft and subtle, short,
+    no distortion, no glitch, no reverb tail, no voice, high quality UI sound design

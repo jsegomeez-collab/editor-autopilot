@@ -1,28 +1,31 @@
 pistas:
-- archivo: sfx_moneda_1.flac
-  duracion_s: 0.8
+- archivo: sfx_moneda_min1.flac
+  duracion_s: 0.3
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: coins dropping, cash register cha-ching, money sound, clean modern, short,
-    no voice
-- archivo: sfx_moneda_2.flac
-  duracion_s: 0.8
+  prompt: soft single coin clink, gentle, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: sfx_moneda_min2.flac
+  duracion_s: 0.6
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: coins dropping, cash register cha-ching, money sound, clean modern, short,
-    subtle variation, no voice
-- archivo: sfx_moneda_3.flac
-  duracion_s: 0.8
+  prompt: soft single coin clink, gentle, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design
+- archivo: sfx_moneda_min3.flac
+  duracion_s: 0.6
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: coins dropping, cash register cha-ching, money sound, clean modern, short,
-    slightly brighter, no voice
+  prompt: soft single coin clink, gentle, very minimal and clean, soft and subtle,
+    short, no distortion, no glitch, no reverb tail, no voice, high quality UI sound
+    design

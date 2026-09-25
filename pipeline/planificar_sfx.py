@@ -44,7 +44,7 @@ PRIORIDAD = {"impacto": 9, "notificacion": 8, "ding": 7, "alerta": 7, "swipe": 6
              "click": 4, "whoosh": 3, "tick": 1,
              # semánticos de los motion graphics visuales: tan importantes como el propio gráfico
              **{t: 6 for t in ("moneda", "papel", "despegue", "red", "teclado", "candado", "reloj", "subida",
-                               "bajada", "transformacion", "camara", "mensaje")}}
+                               "bajada", "transformacion", "camara", "mensaje", "engranaje")}}
 # Sonido por defecto de las plantillas visuales (si datos.sonido no lo fija).
 SONIDO_PLANTILLA = {"red": "red", "transformacion": "transformacion", "uno_vs_muchos": "transformacion",
                     "terminal": "teclado", "imagen": "pop", "palabra_clave": "pop", "pregunta": "pop"}
@@ -58,12 +58,25 @@ def biblioteca_audio(perfil_dir: Path) -> Path:
     return propia if (propia / "sfx").is_dir() or (propia / "musica").is_dir() else RAIZ / "biblioteca_audio"
 
 
-def variantes(biblioteca: Path, tipo: str) -> list[str]:
+def variantes(biblioteca: Path, tipo: str, solo_propios: bool | None = None) -> list[str]:
+    """Rutas de las variantes de un tipo. solo_propios=True/False filtra por efectos del cliente."""
     cat = biblioteca / "sfx" / tipo / "catalogo.yaml"
     if not cat.exists():
         return []
     pistas = (yaml.safe_load(cat.read_text(encoding="utf-8")) or {}).get("pistas") or []
+    if solo_propios is not None:
+        pistas = [p for p in pistas if bool(p.get("propio")) == solo_propios]
     return [str(biblioteca / "sfx" / tipo / p["archivo"]) for p in pistas]
+
+
+def elegir_variante(rng: random.Random, propios: list[str], generados: list[str], ultima: str | None) -> str:
+    """Preferencia por los efectos del cliente, rotando: nunca la misma variante dos veces seguidas.
+    Con un solo efecto propio se alterna con los generados; con varios, se rota entre los propios."""
+    for grupo in (propios, generados):
+        libres = [o for o in grupo if o != ultima]
+        if libres:
+            return rng.choice(libres)
+    return rng.choice(propios + generados)
 
 
 def sonido_icono(nombre: str) -> str | None:
@@ -164,8 +177,8 @@ def asignar_variantes(ev: list[dict], biblioteca: Path, semilla: str) -> list[di
         if not opciones:
             sin_archivo.append(e)
             continue
-        candidatas = [o for o in opciones if o != ultima.get(e["tipo"])] or opciones
-        e["archivo"] = rng.choice(candidatas)
+        e["archivo"] = elegir_variante(rng, variantes(biblioteca, e["tipo"], True),
+                                       variantes(biblioteca, e["tipo"], False), ultima.get(e["tipo"]))
         ultima[e["tipo"]] = e["archivo"]
     return sin_archivo
 

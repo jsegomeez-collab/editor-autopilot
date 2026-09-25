@@ -1,0 +1,25 @@
+pistas:
+- archivo: sfx_candado_1.flac
+  duracion_s: 0.421
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: metal padlock click locking, secure, short, no voice
+- archivo: sfx_candado_2.flac
+  duracion_s: 0.6
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: metal padlock click locking, secure, short, subtle variation, no voice
+- archivo: sfx_candado_3.flac
+  duracion_s: 0.185
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: metal padlock click locking, secure, short, slightly brighter, no voice

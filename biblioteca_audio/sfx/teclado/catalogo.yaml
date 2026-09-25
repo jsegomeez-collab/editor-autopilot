@@ -1,27 +1,39 @@
 pistas:
-- archivo: sfx_teclado_1.flac
-  duracion_s: 1.043
+- archivo: sfx_teclado_min1.flac
+  duracion_s: 0.711
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: fast mechanical keyboard typing, short burst, clean close mic, no voice
-- archivo: sfx_teclado_2.flac
-  duracion_s: 1.046
+  prompt: soft quiet laptop keyboard typing, few gentle keystrokes, very minimal and
+    clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice,
+    high quality UI sound design
+- archivo: sfx_teclado_min2.flac
+  duracion_s: 0.743
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: fast mechanical keyboard typing, short burst, clean close mic, subtle variation,
-    no voice
-- archivo: sfx_teclado_3.flac
-  duracion_s: 0.982
+  prompt: soft quiet laptop keyboard typing, few gentle keystrokes, very minimal and
+    clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice,
+    high quality UI sound design
+- archivo: sfx_teclado_min3.flac
+  duracion_s: 0.681
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: fast mechanical keyboard typing, short burst, clean close mic, slightly
-    brighter, no voice
+  prompt: soft quiet laptop keyboard typing, few gentle keystrokes, very minimal and
+    clean, soft and subtle, short, no distortion, no glitch, no reverb tail, no voice,
+    high quality UI sound design
+- archivo: jose_mac_typing.flac
+  duracion_s: 1.071
+  fuente: librería personal de Jose Gomez (creados por él)
+  licencia: 'propia (autor: Jose Gomez)'
+  uso_permitido:
+  - organico
+  - anuncios
+  propio: true

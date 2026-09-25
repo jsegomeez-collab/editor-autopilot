@@ -1,37 +1,31 @@
 pistas:
-- archivo: sfx_alerta_tech1.flac
-  duracion_s: 1.2
+- archivo: sfx_alerta_min1.flac
+  duracion_s: 0.68
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: soft futuristic warning alert, low digital buzz pulse, tech interface alarm,
-    subtle, no voice
-- archivo: sfx_alerta_tech2.flac
-  duracion_s: 1.2
+  prompt: soft low warning tone, gentle two-note alert, very minimal and clean, soft
+    and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality
+    UI sound design
+- archivo: sfx_alerta_min2.flac
+  duracion_s: 0.68
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: soft futuristic warning alert, low digital buzz pulse, tech interface alarm,
-    subtle, brighter and lighter, no voice
-- archivo: sfx_alerta_tech3.flac
-  duracion_s: 1.2
+  prompt: soft low warning tone, gentle two-note alert, very minimal and clean, soft
+    and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality
+    UI sound design
+- archivo: sfx_alerta_min3.flac
+  duracion_s: 0.68
   fuente: ElevenLabs Sound Effects
   licencia: ElevenLabs plan starter — uso comercial incluido
   uso_permitido:
   - organico
   - anuncios
-  prompt: soft futuristic warning alert, low digital buzz pulse, tech interface alarm,
-    subtle, deeper and warmer, no voice
-- archivo: sfx_alerta_tech4.flac
-  duracion_s: 1.2
-  fuente: ElevenLabs Sound Effects
-  licencia: ElevenLabs plan starter — uso comercial incluido
-  uso_permitido:
-  - organico
-  - anuncios
-  prompt: soft futuristic warning alert, low digital buzz pulse, tech interface alarm,
-    subtle, slightly glitchy texture, no voice
+  prompt: soft low warning tone, gentle two-note alert, very minimal and clean, soft
+    and subtle, short, no distortion, no glitch, no reverb tail, no voice, high quality
+    UI sound design
