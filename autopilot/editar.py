@@ -227,6 +227,12 @@ def montar(t: Path, fuente: Path, trans_ruta: Path, corr_ruta: Path, caras: Path
         dec = decidir_graficos(ventanas_txt, perfil, perfil_dir, titular, cortes["palabra_cta"], uso_claude,
                                errores, opciones.get("evitar", ""))
         graficos, notas = construir_graficos(dec, layout)
+        for g in graficos:  # el gancho de cada versión es el suyo (Claude solo lo recibe como sugerencia)
+            if g["plantilla"] == "gancho":
+                g["datos"]["titular"] = titular
+                marcadas = g["datos"].get("destacado", "").split()
+                if not marcadas or not all(m.lower() in titular.lower() for m in marcadas):
+                    g["datos"]["destacado"] = titular.split()[-1]
         fallos = validar_graficos(graficos, perfil, edl, corr)
         if not fallos:
             break
@@ -267,7 +273,8 @@ def montar(t: Path, fuente: Path, trans_ruta: Path, corr_ruta: Path, caras: Path
     prog("control_calidad", "Exportando y comprobando")
     paso(RAIZ / "pipeline/exportar.py", "--video", edit / "compuesto.mp4", "--audio", edit / "mezcla.wav",
          "--edl", edit / "edl.json", "--transcripcion", corr_ruta, "--graficos", edit / "graficos.json",
-         "--perfil", perfil_dir, "--sufijo", opciones.get("sufijo", ""), "-o", t / "salida")
+         "--perfil", perfil_dir, "--sufijo", opciones.get("sufijo", ""),
+         *(["--nombre-base", opciones["nombre_base"]] if opciones.get("nombre_base") else []), "-o", t / "salida")
     salida_qa = paso(RAIZ / "pipeline/qa.py", "--trabajo", t, "--perfil", perfil_dir, "--sin-limpieza")
     veredicto = "REVISAR" if "REVISAR" in salida_qa.splitlines()[0] else "LISTO"
     entregado = Path(salida_qa.strip().splitlines()[-1].split("entregado: ", 1)[-1])
@@ -381,7 +388,9 @@ def editar(video: Path, perfil_dir: Path, carpeta_salida: Path | None = None, av
             enlazar(edit / "edl.json", t / "edit" / "edl.json")
         if not plan["corta"]:  # mismo EDL: se reutilizan los segmentos ya extraídos (sin disco extra)
             enlazar(edit / "clips", t / "edit" / "clips")
-        plan.update(sufijo=f"_V{k}", evitar=resumen_graficos(edit))
+        # Mismo nombre base que la V1 para que las versiones de un vídeo vayan juntas (…_V1, …_V2, …).
+        nombre_base = versiones[0]["final"].stem.removeprefix("REVISAR_").removesuffix("_V1")
+        plan.update(sufijo=f"_V{k}", evitar=resumen_graficos(edit), nombre_base=nombre_base)
         r = montar(t, fuente, trans_ruta, corr_ruta, edit / "caras.json", perfil_dir, perfil, cortes, prog,
                    uso_claude, concurrencia, plan)
         cambios = [f"gancho «{plan['titular']}»", f"subtítulos {plan['estilo_subtitulos']}",
