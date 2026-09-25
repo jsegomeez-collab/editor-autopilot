@@ -27,6 +27,17 @@ Tiempo: ~20–30 minutos, la mayor parte esperando descargas.
 3. Arrastra tus vídeos (1 o muchos), elige el perfil y pulsa **Editar**. Se editan de uno en uno y ves el progreso de cada uno.
 4. En **Terminados** los ves, lees su informe de calidad y los abres en Finder.
 
+### Versiones para Trial Reels
+En Ajustes (o al subir) elige **Versiones por vídeo**. Con 1 se hace solo la edición. Con 2–6 se generan además variantes creativas reales del mismo vídeo (`…_V1`, `…_V2`…), cada una con:
+- otro gancho;
+- otros motion graphics y stickers;
+- otros subtítulos, otra música y otra densidad de efectos;
+- otro patrón de zoom.
+
+La V3 (y la V6) son versiones cortas de 15–30 s. Junto a los vídeos se guarda `…_variantes.csv`, que explica qué cambia en cada una, para leer los resultados del test.
+
+Cada versión extra tarda ~5 min y usa algo más de la suscripción de Claude. **No** se tocan metadatos ni se usan trucos para ocultar duplicados: son vídeos distintos de verdad.
+
 Para pararlo, cierra la ventana de Terminal que abre el lanzador.
 
 ## Actualizar
