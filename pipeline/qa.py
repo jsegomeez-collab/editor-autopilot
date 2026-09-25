@@ -12,7 +12,7 @@ Comprueba:
   - duración frente a duracion_objetivo_max_s y avisos heredados (layout, gráficos).
 Veredicto: ✅ LISTO o ⚠️ REVISAR (con timestamps y motivo). Ambos se copian a
 ~/VideoAutopilot/revision/<perfil>/ (los ⚠️ con prefijo REVISAR_). Nada se publica.
-Después borra los intermedios regenerables del trabajo (clips/, compuesto, música ajustada).
+Después borra los intermedios regenerables del trabajo (clips/, música ajustada); conserva compuesto.mp4.
 
 Uso:
   python pipeline/qa.py --trabajo <dir_trabajo> --perfil perfiles/jose [--sin-entrega]
@@ -204,7 +204,8 @@ def entregar(trabajo: Path, perfil: str, exportacion: dict, informe: Path, vered
     shutil.copy2(exportacion["transcripcion"], carpeta / f"{base}_transcripcion.txt")
     # Intermedios regenerables (decisión aprobada): se borran; el original nunca se toca.
     edit = trabajo / "edit"
-    for p in (edit / "clips", edit / "compuesto.mp4", edit / "musica_ajustada.wav"):
+    # compuesto.mp4 se conserva: permite rehacer solo el audio (/corregir, variantes) sin recomponer.
+    for p in (edit / "clips", edit / "musica_ajustada.wav"):
         if p.is_dir():
             shutil.rmtree(p)
         elif p.exists():
