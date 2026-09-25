@@ -34,7 +34,10 @@ MUSICA_LUFS, MUSICA_TP = -20.0, -2.0
 SFX_PICO_DB = -3.0
 PICO_MINIMO_DB = -40.0  # por debajo, la generación salió prácticamente muda y se rechaza
 ESTADOS = {"energetica", "inspiradora", "tension", "neutra", "emocional"}
-TIPOS_SFX = {"impacto", "whoosh", "pop", "click", "tick", "ding", "alerta", "swipe", "notificacion"}
+TIPOS_SFX = {"impacto", "whoosh", "pop", "click", "tick", "ding", "alerta", "swipe", "notificacion",
+             # semánticos (motion graphics visuales, PLAN §10)
+             "moneda", "papel", "despegue", "red", "teclado", "candado", "reloj", "subida", "bajada",
+             "transformacion", "camara", "mensaje"}
 
 
 def ffmpeg(*args: str) -> str:

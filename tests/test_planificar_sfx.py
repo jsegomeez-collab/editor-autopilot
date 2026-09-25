@@ -45,3 +45,13 @@ def test_efecto_dentro_de_palabra_se_adelanta():
     ev = [{"t": 1.2, "tipo": "pop"}]
     ajustar_a_palabras(ev, [{"o_start": 1.0, "o_end": 1.5}])
     assert ev[0]["t"] == 1.0
+
+
+def test_sonido_con_sentido_en_plantillas_visuales():
+    graficos = [
+        {"plantilla": "icono", "inicio": 2.0, "duracion": 2.0, "datos": {"icono": "coins", "t_aterrizaje": 0.5}},
+        {"plantilla": "icono", "inicio": 4.0, "duracion": 2.0, "datos": {"icono": "rocket", "sonido": "whoosh", "t_aterrizaje": 0.5}},
+        {"plantilla": "crecimiento", "inicio": 6.0, "duracion": 2.0, "datos": {"direccion": "baja", "t_aterrizaje": 0.5}},
+    ]
+    ev = [e for e in eventos_brutos({"duracion": 10, "ventanas": []}, graficos)]
+    assert tipos(ev) == ["moneda", "whoosh", "bajada"]

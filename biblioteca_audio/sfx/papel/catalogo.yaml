@@ -1,0 +1,25 @@
+pistas:
+- archivo: sfx_papel_1.flac
+  duracion_s: 0.8
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: paper crumple and toss into a bin, short, clean, no voice
+- archivo: sfx_papel_2.flac
+  duracion_s: 0.602
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: paper crumple and toss into a bin, short, clean, subtle variation, no voice
+- archivo: sfx_papel_3.flac
+  duracion_s: 0.8
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: paper crumple and toss into a bin, short, clean, slightly brighter, no voice

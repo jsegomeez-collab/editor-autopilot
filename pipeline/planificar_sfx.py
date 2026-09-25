@@ -41,7 +41,14 @@ DURACION_CONTEO = 1.0
 # van por delante de los whoosh de layout: con un ritmo rápido (un cambio cada ~2 s) los whoosh
 # coparían la densidad y el resultado sería monótono.
 PRIORIDAD = {"impacto": 9, "notificacion": 8, "ding": 7, "alerta": 7, "swipe": 6, "pop": 5,
-             "click": 4, "whoosh": 3, "tick": 1}
+             "click": 4, "whoosh": 3, "tick": 1,
+             # semánticos de los motion graphics visuales: tan importantes como el propio gráfico
+             **{t: 6 for t in ("moneda", "papel", "despegue", "red", "teclado", "candado", "reloj", "subida",
+                               "bajada", "transformacion", "camara", "mensaje")}}
+# Sonido por defecto de las plantillas visuales (si datos.sonido no lo fija).
+SONIDO_PLANTILLA = {"red": "red", "transformacion": "transformacion", "uno_vs_muchos": "transformacion",
+                    "terminal": "teclado", "imagen": "pop", "palabra_clave": "pop", "pregunta": "pop"}
+TECLEO_ANTES = 0.6  # el tecleo de la terminal suena mientras se escribe la línea
 BASICOS = {"impacto", "whoosh", "notificacion"}  # densidad baja
 
 
@@ -59,6 +66,12 @@ def variantes(biblioteca: Path, tipo: str) -> list[str]:
     return [str(biblioteca / "sfx" / tipo / p["archivo"]) for p in pistas]
 
 
+def sonido_icono(nombre: str) -> str | None:
+    cat = RAIZ / "plantillas" / "_iconos" / "catalogo.yaml"
+    iconos = yaml.safe_load(cat.read_text(encoding="utf-8"))["iconos"] if cat.exists() else {}
+    return (iconos.get(nombre) or {}).get("sonido")
+
+
 def eventos_brutos(layout: dict, graficos: list[dict]) -> list[dict]:
     ev = []
     vs = layout["ventanas"]
@@ -70,7 +83,22 @@ def eventos_brutos(layout: dict, graficos: list[dict]) -> list[dict]:
                        "motivo": f"cambio {a['tipo']} -> {b['tipo']}"})
     for g in graficos:
         t0, d, p = g["inicio"], g["datos"], g["plantilla"]
-        if p == "cta":
+        propio = d.get("sonido")  # el LLM puede fijar el sonido con sentido para ese gráfico
+        if p == "icono":
+            ev.append({"t": t0 + d["t_aterrizaje"], "tipo": propio or sonido_icono(d["icono"]) or "pop",
+                       "motivo": f"icono {d['icono']}"})
+        elif p == "crecimiento":
+            ev.append({"t": t0 + d["t_aterrizaje"], "tipo": propio or ("bajada" if d.get("direccion") == "baja" else "subida"),
+                       "motivo": "crecimiento"})
+        elif p == "terminal":
+            for x in d.get("lineas", []):
+                if x.get("tipo", "comando") == "comando":
+                    ev.append({"t": max(t0, t0 + x["t"] - TECLEO_ANTES), "tipo": propio or "teclado", "motivo": "terminal: tecleo"})
+                elif x.get("tipo") == "exito":
+                    ev.append({"t": t0 + x["t"], "tipo": "ding", "motivo": "terminal: éxito"})
+        elif p in ("red", "transformacion", "uno_vs_muchos"):
+            ev.append({"t": t0 + d["t_aterrizaje"], "tipo": propio or SONIDO_PLANTILLA[p], "motivo": p})
+        elif p == "cta":
             ev.append({"t": t0 + d.get("t_aterrizaje", 0), "tipo": "notificacion", "motivo": "CTA"})
         elif p in ("lista", "pasos"):
             for x in d.get("items") or d.get("pasos") or []:
@@ -88,7 +116,7 @@ def eventos_brutos(layout: dict, graficos: list[dict]) -> list[dict]:
         elif p == "grafico":
             ev.append({"t": t0 + d["t_aterrizaje"], "tipo": "pop", "motivo": "gráfico"})
         elif p != "gancho":  # el gancho ya tiene su impacto
-            ev.append({"t": t0 + d.get("t_aterrizaje", 0), "tipo": "pop", "motivo": p})
+            ev.append({"t": t0 + d.get("t_aterrizaje", 0), "tipo": propio or SONIDO_PLANTILLA.get(p, "pop"), "motivo": p})
     return sorted((e for e in ev if e["t"] >= 0), key=lambda e: e["t"])
 
 
@@ -130,6 +158,9 @@ def asignar_variantes(ev: list[dict], biblioteca: Path, semilla: str) -> list[di
     sin_archivo = []
     for e in ev:
         opciones = variantes(biblioteca, e["tipo"])
+        if not opciones and e["tipo"] in PRIORIDAD and e["tipo"] not in BASICOS:
+            e["motivo"] += f" (sin «{e['tipo']}» en la biblioteca: pop)"
+            e["tipo"], opciones = "pop", variantes(biblioteca, "pop")
         if not opciones:
             sin_archivo.append(e)
             continue

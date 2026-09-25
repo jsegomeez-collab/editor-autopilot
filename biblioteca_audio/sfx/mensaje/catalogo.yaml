@@ -1,0 +1,27 @@
+pistas:
+- archivo: sfx_mensaje_1.flac
+  duracion_s: 0.8
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: modern chat message sent bubble pop, messaging app sound, short, no voice
+- archivo: sfx_mensaje_2.flac
+  duracion_s: 0.8
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: modern chat message sent bubble pop, messaging app sound, short, subtle
+    variation, no voice
+- archivo: sfx_mensaje_3.flac
+  duracion_s: 0.8
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: modern chat message sent bubble pop, messaging app sound, short, slightly
+    brighter, no voice

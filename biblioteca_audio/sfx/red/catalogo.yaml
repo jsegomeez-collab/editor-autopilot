@@ -1,0 +1,28 @@
+pistas:
+- archivo: sfx_red_1.flac
+  duracion_s: 1.0
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: digital network data pulses, connecting nodes, futuristic interface bleeps,
+    short, no voice
+- archivo: sfx_red_2.flac
+  duracion_s: 1.0
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: digital network data pulses, connecting nodes, futuristic interface bleeps,
+    short, subtle variation, no voice
+- archivo: sfx_red_3.flac
+  duracion_s: 1.0
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: digital network data pulses, connecting nodes, futuristic interface bleeps,
+    short, slightly brighter, no voice

@@ -1,0 +1,27 @@
+pistas:
+- archivo: sfx_transformacion_1.flac
+  duracion_s: 1.0
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: magical digital shimmer morph, sparkle transition, tech, short, no voice
+- archivo: sfx_transformacion_2.flac
+  duracion_s: 1.0
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: magical digital shimmer morph, sparkle transition, tech, short, subtle variation,
+    no voice
+- archivo: sfx_transformacion_3.flac
+  duracion_s: 1.0
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: magical digital shimmer morph, sparkle transition, tech, short, slightly
+    brighter, no voice

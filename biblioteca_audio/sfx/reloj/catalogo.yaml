@@ -1,0 +1,25 @@
+pistas:
+- archivo: sfx_reloj_1.flac
+  duracion_s: 0.612
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: clock ticking fast, short, clean, no voice
+- archivo: sfx_reloj_2.flac
+  duracion_s: 0.598
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: clock ticking fast, short, clean, subtle variation, no voice
+- archivo: sfx_reloj_3.flac
+  duracion_s: 0.895
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: clock ticking fast, short, clean, slightly brighter, no voice

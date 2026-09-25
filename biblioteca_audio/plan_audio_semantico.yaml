@@ -1,0 +1,182 @@
+# SFX con sentido para los motion graphics visuales (PLAN §10). Aprobado: ~500 créditos.
+items:
+- id: sfx_moneda_1
+  clase: sfx
+  categoria: moneda
+  duracion_s: 0.8
+  prompt: coins dropping, cash register cha-ching, money sound, clean modern, short, no voice
+- id: sfx_moneda_2
+  clase: sfx
+  categoria: moneda
+  duracion_s: 0.8
+  prompt: coins dropping, cash register cha-ching, money sound, clean modern, short, subtle variation, no voice
+- id: sfx_moneda_3
+  clase: sfx
+  categoria: moneda
+  duracion_s: 0.8
+  prompt: coins dropping, cash register cha-ching, money sound, clean modern, short, slightly brighter, no voice
+- id: sfx_papel_1
+  clase: sfx
+  categoria: papel
+  duracion_s: 0.8
+  prompt: paper crumple and toss into a bin, short, clean, no voice
+- id: sfx_papel_2
+  clase: sfx
+  categoria: papel
+  duracion_s: 0.8
+  prompt: paper crumple and toss into a bin, short, clean, subtle variation, no voice
+- id: sfx_papel_3
+  clase: sfx
+  categoria: papel
+  duracion_s: 0.8
+  prompt: paper crumple and toss into a bin, short, clean, slightly brighter, no voice
+- id: sfx_despegue_1
+  clase: sfx
+  categoria: despegue
+  duracion_s: 1.5
+  prompt: short futuristic rocket launch whoosh rising in pitch, tech, clean, no voice
+- id: sfx_despegue_2
+  clase: sfx
+  categoria: despegue
+  duracion_s: 1.5
+  prompt: short futuristic rocket launch whoosh rising in pitch, tech, clean, subtle variation, no voice
+- id: sfx_despegue_3
+  clase: sfx
+  categoria: despegue
+  duracion_s: 1.5
+  prompt: short futuristic rocket launch whoosh rising in pitch, tech, clean, slightly brighter, no voice
+- id: sfx_red_1
+  clase: sfx
+  categoria: red
+  duracion_s: 1.0
+  prompt: digital network data pulses, connecting nodes, futuristic interface bleeps, short, no voice
+- id: sfx_red_2
+  clase: sfx
+  categoria: red
+  duracion_s: 1.0
+  prompt: digital network data pulses, connecting nodes, futuristic interface bleeps, short, subtle variation, no voice
+- id: sfx_red_3
+  clase: sfx
+  categoria: red
+  duracion_s: 1.0
+  prompt: digital network data pulses, connecting nodes, futuristic interface bleeps, short, slightly brighter, no voice
+- id: sfx_teclado_1
+  clase: sfx
+  categoria: teclado
+  duracion_s: 1.2
+  prompt: fast mechanical keyboard typing, short burst, clean close mic, no voice
+- id: sfx_teclado_2
+  clase: sfx
+  categoria: teclado
+  duracion_s: 1.2
+  prompt: fast mechanical keyboard typing, short burst, clean close mic, subtle variation, no voice
+- id: sfx_teclado_3
+  clase: sfx
+  categoria: teclado
+  duracion_s: 1.2
+  prompt: fast mechanical keyboard typing, short burst, clean close mic, slightly brighter, no voice
+- id: sfx_candado_1
+  clase: sfx
+  categoria: candado
+  duracion_s: 0.6
+  prompt: metal padlock click locking, secure, short, no voice
+- id: sfx_candado_2
+  clase: sfx
+  categoria: candado
+  duracion_s: 0.6
+  prompt: metal padlock click locking, secure, short, subtle variation, no voice
+- id: sfx_candado_3
+  clase: sfx
+  categoria: candado
+  duracion_s: 0.6
+  prompt: metal padlock click locking, secure, short, slightly brighter, no voice
+- id: sfx_reloj_1
+  clase: sfx
+  categoria: reloj
+  duracion_s: 1.0
+  prompt: clock ticking fast, short, clean, no voice
+- id: sfx_reloj_2
+  clase: sfx
+  categoria: reloj
+  duracion_s: 1.0
+  prompt: clock ticking fast, short, clean, subtle variation, no voice
+- id: sfx_reloj_3
+  clase: sfx
+  categoria: reloj
+  duracion_s: 1.0
+  prompt: clock ticking fast, short, clean, slightly brighter, no voice
+- id: sfx_subida_1
+  clase: sfx
+  categoria: subida
+  duracion_s: 1.0
+  prompt: rising digital synth sweep, positive, growth, short, no voice
+- id: sfx_subida_2
+  clase: sfx
+  categoria: subida
+  duracion_s: 1.0
+  prompt: rising digital synth sweep, positive, growth, short, subtle variation, no voice
+- id: sfx_subida_3
+  clase: sfx
+  categoria: subida
+  duracion_s: 1.0
+  prompt: rising digital synth sweep, positive, growth, short, slightly brighter, no voice
+- id: sfx_bajada_1
+  clase: sfx
+  categoria: bajada
+  duracion_s: 1.0
+  prompt: descending digital synth sweep, falling, negative, short, no voice
+- id: sfx_bajada_2
+  clase: sfx
+  categoria: bajada
+  duracion_s: 1.0
+  prompt: descending digital synth sweep, falling, negative, short, subtle variation, no voice
+- id: sfx_bajada_3
+  clase: sfx
+  categoria: bajada
+  duracion_s: 1.0
+  prompt: descending digital synth sweep, falling, negative, short, slightly brighter, no voice
+- id: sfx_transformacion_1
+  clase: sfx
+  categoria: transformacion
+  duracion_s: 1.0
+  prompt: magical digital shimmer morph, sparkle transition, tech, short, no voice
+- id: sfx_transformacion_2
+  clase: sfx
+  categoria: transformacion
+  duracion_s: 1.0
+  prompt: magical digital shimmer morph, sparkle transition, tech, short, subtle variation, no voice
+- id: sfx_transformacion_3
+  clase: sfx
+  categoria: transformacion
+  duracion_s: 1.0
+  prompt: magical digital shimmer morph, sparkle transition, tech, short, slightly brighter, no voice
+- id: sfx_camara_1
+  clase: sfx
+  categoria: camara
+  duracion_s: 0.6
+  prompt: camera shutter click, clean, short, no voice
+- id: sfx_camara_2
+  clase: sfx
+  categoria: camara
+  duracion_s: 0.6
+  prompt: camera shutter click, clean, short, subtle variation, no voice
+- id: sfx_camara_3
+  clase: sfx
+  categoria: camara
+  duracion_s: 0.6
+  prompt: camera shutter click, clean, short, slightly brighter, no voice
+- id: sfx_mensaje_1
+  clase: sfx
+  categoria: mensaje
+  duracion_s: 0.8
+  prompt: modern chat message sent bubble pop, messaging app sound, short, no voice
+- id: sfx_mensaje_2
+  clase: sfx
+  categoria: mensaje
+  duracion_s: 0.8
+  prompt: modern chat message sent bubble pop, messaging app sound, short, subtle variation, no voice
+- id: sfx_mensaje_3
+  clase: sfx
+  categoria: mensaje
+  duracion_s: 0.8
+  prompt: modern chat message sent bubble pop, messaging app sound, short, slightly brighter, no voice

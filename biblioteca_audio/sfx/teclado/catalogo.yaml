@@ -1,0 +1,27 @@
+pistas:
+- archivo: sfx_teclado_1.flac
+  duracion_s: 1.043
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: fast mechanical keyboard typing, short burst, clean close mic, no voice
+- archivo: sfx_teclado_2.flac
+  duracion_s: 1.046
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: fast mechanical keyboard typing, short burst, clean close mic, subtle variation,
+    no voice
+- archivo: sfx_teclado_3.flac
+  duracion_s: 0.982
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: fast mechanical keyboard typing, short burst, clean close mic, slightly
+    brighter, no voice
