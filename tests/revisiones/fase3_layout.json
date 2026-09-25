@@ -1,0 +1,359 @@
+{
+  "ancho": 1080,
+  "alto": 1920,
+  "duracion": 51.0,
+  "fin_gancho": 4.24,
+  "ventanas": [
+    {
+      "inicio": 0.0,
+      "fin": 1.32,
+      "tipo": "split",
+      "motivo": "gancho",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        248,
+        1080,
+        960
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 1.32,
+      "fin": 2.83,
+      "tipo": "full",
+      "motivo": "gancho",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        0,
+        1080,
+        1920
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 2.83,
+      "fin": 4.24,
+      "tipo": "split",
+      "motivo": "gancho",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        276,
+        1080,
+        960
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 4.24,
+      "fin": 6.53,
+      "tipo": "full",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        0,
+        1080,
+        1920
+      ],
+      "destello": true
+    },
+    {
+      "inicio": 6.53,
+      "fin": 8.08,
+      "tipo": "split",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        294,
+        1080,
+        960
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 8.08,
+      "fin": 10.42,
+      "tipo": "full",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        0,
+        1080,
+        1920
+      ],
+      "destello": true
+    },
+    {
+      "inicio": 10.42,
+      "fin": 12.48,
+      "tipo": "split",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        252,
+        1080,
+        960
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 12.48,
+      "fin": 14.52,
+      "tipo": "full",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        0,
+        1080,
+        1920
+      ],
+      "destello": true
+    },
+    {
+      "inicio": 14.52,
+      "fin": 16.2,
+      "tipo": "split",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        256,
+        1080,
+        960
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 16.2,
+      "fin": 18.24,
+      "tipo": "full",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        0,
+        1080,
+        1920
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 18.24,
+      "fin": 21.36,
+      "tipo": "split",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        252,
+        1080,
+        960
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 21.36,
+      "fin": 23.519,
+      "tipo": "full",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        0,
+        1080,
+        1920
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 23.519,
+      "fin": 26.09,
+      "tipo": "split",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        248,
+        1080,
+        960
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 26.09,
+      "fin": 27.32,
+      "tipo": "full",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        0,
+        1080,
+        1920
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 27.32,
+      "fin": 29.96,
+      "tipo": "split",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        236,
+        1080,
+        960
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 29.96,
+      "fin": 31.64,
+      "tipo": "full",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        0,
+        1080,
+        1920
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 31.64,
+      "fin": 33.68,
+      "tipo": "split",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        248,
+        1080,
+        960
+      ],
+      "destello": true
+    },
+    {
+      "inicio": 33.68,
+      "fin": 34.9,
+      "tipo": "full",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        0,
+        1080,
+        1920
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 34.9,
+      "fin": 37.21,
+      "tipo": "split",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        246,
+        1080,
+        960
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 37.21,
+      "fin": 40.0,
+      "tipo": "full",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        0,
+        1080,
+        1920
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 40.0,
+      "fin": 42.62,
+      "tipo": "split",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        248,
+        1080,
+        960
+      ],
+      "destello": true
+    },
+    {
+      "inicio": 42.62,
+      "fin": 44.84,
+      "tipo": "full",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        0,
+        1080,
+        1920
+      ],
+      "destello": false
+    },
+    {
+      "inicio": 44.84,
+      "fin": 47.72,
+      "tipo": "split",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        240,
+        1080,
+        960
+      ],
+      "destello": true
+    },
+    {
+      "inicio": 47.72,
+      "fin": 49.33,
+      "tipo": "split",
+      "motivo": "heuristica",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        244,
+        1080,
+        960
+      ],
+      "destello": true
+    },
+    {
+      "inicio": 49.33,
+      "fin": 51.0,
+      "tipo": "full",
+      "motivo": "cta",
+      "zoom": 1.0,
+      "recorte": [
+        0,
+        0,
+        1080,
+        1920
+      ],
+      "destello": true
+    }
+  ],
+  "avisos": []
+}

@@ -103,3 +103,10 @@ Fuente: `tests/referencias/ANALISIS_ESTILO.md`. Todos son configurables por perf
 - Otros cambios: el logo pasa a ser opcional (jose no tiene) y hay una tipografía opcional de `enfasis` (serif itálica para `palabra_clave`). El CTA admite `{palabra}`, que se toma de lo dicho en cada vídeo.
 - Tipografías de jose: Inter Bold/ExtraBold, Instrument Serif Italic y Noto Sans Bold, todas OFL y descargadas de Google Fonts. Comprobado con fontTools que tienen los glifos de la prueba "¿ÁÉÍÓÚÑ ÜÇ 300 € 10 %?".
 - Las muletillas se detectan automáticamente (`muletillas_extra` vacío). El glosario irá creciendo con cada vídeo.
+
+## 8. Decisiones técnicas de la Fase 3
+- Detección de cara con **YuNet (OpenCV)** en lugar de MediaPipe: mediapipe 1.0.1 aborta en macOS (`DrishtiMetalHelper`, "Service is unavailable") incluso con delegado CPU. YuNet devuelve caja + ojos.
+- EDL en dos pasos: el LLM elige tramos de palabras (`seleccion.json`) y `construir_edl.py` calcula los tiempos exactos. Así las reglas 6 y 7 se cumplen siempre, sin depender del LLM.
+- Bordes del EDL alineados a la rejilla de fotogramas. Sin esto, cada segmento se redondea hacia arriba y el total se desvía (+0,16 s en la prueba), fuera de la tolerancia de ±0,1 s del QA.
+- ffmpeg 9 ya no tiene `-filter_complex_script`: se usa `-/filter_complex <archivo>`.
+- Composición del layout con 3 cadenas sincronizadas (recorte de tamaño fijo y posición por ventana) en lugar de trocear en N ramas, que obligaría a ffmpeg a acumular frames en memoria (8 GB de RAM).

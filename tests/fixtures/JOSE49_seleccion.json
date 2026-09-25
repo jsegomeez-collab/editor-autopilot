@@ -1,0 +1,10 @@
+{"tramos": [
+  {"desde": 0,   "hasta": 14,  "beat": "GANCHO",  "motivo": "tesis del vídeo"},
+  {"desde": 25,  "hasta": 39,  "beat": "PROBLEMA", "motivo": "última toma completa; 15-24 es una toma incompleta"},
+  {"desde": 52,  "hasta": 65,  "beat": "PROMESA", "motivo": "última toma completa; 40-51 es la misma frase cortada"},
+  {"desde": 66,  "hasta": 139, "beat": "LISTA",   "motivo": "los cuatro complementos"},
+  {"desde": 140, "hasta": 170, "beat": "BENEFICIO", "motivo": ""},
+  {"desde": 187, "hasta": 209, "beat": "OFERTA",  "motivo": "171-186 es un falso comienzo ('regalar--')"},
+  {"desde": 216, "hasta": 229, "beat": "PRUEBA",  "motivo": "210-215 es una toma repetida más corta"},
+  {"desde": 230, "hasta": 243, "beat": "CTA",     "motivo": ""}
+]}
