@@ -1,0 +1,150 @@
+{
+ "graficos": [
+  {
+   "id": "v00",
+   "inicio": 0.0,
+   "duracion": 1.32,
+   "plantilla": "gancho",
+   "datos": {
+    "titular": "Nunca uses Claude Code",
+    "destacado": "Claude Code",
+    "t_aterrizaje": 0
+   }
+  },
+  {
+   "id": "v02",
+   "inicio": 2.83,
+   "duracion": 1.41,
+   "plantilla": "palabra_clave",
+   "datos": {
+    "texto": "otro nivel",
+    "destacado": "nivel",
+    "t_aterrizaje": 0.93
+   }
+  },
+  {
+   "id": "v04",
+   "inicio": 6.53,
+   "duracion": 1.55,
+   "plantilla": "alerta",
+   "datos": {
+    "texto": "tirando tu plan a la basura",
+    "t_aterrizaje": 1.15
+   }
+  },
+  {
+   "id": "v06",
+   "inicio": 10.42,
+   "duracion": 2.06,
+   "plantilla": "palabra_clave",
+   "datos": {
+    "texto": "una bestia",
+    "destacado": "bestia",
+    "t_aterrizaje": 0.44
+   }
+  },
+  {
+   "id": "v08",
+   "inicio": 14.52,
+   "duracion": 1.68,
+   "plantilla": "palabra_clave",
+   "datos": {
+    "texto": "menos tokens",
+    "destacado": "tokens",
+    "t_aterrizaje": 1.06
+   }
+  },
+  {
+   "id": "v10",
+   "inicio": 18.24,
+   "duracion": 3.12,
+   "plantilla": "cifra",
+   "datos": {
+    "valor": 300,
+    "etiqueta": "proveedores",
+    "t_aterrizaje": 0.62
+   }
+  },
+  {
+   "id": "v12",
+   "inicio": 23.519,
+   "duracion": 2.571,
+   "plantilla": "imagen",
+   "datos": {
+    "archivo": "claude/logo.png",
+    "tipo": "logo",
+    "pie": "Claude",
+    "t_aterrizaje": 0.6
+   }
+  },
+  {
+   "id": "v14",
+   "inicio": 27.32,
+   "duracion": 2.64,
+   "plantilla": "cifra",
+   "datos": {
+    "valor": 24,
+    "etiqueta": "habilidades",
+    "t_aterrizaje": 1.28
+   }
+  },
+  {
+   "id": "v16",
+   "inicio": 31.64,
+   "duracion": 2.04,
+   "plantilla": "imagen",
+   "datos": {
+    "archivo": "claude/logo.png",
+    "tipo": "logo",
+    "pie": "Claude",
+    "t_aterrizaje": 0.04
+   }
+  },
+  {
+   "id": "v18",
+   "inicio": 34.9,
+   "duracion": 2.31,
+   "plantilla": "palabra_clave",
+   "datos": {
+    "texto": "una sola persona",
+    "destacado": "sola",
+    "t_aterrizaje": 0.52
+   }
+  },
+  {
+   "id": "v20",
+   "inicio": 40.0,
+   "duracion": 2.62,
+   "plantilla": "palabra_clave",
+   "datos": {
+    "texto": "construir y vender",
+    "destacado": "vender",
+    "t_aterrizaje": 1.94
+   }
+  },
+  {
+   "id": "v22",
+   "inicio": 44.84,
+   "duracion": 2.88,
+   "plantilla": "cifra",
+   "datos": {
+    "valor": 10000,
+    "prefijo": "$",
+    "etiqueta": "mensuales",
+    "t_aterrizaje": 1.88
+   }
+  },
+  {
+   "id": "v23",
+   "inicio": 47.72,
+   "duracion": 3.28,
+   "plantilla": "cta",
+   "datos": {
+    "linea1": "Escribe",
+    "linea2": "la palabra",
+    "palabra": "SISTEMAS",
+    "t_aterrizaje": 0.76
+   }
+  }
+ ]
+}

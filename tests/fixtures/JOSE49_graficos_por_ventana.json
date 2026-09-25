@@ -1,0 +1,16 @@
+{"estado_musica": "neutra",
+ "por_inicio": {
+  "0.00":  {"plantilla": "gancho", "datos": {"titular": "Nunca uses Claude Code", "destacado": "Claude Code", "t_aterrizaje": 0}},
+  "2.83":  {"plantilla": "palabra_clave", "datos": {"texto": "otro nivel", "destacado": "nivel", "t_aterrizaje": 0.93}},
+  "6.53":  {"plantilla": "alerta", "datos": {"texto": "tirando tu plan a la basura", "t_aterrizaje": 1.15}},
+  "10.42": {"plantilla": "palabra_clave", "datos": {"texto": "una bestia", "destacado": "bestia", "t_aterrizaje": 0.44}},
+  "14.52": {"plantilla": "palabra_clave", "datos": {"texto": "menos tokens", "destacado": "tokens", "t_aterrizaje": 1.06}},
+  "18.24": {"plantilla": "cifra", "datos": {"valor": 300, "etiqueta": "proveedores", "t_aterrizaje": 0.62}},
+  "23.52": {"plantilla": "imagen", "datos": {"archivo": "claude/logo.png", "tipo": "logo", "pie": "Claude", "t_aterrizaje": 0.60}},
+  "27.32": {"plantilla": "cifra", "datos": {"valor": 24, "etiqueta": "habilidades", "t_aterrizaje": 1.28}},
+  "31.64": {"plantilla": "imagen", "datos": {"archivo": "claude/logo.png", "tipo": "logo", "pie": "Claude", "t_aterrizaje": 0.04}},
+  "34.90": {"plantilla": "palabra_clave", "datos": {"texto": "una sola persona", "destacado": "sola", "t_aterrizaje": 0.52}},
+  "40.00": {"plantilla": "palabra_clave", "datos": {"texto": "construir y vender", "destacado": "vender", "t_aterrizaje": 1.94}},
+  "44.84": {"plantilla": "cifra", "datos": {"valor": 10000, "prefijo": "$", "etiqueta": "mensuales", "t_aterrizaje": 1.88}},
+  "47.72": {"plantilla": "cta", "datos": {"linea1": "Escribe", "linea2": "la palabra", "palabra": "SISTEMAS", "t_aterrizaje": 0.76}}
+ }}

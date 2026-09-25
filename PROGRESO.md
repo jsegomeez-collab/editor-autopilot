@@ -58,3 +58,17 @@
 - `pipeline/hoja_plantillas.py` → `plantillas/_hoja_contactos.png` (cada plantilla en contexto sobre el vídeo maquetado).
 - Tests: 26 en verde.
 - Plantilla 11 `imagen` (logo o captura de un término mencionado), a petición del cliente tras aprobar las 10. Catálogo en `perfiles/jose/imagenes/catalogo.yaml`, vacío: faltan las imágenes del cliente. Ver PLAN.md §9.
+
+## Fase 5 — Subtítulos, audio, exportación y QA (en curso, 2026-09-25)
+- `subtitulos_ass.py`: ASS palabra a palabra en la línea de tiempo de salida. Bloques de 2 palabras y la cifra nunca se separa de su unidad o sustantivo. Palabra activa en acento. Estilo caja, contorno o mixto. Posición según layout (divisoria en split, % del perfil en full, encima del CTA). En minúsculas se respetan el glosario y las siglas. Prueba de glifos "¿ÁÉÍÓÚÑ ÜÇ 300 € 10 %?" correcta con Inter Bold desde fontsdir.
+- ElevenLabs: el plan pasó de Free (sin licencia comercial) a Starter. Endpoints verificados (/v1/music, /v1/sound-generation). Piloto: 1 SFX (5 créditos) y 1 pista de 20 s. El contador de la API no refleja la música, así que el límite de gasto se controla por estimación (900 créditos/min de música, ~11/s de SFX).
+- `generar_audio_elevenlabs.py`, `importar_audio.py` (exige fuente, licencia y uso_permitido; música a −20 LUFS, SFX con pico a −3 dBFS; BPM plegado a 70–140; inicio_recomendado), `planificar_sfx.py` (eventos visuales → SFX, densidad, sin solapes, variantes reproducibles) y `mezcla_audio.py`:
+  - rotación de 5 pistas y bucle con crossfade de 1 compás;
+  - ducking medido: música 20,4 dB bajo la voz al hablar;
+  - loudnorm en 2 pasadas + limitador a −1,5 dBFS (el AAC sube picos +2,6 dB). Final: −14,6 LUFS / −1,4 dBTP.
+- `exportar.py` (mux sin recodificar el vídeo, portada del gancho, transcripcion.txt, nombre AAAAMMDD_perfil_slug) y `qa.py` (15 comprobaciones, veredicto, entrega a revision/ con prefijo REVISAR_ y limpieza de intermedios).
+- Corregido en el camino:
+  - el CTA se detectaba en "comentarios" (faltaba límite de palabra);
+  - faltaba la etiqueta BT.709 en ffmpeg 9 (ahora con setparams).
+- Prueba de punta a punta con JOSE49 y 13 gráficos: 14/15 ✅. Pendiente: la biblioteca de SFX (solo existe el pop del piloto).
+- Pendiente: OK del cliente al estilo del piloto → generar el kit completo → 🛑 checkpoint de escucha.

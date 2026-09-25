@@ -37,6 +37,9 @@ MUSICA_CATALOGO_LUFS = -20.0   # nivel común de importar_audio.py
 SFX_CATALOGO_PICO = -3.0
 REDUCCION_DUCKING_DB = 6.0     # medido en JOSE49: la música baja ~6 dB cuando hablas (threshold -30 dBFS, ratio 6)
 UMBRAL_RUIDO_DB = -58.0
+# El AAC sube los picos al codificar (medido: +2,6 dB en JOSE49). Limitador de picos
+# tras loudnorm (−1,5 dBFS) para que el true peak final quede ≤ −1 dBTP.
+LIMITE_PICO = 0.841  # −1,5 dBFS
 
 
 def ffmpeg(*args: str) -> str:
@@ -209,7 +212,8 @@ def mezclar(video: Path, perfil_dir: Path, estado: str | None, sfx: list[dict], 
     j = json.loads(m[m.rindex("{"):m.rindex("}") + 1])
     ffmpeg("-i", str(premezcla), "-af",
            objetivo + f":measured_I={j['input_i']}:measured_TP={j['input_tp']}:measured_LRA={j['input_lra']}"
-           f":measured_thresh={j['input_thresh']}:offset={j['target_offset']}:linear=true",
+           f":measured_thresh={j['input_thresh']}:offset={j['target_offset']}:linear=true,"
+           f"alimiter=limit={LIMITE_PICO}:attack=3:release=60:level=false",
            "-ar", str(SR), "-c:a", "pcm_s24le", str(salida))
     premezcla.unlink()
     informe["lufs_final"] = lufs(salida)

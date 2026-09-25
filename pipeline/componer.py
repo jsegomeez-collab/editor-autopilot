@@ -172,7 +172,9 @@ def componer(edl: dict, layout: dict, perfil_dir: Path, trabajo: Path, salida: P
         esc = lambda p: str(p).replace("\\", "\\\\").replace(":", "\\:").replace("'", "\\'")  # noqa: E731
         partes.append(f"[{actual}]subtitles=filename='{esc(ass)}':fontsdir='{esc(fontsdir)}'[subs]")
         actual = "subs"
-    partes.append(f"[{actual}]format=yuv420p[vout]")
+    # ffmpeg ≥ 7 toma la etiqueta de color de los frames: se fija aquí (BT.709, rango TV).
+    partes.append(f"[{actual}]setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,"
+                  f"format=yuv420p[vout]")
     grafo_total = ";".join(p for p in partes if p)
     (trabajo / "filtro_final.txt").write_text(grafo_total, encoding="utf-8")
     # "-/opción archivo" lee el valor de un archivo (ffmpeg ≥ 7; -filter_complex_script ya no existe).

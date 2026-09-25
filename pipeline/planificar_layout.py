@@ -188,7 +188,7 @@ def fin_del_gancho(cands: list[dict], duracion: float) -> float:
 def inicio_cta(ws: list[dict], cands: list[dict], duracion: float) -> float:
     """El CTA empieza en la frase que pide comentar/escribir (la última)."""
     for i in range(len(ws) - 1, -1, -1):
-        if re.match(r"(comenta|escribe|coment[aá]|deja)", ws[i]["text"].lower()):
+        if re.match(r"(comenta|comentá|escribe|escribí|deja)\b", ws[i]["text"].lower()):
             previos = [c["t"] for c in cands if c["t"] <= ws[i]["o_start"] + 0.01]
             return previos[-1] if previos else ws[i]["o_start"]
     return max(0.0, duracion - 3.0)
