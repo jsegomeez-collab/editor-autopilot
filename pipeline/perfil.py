@@ -18,6 +18,7 @@ HEX = r"^#[0-9A-Fa-f]{6}$"
 PLANTILLAS = Literal[
     "gancho", "cifra", "lista", "comparativa", "pasos",
     "pregunta", "palabra_clave", "alerta", "grafico", "cta", "imagen",
+    "icono", "red", "transformacion", "terminal", "uno_vs_muchos", "crecimiento",
 ]
 ESTADOS_ANIMO = Literal["energetica", "inspiradora", "tension", "neutra", "emocional"]
 # caja: bloques sobre caja oscura semitransparente siempre (6.5, por defecto).
@@ -145,6 +146,7 @@ class Perfil(Estricto):
     plantillas_permitidas: list[PLANTILLAS] = [
         "gancho", "cifra", "lista", "comparativa", "pasos",
         "pregunta", "palabra_clave", "alerta", "grafico", "cta", "imagen",
+        "icono", "red", "transformacion", "terminal", "uno_vs_muchos", "crecimiento",
     ]
 
     @field_validator("plantillas_permitidas")

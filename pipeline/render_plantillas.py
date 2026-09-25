@@ -50,6 +50,37 @@ def _max_palabras(validador, limite, instancia, schema):
 
 Validador = jsonschema.validators.extend(jsonschema.Draft202012Validator, {"maxPalabras": _max_palabras})
 FORMATOS = {"panel": ("mp4", 1080, 960), "pantalla": ("webm", 1080, 1920)}
+ICONOS = PLANTILLAS / "_iconos"
+
+
+def catalogo_iconos() -> dict:
+    import yaml
+    return yaml.safe_load((ICONOS / "catalogo.yaml").read_text(encoding="utf-8"))["iconos"]
+
+
+def iconos_usados(datos) -> set[str]:
+    """Nombres de icono en cualquier campo cuyo nombre contenga 'icono' (texto, lista o dentro de objetos)."""
+    usados: set[str] = set()
+
+    def recorrer(v, clave=""):
+        if isinstance(v, str) and "icono" in clave:
+            usados.add(v)
+        elif isinstance(v, list):
+            for x in v:
+                recorrer(x, clave)
+        elif isinstance(v, dict):
+            for k, x in v.items():
+                recorrer(x, k)
+    recorrer(datos)
+    return usados
+
+
+def svgs_en_linea(nombres: set[str]) -> dict[str, str]:
+    salida = {}
+    for n in sorted(nombres):
+        marcado = (ICONOS / "svg" / f"{n}.svg").read_text(encoding="utf-8")
+        salida[n] = re.sub(r"<!--.*?-->", "", marcado, flags=re.S).strip()
+    return salida
 
 
 def entorno_node() -> dict:
@@ -134,6 +165,9 @@ def validar(g: dict, permitidas: list[str], edl: dict | None, transcripcion: dic
         ts = [x["t"] for x in lista if isinstance(x, dict) and "t" in x]
         if ts != sorted(ts):
             raise ValueError(f"{g['id']}: tiempos de aterrizaje desordenados {ts}")
+    desconocidos = iconos_usados(g["datos"]) - set(catalogo_iconos())
+    if desconocidos:
+        raise ValueError(f"{g['id']}: iconos que no están en plantillas/_iconos/catalogo.yaml: {sorted(desconocidos)}")
     if edl and transcripcion:
         dichos = numeros_dichos(edl, transcripcion, g["inicio"], g["inicio"] + g["duracion"])
         inventados = {n for n in numeros_de_datos(g["datos"]) if n not in dichos}
@@ -191,7 +225,8 @@ def preparar_slot(g: dict, perfil_dir: Path, dir_animaciones: Path, perfil,
                            html.read_text(encoding="utf-8")), encoding="utf-8")
     variables = {"fondo": perfil.colores.fondo, "primario": perfil.colores.primario,
                  "acento": perfil.colores.acentos[0], "duracion": g["duracion"],
-                 "datos": json.dumps(datos, ensure_ascii=False)}
+                 "datos": json.dumps(datos, ensure_ascii=False),
+                 "svgs": json.dumps(svgs_en_linea(iconos_usados(datos)), ensure_ascii=False)}
     (slot / "variables.json").write_text(json.dumps(variables, ensure_ascii=False), encoding="utf-8")
     return slot, slot / f"render.{ext}", f"{ancho}x{alto}"
 

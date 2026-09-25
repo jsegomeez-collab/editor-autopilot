@@ -57,4 +57,5 @@ palabras_a_no_cortar: []
 
 zonas_seguras: { superior: 220, inferior: 380, derecha: 120 }
 
-plantillas_permitidas: [gancho, cifra, lista, comparativa, pasos, pregunta, palabra_clave, alerta, grafico, cta, imagen]
+plantillas_permitidas: [gancho, cifra, lista, comparativa, pasos, pregunta, palabra_clave, alerta, grafico, cta, imagen,
+                        icono, red, transformacion, terminal, uno_vs_muchos, crecimiento]

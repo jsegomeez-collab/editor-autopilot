@@ -77,6 +77,36 @@
       return getComputedStyle(document.documentElement).getPropertyValue("--" + nombre).trim();
     },
 
+    /* Iconos SVG en línea (render_plantillas.py los inyecta en la variable "svgs"). */
+    svgs: typeof vars.svgs === "string" ? JSON.parse(vars.svgs || "{}") : vars.svgs || {},
+
+    /* Crea el <svg> de un icono del catálogo, con el trazo en el color indicado. */
+    svg(nombre, clase = "icono") {
+      const marcado = HF.svgs[nombre];
+      if (!marcado) throw new Error("icono no inyectado: " + nombre);
+      const tmp = document.createElement("div");
+      tmp.innerHTML = marcado;
+      const el = tmp.querySelector("svg");
+      el.removeAttribute("width");
+      el.removeAttribute("height");
+      el.setAttribute("class", clase);
+      return el;
+    },
+
+    /* Dibuja los trazos de un icono (efecto "a mano") terminando exactamente en t.
+       getTotalLength es geometría pura: no depende de fuentes, es determinista. */
+    dibujar(tl, svgEl, t, dur = 0.7) {
+      const fin = HF.limitar(t);
+      const trazos = svgEl.querySelectorAll("path, line, circle, rect, polyline, polygon, ellipse");
+      trazos.forEach((p) => {
+        const largo = p.getTotalLength ? Math.ceil(p.getTotalLength()) + 1 : 100;
+        p.style.strokeDasharray = largo;
+        if (fin === 0) { p.style.strokeDashoffset = 0; return; }
+        tl.fromTo(p, { strokeDashoffset: largo }, { strokeDashoffset: 0, duration: Math.min(dur, fin), ease: HF.EASE_SUAVE },
+          Math.max(0, fin - dur));
+      });
+    },
+
     /* Registra la línea de tiempo raíz (una sola, pausada, finita). */
     registrar(tl, id = "main") {
       tl.set({}, {}, HF.duracion); // fija la duración exacta de la línea de tiempo

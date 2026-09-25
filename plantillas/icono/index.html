@@ -1,0 +1,143 @@
+<!doctype html>
+<!-- Plantilla "icono": un icono protagonista que REPRESENTA lo que se dice, con un movimiento con
+     significado (subir, caer, latir, girar, sacudir o dibujarse) y un rótulo corto opcional.
+     Panel split 1080x960 opaco. Los SVG llegan en línea en la variable "svgs". -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"icono\":\"rocket\",\"movimiento\":\"subir\",\"rotulo\":\"otro nivel\",\"t_aterrizaje\":0.9}"},
+  {"id":"svgs","type":"string","label":"SVG en línea (JSON)","default":"{}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #escena { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; }
+    #lienzo { position: relative; width: 460px; height: 460px; }
+    .icono {
+      position: absolute; inset: 40px; width: 380px; height: 380px; color: var(--primario);
+      stroke-width: 1.6; overflow: visible;
+      filter: drop-shadow(0 0 18px color-mix(in srgb, var(--acento) 45%, transparent));
+    }
+    .receptor { color: color-mix(in srgb, var(--primario) 70%, transparent); }
+    #anillo { position: absolute; inset: 0; width: 460px; height: 460px; overflow: visible; }
+    #anillo circle { fill: none; stroke: var(--acento); stroke-width: 3; stroke-linecap: round; opacity: 0.85; }
+    #anillo circle.tenue { stroke: color-mix(in srgb, var(--primario) 18%, transparent); stroke-width: 2; stroke-dasharray: 4 14; }
+    .estela { position: absolute; width: 4px; border-radius: 4px; background: linear-gradient(var(--acento), transparent); opacity: 0; }
+    #rotulo {
+      font-family: "Titulares"; font-size: 66px; letter-spacing: -0.01em; text-align: center; line-height: 1.05;
+      max-width: 880px;
+    }
+    #rotulo .acento { color: var(--acento); }
+    .resplandor { left: 90px; top: 20px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="escena" data-start="0" data-duration="3">
+      <div id="lienzo">
+        <svg id="anillo" viewBox="0 0 460 460"><circle class="tenue" cx="230" cy="230" r="218" /><circle id="arco" cx="230" cy="230" r="218" /></svg>
+      </div>
+      <div id="rotulo"></div>
+    </div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { icono, movimiento = "dibujar", icono_receptor: receptor = "", rotulo = "", destacado = "", t_aterrizaje = 0.6 } = HF.datos;
+    const lienzo = document.getElementById("lienzo");
+    const rot = document.getElementById("rotulo");
+    const tl = gsap.timeline({ paused: true });
+    const t = HF.limitar(t_aterrizaje);
+
+    // Receptor opcional (p. ej. papelera): el icono principal cae dentro de él.
+    let rec = null;
+    if (receptor && movimiento === "caer") {
+      rec = HF.svg(receptor, "icono receptor");
+      lienzo.appendChild(rec);
+    }
+    const ico = HF.svg(icono);
+    lienzo.appendChild(ico);
+    if (rec) gsap.set(ico, { scale: 0.5, transformOrigin: "50% 50%" });
+
+    // Rótulo corto con palabra(s) destacadas en acento.
+    const marcar = new Set(destacado.toLowerCase().split(/\s+/).filter(Boolean));
+    rotulo.split(/\s+/).filter(Boolean).forEach((p, i) => {
+      const s = document.createElement("span");
+      s.textContent = (i ? " " : "") + p;
+      if (marcar.has(p.toLowerCase())) s.className = "acento";
+      rot.appendChild(s);
+    });
+    if (!rotulo) rot.remove();
+
+    // Anillo: se dibuja alrededor mientras el icono entra (un elemento cada vez).
+    const arco = document.getElementById("arco");
+    const L = 2 * Math.PI * 218;
+    gsap.set(arco, { strokeDasharray: L, strokeDashoffset: L, rotate: -90, transformOrigin: "50% 50%" });
+    tl.to(arco, { strokeDashoffset: L * 0.25, duration: Math.max(0.3, Math.min(0.8, t || 0.6)), ease: HF.EASE_SUAVE }, Math.max(0, t - 0.8));
+
+    const R = 0.5; // duración del gesto principal
+    switch (movimiento) {
+      case "subir": { // cohete, crecer: entra desde abajo y sigue ascendiendo con estelas
+        HF.dibujar(tl, ico, t, 0.5);
+        tl.fromTo(ico, { y: 240, opacity: 0 }, { y: 0, opacity: 1, duration: Math.min(R, t || R), ease: HF.EASE_ENTRADA }, Math.max(0, t - R));
+        tl.to(ico, { y: -34, duration: Math.max(0.2, HF.duracion - t), ease: HF.EASE_SUAVE }, t);
+        [-60, 0, 60].forEach((dx, i) => {
+          const e = document.createElement("div");
+          e.className = "estela";
+          Object.assign(e.style, { left: 226 + dx + "px", top: "380px", height: "120px" });
+          lienzo.insertBefore(e, ico);
+          tl.fromTo(e, { opacity: 0, scaleY: 0.2, transformOrigin: "50% 0%" },
+            { opacity: 0.7, scaleY: 1, duration: 0.35, ease: HF.EASE_ENTRADA }, Math.max(0, t - 0.2) + i * 0.06);
+        });
+        break;
+      }
+      case "caer": { // tirar, desperdiciar: cae (dentro del receptor si lo hay) y rebota al aterrizar
+        if (rec) {
+          HF.dibujar(tl, rec, Math.max(0, t - 0.35), 0.45);
+          tl.fromTo(ico, { y: -330, rotate: -25, opacity: 0 }, { y: 30, rotate: 12, opacity: 1, duration: R, ease: "power2.in" }, Math.max(0, t - R));
+          tl.to(ico, { y: 90, scale: 0.3, opacity: 0, duration: 0.3, ease: HF.EASE_ENTRADA }, t);
+          tl.fromTo(rec, { scaleY: 1 }, { scaleY: 0.9, duration: 0.12, ease: HF.EASE_ENTRADA, yoyo: true, repeat: 1, transformOrigin: "50% 100%" }, t);
+        } else {
+          HF.dibujar(tl, ico, t, 0.4);
+          tl.fromTo(ico, { y: -330, opacity: 0 }, { y: 0, opacity: 1, duration: R, ease: "power2.in" }, Math.max(0, t - R));
+          tl.fromTo(ico, { scaleY: 0.85, transformOrigin: "50% 100%" }, { scaleY: 1, duration: 0.25, ease: HF.EASE_ENTRADA }, t);
+        }
+        break;
+      }
+      case "latir": // notificación, corazón, importancia: aparece y late con el acento
+        HF.dibujar(tl, ico, t, 0.6);
+        tl.fromTo(ico, { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: Math.min(R, t || R), ease: HF.EASE_ENTRADA }, Math.max(0, t - R));
+        for (let k = 0; t + 0.2 + k * 0.7 < HF.duracion - 0.3; k++) {
+          tl.to(ico, { scale: 1.08, duration: 0.18, ease: HF.EASE_SUAVE, yoyo: true, repeat: 1 }, t + 0.2 + k * 0.7);
+        }
+        break;
+      case "girar": // sistema, automatizar, actualizar: se dibuja y gira despacio sin parar
+        HF.dibujar(tl, ico, t, 0.7);
+        tl.fromTo(ico, { rotate: -90, opacity: 0 }, { rotate: 0, opacity: 1, duration: Math.min(0.7, t || 0.7), ease: HF.EASE_ENTRADA }, Math.max(0, t - 0.7));
+        tl.to(ico, { rotate: 120, duration: Math.max(0.2, HF.duracion - t), ease: HF.EASE_SUAVE }, t);
+        break;
+      case "sacudir": // error, prohibido, fallo: aparece y tiembla al aterrizar
+        HF.dibujar(tl, ico, t, 0.5);
+        tl.fromTo(ico, { scale: 1.3, opacity: 0 }, { scale: 1, opacity: 1, duration: Math.min(0.35, t || 0.35), ease: HF.EASE_ENTRADA }, Math.max(0, t - 0.35));
+        [-14, 12, -8, 5, 0].forEach((dx, i) => tl.to(ico, { x: dx, duration: 0.06, ease: HF.EASE_SUAVE }, t + i * 0.06));
+        break;
+      default: // dibujar: el icono se traza a mano y luego flota
+        HF.dibujar(tl, ico, t, 0.8);
+        tl.fromTo(ico, { scale: 0.9 }, { scale: 1, duration: 0.8, ease: HF.EASE_ENTRADA }, Math.max(0, t - 0.8));
+        tl.to(ico, { y: -14, duration: Math.max(0.2, HF.duracion - t), ease: HF.EASE_SUAVE }, t);
+    }
+    // Al aterrizar, el trazo se enciende en acento un instante (confirma el "golpe" del SFX).
+    tl.fromTo(ico, { color: HF.color("acento") }, { color: HF.color("primario"), duration: 0.5, ease: HF.EASE_SUAVE }, t);
+    if (rotulo) HF.revelar(tl, rot, Math.min(HF.limitar(t + 0.35), HF.duracion), { y: 24 });
+    tl.fromTo("#resplandor", { x: -40, y: 0 }, { x: 50, y: 40, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    tl.to("#anillo", { rotate: 25, duration: HF.duracion, ease: HF.EASE_SUAVE, transformOrigin: "50% 50%" }, 0);
+    HF.deriva(tl, "#escena");
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

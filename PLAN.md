@@ -116,3 +116,11 @@ Fuente: `tests/referencias/ANALISIS_ESTILO.md`. Todos son configurables por perf
 - Prioridad: plantillas de datos (cifra, lista, pasos, comparativa, gráfico, alerta, pregunta) > imagen > palabra_clave. No se repite la misma imagen en ventanas seguidas.
 - Las imágenes las aporta el cliente, con procedencia anotada en el catálogo. `render_plantillas.py` solo acepta imágenes del catálogo (en los previews, también las de `tests/fixtures/imagenes/`).
 - Aviso operativo: el Escritorio y Documentos se sincronizan con iCloud y macOS los descarga ("dataless") cuando falta disco. Las carpetas de trabajo no deben estar ahí (`~/VideoAutopilot/` no lo está).
+
+## 10. Motion graphics visuales (cambio de regla aprobado por el cliente, 2026-09-25)
+- Problema: la biblioteca era sobre todo tipográfica y el LLM abusaba de `palabra_clave` (5 de 13 en la prueba). El cliente quiere que cada ventana split **represente visualmente** lo que dice.
+- Nuevas plantillas visuales basadas en iconos SVG animados y diagramas: `icono` (icono protagonista + movimiento con significado), `red` (nodo central conectando satélites), `transformacion` (A → B), `terminal` (ventana tech escribiendo), `uno_vs_muchos` y `crecimiento`.
+- Iconos: Lucide (licencia ISC), subconjunto con etiquetas en español en `plantillas/_iconos/catalogo.yaml`. `render_plantillas.py` los inyecta en línea en las variables: no hay fetch durante el render.
+- Regla de selección nueva: toda ventana split debe llevar una representación visual (icono/diagrama/dato). El texto solo aparece como rótulo corto (1–4 palabras). `palabra_clave` pasa a último recurso y se anota en QA si se usa.
+- SFX con sentido: cada icono y plantilla visual lleva un sonido semántico (moneda, papel, despegue, red, teclado, candado, reloj, subida, bajada, transformación, cámara, mensaje). El LLM puede fijarlo en `datos.sonido`. Kit adicional aprobado: ~500 créditos.
+- Estilo sin referencias del cliente: flat de líneas con glow, coherente con su paleta (azul marino, blanco, amarillo #FFDB00).

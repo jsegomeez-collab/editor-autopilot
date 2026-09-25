@@ -1,0 +1,935 @@
+# Iconos Lucide v1.48.0 (licencia ISC, ver LICENSE). Generado por catalogo_fuente.py
+iconos:
+  rocket:
+    etiquetas:
+    - cohete
+    - despegar
+    - lanzar
+    - otro nivel
+    - crecer rápido
+    - escalar
+    sonido: despegue
+  trash-2:
+    etiquetas:
+    - basura
+    - tirar
+    - papelera
+    - eliminar
+    - desperdiciar
+    - borrar
+    sonido: papel
+  file-text:
+    etiquetas:
+    - documento
+    - archivo
+    - plan
+    - texto
+    - informe
+    sonido: papel
+  files:
+    etiquetas:
+    - archivos
+    - documentos
+    - muchos archivos
+    sonido: papel
+  folder:
+    etiquetas:
+    - carpeta
+    - proyecto
+    - archivos
+    sonido: click
+  folder-open:
+    etiquetas:
+    - abrir proyecto
+    - carpeta abierta
+    sonido: click
+  map:
+    etiquetas:
+    - mapa
+    - plano
+    - estructura
+    - orientarse
+    sonido: transformacion
+  map-pin:
+    etiquetas:
+    - ubicación
+    - lugar
+    - dónde está
+    sonido: pop
+  compass:
+    etiquetas:
+    - brújula
+    - dirección
+    - rumbo
+    - estrategia
+    sonido: transformacion
+  network:
+    etiquetas:
+    - red
+    - conexiones
+    - nodos
+    - integraciones
+    sonido: red
+  share-2:
+    etiquetas:
+    - compartir
+    - conectar
+    - distribuir
+    sonido: red
+  link:
+    etiquetas:
+    - enlace
+    - conectar
+    - link
+    - vincular
+    sonido: click
+  plug:
+    etiquetas:
+    - conectar
+    - integración
+    - enchufar
+    sonido: click
+  puzzle:
+    etiquetas:
+    - complemento
+    - plugin
+    - pieza
+    - extensión
+    - encajar
+    sonido: pop
+  server:
+    etiquetas:
+    - servidor
+    - proveedores
+    - infraestructura
+    - nube
+    sonido: red
+  cloud:
+    etiquetas:
+    - nube
+    - online
+    - cloud
+    sonido: red
+  database:
+    etiquetas:
+    - base de datos
+    - datos
+    - información
+    sonido: red
+  cpu:
+    etiquetas:
+    - procesador
+    - computación
+    - potencia
+    sonido: red
+  bot:
+    etiquetas:
+    - robot
+    - bot
+    - agente
+    - IA
+    - asistente
+    - automatizar
+    sonido: transformacion
+  brain:
+    etiquetas:
+    - cerebro
+    - inteligencia
+    - pensar
+    - IA
+    - aprender
+    sonido: transformacion
+  sparkles:
+    etiquetas:
+    - magia
+    - IA
+    - brillo
+    - mejorar
+    - nuevo
+    sonido: transformacion
+  wand-sparkles:
+    etiquetas:
+    - varita
+    - magia
+    - transformar
+    - automático
+    sonido: transformacion
+  zap:
+    etiquetas:
+    - rayo
+    - rápido
+    - energía
+    - instantáneo
+    - potencia
+    sonido: subida
+  terminal:
+    etiquetas:
+    - terminal
+    - consola
+    - comandos
+    - código
+    - Claude Code
+    sonido: teclado
+  code:
+    etiquetas:
+    - código
+    - programar
+    - desarrollo
+    sonido: teclado
+  code-xml:
+    etiquetas:
+    - código
+    - html
+    - desarrollo web
+    sonido: teclado
+  keyboard:
+    etiquetas:
+    - teclado
+    - escribir
+    - teclear
+    sonido: teclado
+  laptop:
+    etiquetas:
+    - portátil
+    - ordenador
+    - trabajar online
+    sonido: click
+  monitor:
+    etiquetas:
+    - pantalla
+    - ordenador
+    - escritorio
+    sonido: click
+  smartphone:
+    etiquetas:
+    - móvil
+    - teléfono
+    - app
+    - celular
+    sonido: mensaje
+  app-window:
+    etiquetas:
+    - aplicación
+    - ventana
+    - software
+    - app
+    sonido: pop
+  layout-dashboard:
+    etiquetas:
+    - panel
+    - dashboard
+    - métricas
+    - control
+    sonido: pop
+  settings:
+    etiquetas:
+    - ajustes
+    - configuración
+    - engranaje
+    - sistema
+    sonido: click
+  workflow:
+    etiquetas:
+    - flujo
+    - proceso
+    - sistema
+    - automatización
+    sonido: red
+  repeat:
+    etiquetas:
+    - repetir
+    - una y otra vez
+    - bucle
+    - recurrente
+    sonido: click
+  refresh-cw:
+    etiquetas:
+    - actualizar
+    - cambiar
+    - rotar
+    - renovar
+    sonido: transformacion
+  search:
+    etiquetas:
+    - buscar
+    - revisar
+    - investigar
+    - encontrar
+    sonido: click
+  scan-search:
+    etiquetas:
+    - escanear
+    - analizar
+    - revisar
+    sonido: click
+  eye:
+    etiquetas:
+    - ver
+    - mirar
+    - visibilidad
+    - atención
+    sonido: pop
+  dollar-sign:
+    etiquetas:
+    - dinero
+    - dólares
+    - precio
+    - cobrar
+    sonido: moneda
+  circle-dollar-sign:
+    etiquetas:
+    - dinero
+    - ingresos
+    - beneficio
+    - pagar
+    sonido: moneda
+  coins:
+    etiquetas:
+    - monedas
+    - dinero
+    - ahorro
+    - gastar
+    - tokens
+    sonido: moneda
+  banknote:
+    etiquetas:
+    - billete
+    - dinero
+    - efectivo
+    - pago
+    sonido: moneda
+  wallet:
+    etiquetas:
+    - cartera
+    - dinero
+    - gastar
+    - bolsillo
+    sonido: moneda
+  piggy-bank:
+    etiquetas:
+    - ahorro
+    - hucha
+    - ahorrar dinero
+    sonido: moneda
+  credit-card:
+    etiquetas:
+    - tarjeta
+    - pago
+    - suscripción
+    - cobro
+    sonido: moneda
+  hand-coins:
+    etiquetas:
+    - pagar
+    - cobrar
+    - vender
+    - ganar dinero
+    sonido: moneda
+  receipt:
+    etiquetas:
+    - factura
+    - recibo
+    - cobro
+    sonido: papel
+  calculator:
+    etiquetas:
+    - calculadora
+    - cálculo
+    - números
+    - cuentas
+    sonido: click
+  percent:
+    etiquetas:
+    - porcentaje
+    - descuento
+    - tasa
+    sonido: pop
+  trending-up:
+    etiquetas:
+    - crecer
+    - subir
+    - aumentar
+    - mejorar
+    - ganar
+    sonido: subida
+  trending-down:
+    etiquetas:
+    - bajar
+    - caer
+    - perder
+    - disminuir
+    - menos
+    sonido: bajada
+  chart-line:
+    etiquetas:
+    - gráfico
+    - evolución
+    - tendencia
+    - resultados
+    sonido: subida
+  chart-column:
+    etiquetas:
+    - barras
+    - estadística
+    - comparar datos
+    sonido: subida
+  chart-pie:
+    etiquetas:
+    - porcentaje
+    - reparto
+    - cuota
+    sonido: pop
+  target:
+    etiquetas:
+    - objetivo
+    - meta
+    - precisión
+    - cliente ideal
+    sonido: pop
+  trophy:
+    etiquetas:
+    - ganar
+    - éxito
+    - logro
+    - premio
+    - mejor
+    sonido: ding
+  crown:
+    etiquetas:
+    - rey
+    - líder
+    - el mejor
+    - premium
+    sonido: ding
+  medal:
+    etiquetas:
+    - medalla
+    - logro
+    - reconocimiento
+    sonido: ding
+  star:
+    etiquetas:
+    - estrella
+    - destacado
+    - favorito
+    - calidad
+    sonido: ding
+  badge-check:
+    etiquetas:
+    - verificado
+    - garantizado
+    - oficial
+    sonido: ding
+  circle-check:
+    etiquetas:
+    - correcto
+    - hecho
+    - listo
+    - sí
+    sonido: ding
+  list-checks:
+    etiquetas:
+    - lista
+    - tareas
+    - checklist
+    - pasos
+    sonido: click
+  clipboard-list:
+    etiquetas:
+    - tareas
+    - pendientes
+    - organizar
+    sonido: click
+  circle-x:
+    etiquetas:
+    - error
+    - 'no'
+    - incorrecto
+    - fallo
+    sonido: alerta
+  triangle-alert:
+    etiquetas:
+    - alerta
+    - peligro
+    - cuidado
+    - riesgo
+    - advertencia
+    sonido: alerta
+  ban:
+    etiquetas:
+    - prohibido
+    - nunca
+    - no hagas
+    - evitar
+    sonido: alerta
+  bug:
+    etiquetas:
+    - bug
+    - error
+    - fallo técnico
+    sonido: alerta
+  skull:
+    etiquetas:
+    - peligro
+    - muerte
+    - fracaso
+    - fatal
+    sonido: alerta
+  flame:
+    etiquetas:
+    - fuego
+    - tendencia
+    - quemar
+    - caliente
+    - viral
+    sonido: subida
+  lock:
+    etiquetas:
+    - seguridad
+    - candado
+    - privado
+    - bloquear
+    sonido: candado
+  lock-open:
+    etiquetas:
+    - desbloquear
+    - acceso
+    - abrir
+    sonido: candado
+  shield-check:
+    etiquetas:
+    - seguro
+    - protección
+    - confianza
+    sonido: candado
+  key-round:
+    etiquetas:
+    - llave
+    - acceso
+    - clave
+    - secreto
+    sonido: candado
+  fingerprint:
+    etiquetas:
+    - identidad
+    - huella
+    - único
+    sonido: candado
+  clock:
+    etiquetas:
+    - tiempo
+    - reloj
+    - horas
+    - rápido
+    - tarde
+    sonido: reloj
+  timer:
+    etiquetas:
+    - temporizador
+    - minutos
+    - rapidez
+    - cronómetro
+    sonido: reloj
+  hourglass:
+    etiquetas:
+    - reloj de arena
+    - esperar
+    - tiempo perdido
+    sonido: reloj
+  calendar:
+    etiquetas:
+    - calendario
+    - fecha
+    - días
+    - mes
+    - agenda
+    sonido: click
+  alarm-clock:
+    etiquetas:
+    - alarma
+    - urgente
+    - despertar
+    - fecha límite
+    sonido: reloj
+  user:
+    etiquetas:
+    - persona
+    - usuario
+    - tú
+    - cliente
+    - una persona
+    sonido: pop
+  users:
+    etiquetas:
+    - personas
+    - equipo
+    - clientes
+    - gente
+    - comunidad
+    sonido: pop
+  user-plus:
+    etiquetas:
+    - nuevo cliente
+    - seguidor
+    - sumar persona
+    sonido: pop
+  user-check:
+    etiquetas:
+    - cliente
+    - usuario verificado
+    sonido: ding
+  briefcase:
+    etiquetas:
+    - trabajo
+    - negocio
+    - empresa
+    - profesional
+    sonido: click
+  building-2:
+    etiquetas:
+    - empresa
+    - oficina
+    - corporación
+    - Wall Street
+    sonido: pop
+  landmark:
+    etiquetas:
+    - banco
+    - institución
+    - gobierno
+    - bolsa
+    sonido: pop
+  store:
+    etiquetas:
+    - tienda
+    - negocio
+    - comercio
+    sonido: pop
+  shopping-cart:
+    etiquetas:
+    - comprar
+    - venta
+    - carrito
+    - ecommerce
+    sonido: moneda
+  package:
+    etiquetas:
+    - producto
+    - paquete
+    - envío
+    - pack
+    sonido: pop
+  gift:
+    etiquetas:
+    - regalo
+    - gratis
+    - bonus
+    - regalar
+    sonido: ding
+  handshake:
+    etiquetas:
+    - acuerdo
+    - trato
+    - cliente
+    - colaborar
+    sonido: pop
+  megaphone:
+    etiquetas:
+    - anunciar
+    - marketing
+    - publicidad
+    - difundir
+    sonido: pop
+  message-circle:
+    etiquetas:
+    - mensaje
+    - chat
+    - comentar
+    - conversación
+    sonido: mensaje
+  message-square-text:
+    etiquetas:
+    - mensaje
+    - comentario
+    - texto
+    - escribir
+    sonido: mensaje
+  send:
+    etiquetas:
+    - enviar
+    - mandar
+    - link
+    - compartir
+    sonido: mensaje
+  mail:
+    etiquetas:
+    - email
+    - correo
+    - newsletter
+    sonido: mensaje
+  bell:
+    etiquetas:
+    - notificación
+    - aviso
+    - alerta
+    sonido: mensaje
+  phone:
+    etiquetas:
+    - llamada
+    - teléfono
+    - llamar
+    sonido: mensaje
+  globe:
+    etiquetas:
+    - mundo
+    - global
+    - internet
+    - internacional
+    sonido: red
+  earth:
+    etiquetas:
+    - planeta
+    - mundo entero
+    - global
+    sonido: red
+  lightbulb:
+    etiquetas:
+    - idea
+    - bombilla
+    - ocurrencia
+    - solución
+    sonido: pop
+  book-open:
+    etiquetas:
+    - libro
+    - aprender
+    - curso
+    - guía
+    sonido: papel
+  graduation-cap:
+    etiquetas:
+    - aprender
+    - curso
+    - formación
+    - master class
+    sonido: ding
+  pencil:
+    etiquetas:
+    - escribir
+    - editar
+    - lápiz
+    sonido: teclado
+  pen-tool:
+    etiquetas:
+    - diseño
+    - crear
+    - dibujar
+    sonido: transformacion
+  image:
+    etiquetas:
+    - imagen
+    - foto
+    - visual
+    sonido: camara
+  camera:
+    etiquetas:
+    - cámara
+    - foto
+    - grabar
+    sonido: camara
+  video:
+    etiquetas:
+    - vídeo
+    - grabar
+    - contenido
+    - reel
+    sonido: camara
+  mic:
+    etiquetas:
+    - micrófono
+    - hablar
+    - podcast
+    - voz
+    sonido: pop
+  play:
+    etiquetas:
+    - reproducir
+    - empezar
+    - vídeo
+    - play
+    sonido: click
+  layers:
+    etiquetas:
+    - capas
+    - niveles
+    - pila
+    - estructura
+    sonido: transformacion
+  boxes:
+    etiquetas:
+    - cajas
+    - módulos
+    - piezas
+    - componentes
+    sonido: pop
+  gauge:
+    etiquetas:
+    - rendimiento
+    - velocidad
+    - medidor
+    sonido: subida
+  battery-charging:
+    etiquetas:
+    - cargar
+    - energía
+    - recargar
+    sonido: subida
+  battery-low:
+    etiquetas:
+    - sin batería
+    - agotado
+    - sin energía
+    - quedarse sin
+    sonido: bajada
+  infinity:
+    etiquetas:
+    - infinito
+    - ilimitado
+    - sin límite
+    sonido: transformacion
+  shuffle:
+    etiquetas:
+    - mezclar
+    - cambiar
+    - alternar
+    - aleatorio
+    sonido: click
+  split:
+    etiquetas:
+    - dividir
+    - separar
+    - bifurcar
+    sonido: click
+  merge:
+    etiquetas:
+    - unir
+    - fusionar
+    - juntar
+    sonido: click
+  arrow-right-left:
+    etiquetas:
+    - intercambiar
+    - cambiar
+    - de un lado a otro
+    sonido: click
+  move-up-right:
+    etiquetas:
+    - subir
+    - avanzar
+    - progreso
+    sonido: subida
+  scale:
+    etiquetas:
+    - comparar
+    - equilibrio
+    - justicia
+    - balanza
+    sonido: pop
+  magnet:
+    etiquetas:
+    - atraer
+    - imán
+    - captar clientes
+    sonido: pop
+  sprout:
+    etiquetas:
+    - crecer
+    - empezar
+    - semilla
+    - orgánico
+    sonido: subida
+  mountain:
+    etiquetas:
+    - montaña
+    - reto
+    - cima
+    - meta
+    sonido: subida
+  house:
+    etiquetas:
+    - casa
+    - vivienda
+    - hogar
+    - piso
+    - inmueble
+    sonido: pop
+  key:
+    etiquetas:
+    - llave
+    - piso
+    - propiedad
+    - acceso
+    sonido: candado
+  hammer:
+    etiquetas:
+    - construir
+    - arreglar
+    - herramienta
+    sonido: click
+  wrench:
+    etiquetas:
+    - herramienta
+    - arreglar
+    - ajustar
+    sonido: click
+  party-popper:
+    etiquetas:
+    - celebrar
+    - fiesta
+    - éxito
+    - lanzamiento
+    sonido: ding
+  smile:
+    etiquetas:
+    - feliz
+    - sonrisa
+    - satisfecho
+    sonido: pop
+  frown:
+    etiquetas:
+    - triste
+    - problema
+    - frustración
+    sonido: bajada
+  heart:
+    etiquetas:
+    - amor
+    - me gusta
+    - favorito
+    sonido: pop
+  thumbs-up:
+    etiquetas:
+    - bien
+    - aprobar
+    - recomendar
+    - like
+    sonido: pop
+  thumbs-down:
+    etiquetas:
+    - mal
+    - no recomendar
+    - dislike
+    sonido: bajada
+  flag:
+    etiquetas:
+    - bandera
+    - meta
+    - objetivo
+    - hito
+    sonido: pop
+  bookmark:
+    etiquetas:
+    - guardar
+    - marcador
+    - guárdalo
+    sonido: click

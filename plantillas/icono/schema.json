@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "icono",
+  "description": "Icono protagonista que representa lo que se dice, con un movimiento con significado.",
+  "formato": "panel",
+  "type": "object",
+  "required": [
+    "icono",
+    "t_aterrizaje"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "icono": {
+      "type": "string",
+      "description": "Nombre en plantillas/_iconos/catalogo.yaml"
+    },
+    "movimiento": {
+      "enum": [
+        "dibujar",
+        "subir",
+        "caer",
+        "latir",
+        "girar",
+        "sacudir"
+      ]
+    },
+    "icono_receptor": {
+      "type": "string",
+      "description": "Solo con movimiento 'caer': icono donde cae el principal (p. ej. trash-2)"
+    },
+    "rotulo": {
+      "type": "string",
+      "maxPalabras": 4
+    },
+    "destacado": {
+      "type": "string"
+    },
+    "sonido": {
+      "type": "string",
+      "description": "Tipo de SFX; si falta, el del icono en el catálogo"
+    },
+    "t_aterrizaje": {
+      "type": "number",
+      "minimum": 0
+    }
+  },
+  "ejemplo": {
+    "icono": "rocket",
+    "movimiento": "subir",
+    "rotulo": "otro nivel",
+    "destacado": "nivel",
+    "t_aterrizaje": 0.9
+  }
+}
