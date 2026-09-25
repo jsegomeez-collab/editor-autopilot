@@ -139,6 +139,10 @@ class Cola:
             with self.cerrojo:
                 it.update(etapa=estado["etapa"], progreso=estado["progreso"], mensaje=estado["mensaje"],
                           trabajo=estado["trabajo"])
+                # En cuanto el original se mueve al trabajo, la cola apunta allí (sobrevive a reinicios).
+                movido = Path(estado["trabajo"]) / "original" / Path(it["archivo"]).name
+                if movido.exists():
+                    it["archivo"] = str(movido)
                 self._guardar()
 
         with self.cerrojo:
@@ -146,7 +150,7 @@ class Cola:
             self._guardar()
         try:
             archivo = Path(it["archivo"])
-            mover = archivo.parent.parent.name == "entrada"  # solo se mueve lo que está en entrada/
+            mover = archivo.parent.parent.name == "entrada"  # solo se mueve lo que está en entrada/ (una vez)
             r = editar(archivo, perfil_dir, ajustes["carpeta_salida"], avisar, mover_original=mover)
             with self.cerrojo:
                 it.update(estado="revisar" if r["veredicto"] == "REVISAR" else "listo", veredicto=r["veredicto"],
