@@ -1,6 +1,283 @@
-# Kit inicial de audio (sección 6.6). Música instrumental 75 s; efectos estilo "minimal".
-# Aprobado: plan Starter, presupuesto ~24.000 créditos (hasta ~30.000).
+# Kit inicial de audio (sección 6.6). Música instrumental 75 s; efectos estilo tech (petición del cliente).
+# Aprobado por el cliente: plan Starter, ~22.800 créditos estimados (límite 30.000).
 items:
-  # --- piloto ---
-  - {id: sfx_pop_1, clase: sfx, categoria: pop, duracion_s: 0.5, prompt: "soft minimal UI pop, short clean bubble pop, no reverb"}
-  - {id: mus_neutra_1, clase: musica, categoria: neutra, duracion_s: 20, prompt: "calm minimal lo-fi electronic background, soft electric piano, light gentle beat, unobtrusive, 92 BPM, clean modern tech vibe, instrumental, no vocals"}
+- id: mus_energetica_1
+  clase: musica
+  categoria: energetica
+  duracion_s: 75
+  prompt: driving modern electronic tech-house beat, punchy kick, pulsing synth bass, bright plucks, 122 BPM, instrumental, no vocals, background for a talking video
+- id: mus_energetica_2
+  clase: musica
+  categoria: energetica
+  duracion_s: 75
+  prompt: energetic futuristic synthwave groove, fast arpeggios, tight drums, 118 BPM, instrumental, no vocals, background for a talking video
+- id: mus_energetica_3
+  clase: musica
+  categoria: energetica
+  duracion_s: 75
+  prompt: high energy electronic pop instrumental, crisp percussion, sidechained synths, 124 BPM, instrumental, no vocals, background for a talking video
+- id: mus_energetica_4
+  clase: musica
+  categoria: energetica
+  duracion_s: 75
+  prompt: upbeat tech startup promo beat, bouncy bass, digital plucks, claps, 120 BPM, instrumental, no vocals, background for a talking video
+- id: mus_inspiradora_1
+  clase: musica
+  categoria: inspiradora
+  duracion_s: 75
+  prompt: uplifting cinematic electronic, soft piano chords over warm synth pads, steady modern beat, 100 BPM, instrumental, no vocals, background for a talking video
+- id: mus_inspiradora_2
+  clase: musica
+  categoria: inspiradora
+  duracion_s: 75
+  prompt: inspiring tech keynote music, airy synth arpeggios, gentle build, hopeful, 105 BPM, instrumental, no vocals, background for a talking video
+- id: mus_inspiradora_3
+  clase: musica
+  categoria: inspiradora
+  duracion_s: 75
+  prompt: motivational modern ambient pop instrumental, shimmering plucks, light drums, 98 BPM, instrumental, no vocals, background for a talking video
+- id: mus_inspiradora_4
+  clase: musica
+  categoria: inspiradora
+  duracion_s: 75
+  prompt: optimistic future-tech underscore, bright pads, subtle pulse, rising energy, 102 BPM, instrumental, no vocals, background for a talking video
+- id: mus_tension_1
+  clase: musica
+  categoria: tension
+  duracion_s: 75
+  prompt: tense dark minimal electronic, pulsing low synth, ticking hi-hats, suspenseful, 90 BPM, instrumental, no vocals, background for a talking video
+- id: mus_tension_2
+  clase: musica
+  categoria: tension
+  duracion_s: 75
+  prompt: cyber thriller underscore, deep drones, glitchy percussion, uneasy, 95 BPM, instrumental, no vocals, background for a talking video
+- id: mus_tension_3
+  clase: musica
+  categoria: tension
+  duracion_s: 75
+  prompt: suspenseful tech documentary music, heartbeat bass pulse, cold synth stabs, 88 BPM, instrumental, no vocals, background for a talking video
+- id: mus_tension_4
+  clase: musica
+  categoria: tension
+  duracion_s: 75
+  prompt: ominous data breach mood, dark arpeggio, sparse industrial hits, 92 BPM, instrumental, no vocals, background for a talking video
+- id: mus_neutra_2
+  clase: musica
+  categoria: neutra
+  duracion_s: 75
+  prompt: calm minimal electronic background, soft electric piano, light gentle beat, unobtrusive, clean tech vibe, 92 BPM, instrumental, no vocals, background for a talking video
+- id: mus_neutra_3
+  clase: musica
+  categoria: neutra
+  duracion_s: 75
+  prompt: neutral corporate tech underscore, soft plucks, subtle pads, steady light rhythm, 95 BPM, instrumental, no vocals, background for a talking video
+- id: mus_neutra_4
+  clase: musica
+  categoria: neutra
+  duracion_s: 75
+  prompt: chill lo-fi electronic, warm keys, soft drums, relaxed and focused, 88 BPM, instrumental, no vocals, background for a talking video
+- id: mus_neutra_5
+  clase: musica
+  categoria: neutra
+  duracion_s: 75
+  prompt: minimal modern ambient tech bed, gentle pulse, airy textures, very unobtrusive, 90 BPM, instrumental, no vocals, background for a talking video
+- id: mus_emocional_1
+  clase: musica
+  categoria: emocional
+  duracion_s: 75
+  prompt: emotional ambient piano with soft synth pads, slow, warm and intimate, 70 BPM, instrumental, no vocals, background for a talking video
+- id: mus_emocional_2
+  clase: musica
+  categoria: emocional
+  duracion_s: 75
+  prompt: heartfelt cinematic electronic, gentle piano melody, soft strings pad, 75 BPM, instrumental, no vocals, background for a talking video
+- id: mus_emocional_3
+  clase: musica
+  categoria: emocional
+  duracion_s: 75
+  prompt: reflective emotional underscore, felt piano, warm analog pads, 68 BPM, instrumental, no vocals, background for a talking video
+- id: mus_emocional_4
+  clase: musica
+  categoria: emocional
+  duracion_s: 75
+  prompt: tender hopeful ambient, soft electric piano, distant textures, 72 BPM, instrumental, no vocals, background for a talking video
+- id: sfx_impacto_tech1
+  clase: sfx
+  categoria: impacto
+  duracion_s: 1.5
+  prompt: futuristic tech impact hit, deep digital bass thump with a short glitchy sub drop, clean, short tail, no voice
+- id: sfx_impacto_tech2
+  clase: sfx
+  categoria: impacto
+  duracion_s: 1.5
+  prompt: futuristic tech impact hit, deep digital bass thump with a short glitchy sub drop, clean, short tail, brighter and lighter, no voice
+- id: sfx_impacto_tech3
+  clase: sfx
+  categoria: impacto
+  duracion_s: 1.5
+  prompt: futuristic tech impact hit, deep digital bass thump with a short glitchy sub drop, clean, short tail, deeper and warmer, no voice
+- id: sfx_impacto_tech4
+  clase: sfx
+  categoria: impacto
+  duracion_s: 1.5
+  prompt: futuristic tech impact hit, deep digital bass thump with a short glitchy sub drop, clean, short tail, slightly glitchy texture, no voice
+- id: sfx_whoosh_tech1
+  clase: sfx
+  categoria: whoosh
+  duracion_s: 0.8
+  prompt: fast digital whoosh transition, sci-fi interface swoosh, airy synth sweep, short and clean, no voice
+- id: sfx_whoosh_tech2
+  clase: sfx
+  categoria: whoosh
+  duracion_s: 0.8
+  prompt: fast digital whoosh transition, sci-fi interface swoosh, airy synth sweep, short and clean, brighter and lighter, no voice
+- id: sfx_whoosh_tech3
+  clase: sfx
+  categoria: whoosh
+  duracion_s: 0.8
+  prompt: fast digital whoosh transition, sci-fi interface swoosh, airy synth sweep, short and clean, deeper and warmer, no voice
+- id: sfx_whoosh_tech4
+  clase: sfx
+  categoria: whoosh
+  duracion_s: 0.8
+  prompt: fast digital whoosh transition, sci-fi interface swoosh, airy synth sweep, short and clean, slightly glitchy texture, no voice
+- id: sfx_pop_tech1
+  clase: sfx
+  categoria: pop
+  duracion_s: 0.5
+  prompt: digital UI pop, futuristic interface blip, short clean synth pop, no voice
+- id: sfx_pop_tech2
+  clase: sfx
+  categoria: pop
+  duracion_s: 0.5
+  prompt: digital UI pop, futuristic interface blip, short clean synth pop, brighter and lighter, no voice
+- id: sfx_pop_tech3
+  clase: sfx
+  categoria: pop
+  duracion_s: 0.5
+  prompt: digital UI pop, futuristic interface blip, short clean synth pop, deeper and warmer, no voice
+- id: sfx_pop_tech4
+  clase: sfx
+  categoria: pop
+  duracion_s: 0.5
+  prompt: digital UI pop, futuristic interface blip, short clean synth pop, slightly glitchy texture, no voice
+- id: sfx_click_tech1
+  clase: sfx
+  categoria: click
+  duracion_s: 0.5
+  prompt: crisp futuristic UI click, digital interface tap, very short, no voice
+- id: sfx_click_tech2
+  clase: sfx
+  categoria: click
+  duracion_s: 0.5
+  prompt: crisp futuristic UI click, digital interface tap, very short, brighter and lighter, no voice
+- id: sfx_click_tech3
+  clase: sfx
+  categoria: click
+  duracion_s: 0.5
+  prompt: crisp futuristic UI click, digital interface tap, very short, deeper and warmer, no voice
+- id: sfx_click_tech4
+  clase: sfx
+  categoria: click
+  duracion_s: 0.5
+  prompt: crisp futuristic UI click, digital interface tap, very short, slightly glitchy texture, no voice
+- id: sfx_tick_tech1
+  clase: sfx
+  categoria: tick
+  duracion_s: 0.5
+  prompt: digital counter tick, very short electronic blip for a number counter, no voice
+- id: sfx_tick_tech2
+  clase: sfx
+  categoria: tick
+  duracion_s: 0.5
+  prompt: digital counter tick, very short electronic blip for a number counter, brighter and lighter, no voice
+- id: sfx_tick_tech3
+  clase: sfx
+  categoria: tick
+  duracion_s: 0.5
+  prompt: digital counter tick, very short electronic blip for a number counter, deeper and warmer, no voice
+- id: sfx_tick_tech4
+  clase: sfx
+  categoria: tick
+  duracion_s: 0.5
+  prompt: digital counter tick, very short electronic blip for a number counter, slightly glitchy texture, no voice
+- id: sfx_ding_tech1
+  clase: sfx
+  categoria: ding
+  duracion_s: 1.2
+  prompt: futuristic digital success chime, clean synth ding, tech interface confirmation, no voice
+- id: sfx_ding_tech2
+  clase: sfx
+  categoria: ding
+  duracion_s: 1.2
+  prompt: futuristic digital success chime, clean synth ding, tech interface confirmation, brighter and lighter, no voice
+- id: sfx_ding_tech3
+  clase: sfx
+  categoria: ding
+  duracion_s: 1.2
+  prompt: futuristic digital success chime, clean synth ding, tech interface confirmation, deeper and warmer, no voice
+- id: sfx_ding_tech4
+  clase: sfx
+  categoria: ding
+  duracion_s: 1.2
+  prompt: futuristic digital success chime, clean synth ding, tech interface confirmation, slightly glitchy texture, no voice
+- id: sfx_alerta_tech1
+  clase: sfx
+  categoria: alerta
+  duracion_s: 1.2
+  prompt: soft futuristic warning alert, low digital buzz pulse, tech interface alarm, subtle, no voice
+- id: sfx_alerta_tech2
+  clase: sfx
+  categoria: alerta
+  duracion_s: 1.2
+  prompt: soft futuristic warning alert, low digital buzz pulse, tech interface alarm, subtle, brighter and lighter, no voice
+- id: sfx_alerta_tech3
+  clase: sfx
+  categoria: alerta
+  duracion_s: 1.2
+  prompt: soft futuristic warning alert, low digital buzz pulse, tech interface alarm, subtle, deeper and warmer, no voice
+- id: sfx_alerta_tech4
+  clase: sfx
+  categoria: alerta
+  duracion_s: 1.2
+  prompt: soft futuristic warning alert, low digital buzz pulse, tech interface alarm, subtle, slightly glitchy texture, no voice
+- id: sfx_swipe_tech1
+  clase: sfx
+  categoria: swipe
+  duracion_s: 0.6
+  prompt: quick digital swipe, holographic interface slide, short synth swish, no voice
+- id: sfx_swipe_tech2
+  clase: sfx
+  categoria: swipe
+  duracion_s: 0.6
+  prompt: quick digital swipe, holographic interface slide, short synth swish, brighter and lighter, no voice
+- id: sfx_swipe_tech3
+  clase: sfx
+  categoria: swipe
+  duracion_s: 0.6
+  prompt: quick digital swipe, holographic interface slide, short synth swish, deeper and warmer, no voice
+- id: sfx_swipe_tech4
+  clase: sfx
+  categoria: swipe
+  duracion_s: 0.6
+  prompt: quick digital swipe, holographic interface slide, short synth swish, slightly glitchy texture, no voice
+- id: sfx_notificacion_tech1
+  clase: sfx
+  categoria: notificacion
+  duracion_s: 1.2
+  prompt: modern tech app notification sound, clean digital chime, futuristic, no voice
+- id: sfx_notificacion_tech2
+  clase: sfx
+  categoria: notificacion
+  duracion_s: 1.2
+  prompt: modern tech app notification sound, clean digital chime, futuristic, brighter and lighter, no voice
+- id: sfx_notificacion_tech3
+  clase: sfx
+  categoria: notificacion
+  duracion_s: 1.2
+  prompt: modern tech app notification sound, clean digital chime, futuristic, deeper and warmer, no voice
+- id: sfx_notificacion_tech4
+  clase: sfx
+  categoria: notificacion
+  duracion_s: 1.2
+  prompt: modern tech app notification sound, clean digital chime, futuristic, slightly glitchy texture, no voice

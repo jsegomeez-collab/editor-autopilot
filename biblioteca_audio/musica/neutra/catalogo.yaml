@@ -10,3 +10,48 @@ pistas:
   - anuncios
   prompt: calm minimal lo-fi electronic background, soft electric piano, light gentle
     beat, unobtrusive, 92 BPM, clean modern tech vibe, instrumental, no vocals
+- archivo: mus_neutra_2.flac
+  duracion_s: 75.05
+  bpm: 92.3
+  inicio_recomendado: 5.271
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: calm minimal electronic background, soft electric piano, light gentle beat,
+    unobtrusive, clean tech vibe, 92 BPM, instrumental, no vocals, background for
+    a talking video
+- archivo: mus_neutra_3.flac
+  duracion_s: 75.05
+  bpm: 95.7
+  inicio_recomendado: 0.859
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: neutral corporate tech underscore, soft plucks, subtle pads, steady light
+    rhythm, 95 BPM, instrumental, no vocals, background for a talking video
+- archivo: mus_neutra_4.flac
+  duracion_s: 75.05
+  bpm: 89.1
+  inicio_recomendado: 15.743
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: chill lo-fi electronic, warm keys, soft drums, relaxed and focused, 88 BPM,
+    instrumental, no vocals, background for a talking video
+- archivo: mus_neutra_5.flac
+  duracion_s: 75.05
+  bpm: 89.1
+  inicio_recomendado: 23.382
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: minimal modern ambient tech bed, gentle pulse, airy textures, very unobtrusive,
+    90 BPM, instrumental, no vocals, background for a talking video

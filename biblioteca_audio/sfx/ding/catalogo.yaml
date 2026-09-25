@@ -1,0 +1,37 @@
+pistas:
+- archivo: sfx_ding_tech1.flac
+  duracion_s: 1.2
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: futuristic digital success chime, clean synth ding, tech interface confirmation,
+    no voice
+- archivo: sfx_ding_tech2.flac
+  duracion_s: 1.2
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: futuristic digital success chime, clean synth ding, tech interface confirmation,
+    brighter and lighter, no voice
+- archivo: sfx_ding_tech3.flac
+  duracion_s: 1.2
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: futuristic digital success chime, clean synth ding, tech interface confirmation,
+    deeper and warmer, no voice
+- archivo: sfx_ding_tech4.flac
+  duracion_s: 1.2
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: futuristic digital success chime, clean synth ding, tech interface confirmation,
+    slightly glitchy texture, no voice

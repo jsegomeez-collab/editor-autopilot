@@ -1,0 +1,46 @@
+pistas:
+- archivo: mus_inspiradora_1.flac
+  duracion_s: 75.05
+  bpm: 99.4
+  inicio_recomendado: 22.872
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: uplifting cinematic electronic, soft piano chords over warm synth pads,
+    steady modern beat, 100 BPM, instrumental, no vocals, background for a talking
+    video
+- archivo: mus_inspiradora_2.flac
+  duracion_s: 75.05
+  bpm: 103.4
+  inicio_recomendado: 1.347
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: inspiring tech keynote music, airy synth arpeggios, gentle build, hopeful,
+    105 BPM, instrumental, no vocals, background for a talking video
+- archivo: mus_inspiradora_3.flac
+  duracion_s: 75.05
+  bpm: 99.4
+  inicio_recomendado: 3.738
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: motivational modern ambient pop instrumental, shimmering plucks, light drums,
+    98 BPM, instrumental, no vocals, background for a talking video
+- archivo: mus_inspiradora_4.flac
+  duracion_s: 74.998
+  bpm: 136.0
+  inicio_recomendado: 11.238
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: optimistic future-tech underscore, bright pads, subtle pulse, rising energy,
+    102 BPM, instrumental, no vocals, background for a talking video

@@ -1,0 +1,45 @@
+pistas:
+- archivo: mus_energetica_1.flac
+  duracion_s: 75.05
+  bpm: 123.0
+  inicio_recomendado: 0.557
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: driving modern electronic tech-house beat, punchy kick, pulsing synth bass,
+    bright plucks, 122 BPM, instrumental, no vocals, background for a talking video
+- archivo: mus_energetica_2.flac
+  duracion_s: 75.05
+  bpm: 117.5
+  inicio_recomendado: 17.856
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: energetic futuristic synthwave groove, fast arpeggios, tight drums, 118
+    BPM, instrumental, no vocals, background for a talking video
+- archivo: mus_energetica_3.flac
+  duracion_s: 75.05
+  bpm: 123.0
+  inicio_recomendado: 15.534
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: high energy electronic pop instrumental, crisp percussion, sidechained synths,
+    124 BPM, instrumental, no vocals, background for a talking video
+- archivo: mus_energetica_4.flac
+  duracion_s: 75.05
+  bpm: 117.5
+  inicio_recomendado: 3.553
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: upbeat tech startup promo beat, bouncy bass, digital plucks, claps, 120
+    BPM, instrumental, no vocals, background for a talking video

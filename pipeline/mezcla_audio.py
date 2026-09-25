@@ -78,7 +78,7 @@ def muestras_voz(ruta: Path) -> np.ndarray:
 
 # ---------- música ----------
 
-def elegir_pista(perfil_dir: Path, estado: str, trabajo: str, anuncios: bool) -> dict:
+def elegir_pista(perfil_dir: Path, estado: str, trabajo: str, anuncios: bool, dur: float = 0.0) -> dict:
     """Pista del estado pedido que no esté entre las últimas 5 usadas por el perfil."""
     bib = biblioteca_audio(perfil_dir)
     cat = bib / "musica" / estado / "catalogo.yaml"
@@ -94,7 +94,9 @@ def elegir_pista(perfil_dir: Path, estado: str, trabajo: str, anuncios: bool) ->
     ultimo_uso = {h["archivo"]: i for i, h in enumerate(historial)}
     libres = [p for p in pistas if f"{estado}/{p['archivo']}" not in recientes]
     candidatas = libres or pistas  # si todas se usaron hace poco, la menos reciente (se avisa en QA)
-    elegida = min(candidatas, key=lambda p: ultimo_uso.get(f"{estado}/{p['archivo']}", -1))
+    # La menos usada; a igualdad, una que cubra el vídeo sin bucle.
+    cubre = lambda p: p["duracion_s"] - p.get("inicio_recomendado", 0) >= dur  # noqa: E731
+    elegida = min(candidatas, key=lambda p: (ultimo_uso.get(f"{estado}/{p['archivo']}", -1), not cubre(p)))
     return {**elegida, "estado": estado, "ruta": str(bib / "musica" / estado / elegida["archivo"]),
             "repetida_reciente": not libres}
 
@@ -174,7 +176,7 @@ def mezclar(video: Path, perfil_dir: Path, estado: str | None, sfx: list[dict], 
     if usar_musica:
         if estado not in perfil.audio.estados_animo_permitidos:
             estado = perfil.audio.estado_animo_por_defecto
-        pista = elegir_pista(perfil_dir, estado, trabajo, anuncios)
+        pista = elegir_pista(perfil_dir, estado, trabajo, anuncios, dur)
         ajustada = musica_ajustada(pista, dur, tmp / "musica_ajustada.wav")
         # Sin voz: (musica_db_bajo_voz − reducción del ducking) por debajo; con voz, ~musica_db_bajo_voz.
         g = (voz_lufs - (niveles.musica_db_bajo_voz - REDUCCION_DUCKING_DB)) - MUSICA_CATALOGO_LUFS

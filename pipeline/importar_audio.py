@@ -32,6 +32,7 @@ RAIZ = Path(__file__).resolve().parent.parent
 EXTENSIONES = {".mp3", ".wav", ".flac", ".m4a", ".aac", ".ogg"}
 MUSICA_LUFS, MUSICA_TP = -20.0, -2.0
 SFX_PICO_DB = -3.0
+PICO_MINIMO_DB = -40.0  # por debajo, la generación salió prácticamente muda y se rechaza
 ESTADOS = {"energetica", "inspiradora", "tension", "neutra", "emocional"}
 TIPOS_SFX = {"impacto", "whoosh", "pop", "click", "tick", "ding", "alerta", "swipe", "notificacion"}
 
@@ -52,14 +53,18 @@ def loudnorm_dos_pasadas(origen: Path, destino: Path) -> None:
     ffmpeg("-i", str(origen), "-af", filtro + medido, "-ar", "48000", "-ac", "2", "-c:a", "flac", str(destino))
 
 
+def pico_db(ruta: Path) -> float:
+    m = re.search(r"max_volume: (-?[\d.]+) dB", ffmpeg("-i", str(ruta), "-af", "volumedetect", "-f", "null", "-"))
+    return float(m.group(1)) if m else -120.0
+
+
 def normalizar_sfx(origen: Path, destino: Path) -> None:
     # Recorta silencios de los extremos y lleva el pico a SFX_PICO_DB.
     recorte = ("silenceremove=start_periods=1:start_threshold=-60dB,"
                "areverse,silenceremove=start_periods=1:start_threshold=-60dB,areverse")
     tmp = destino.with_suffix(".tmp.wav")
     ffmpeg("-i", str(origen), "-af", recorte, "-ar", "48000", "-ac", "2", str(tmp))
-    salida = ffmpeg("-i", str(tmp), "-af", "volumedetect", "-f", "null", "-")
-    pico = float(re.search(r"max_volume: (-?[\d.]+) dB", salida).group(1))
+    pico = pico_db(tmp)
     ffmpeg("-i", str(tmp), "-af", f"volume={SFX_PICO_DB - pico:.2f}dB", "-c:a", "flac", str(destino))
     tmp.unlink()
 
@@ -102,6 +107,9 @@ def importar(biblioteca: Path) -> None:
         validos = ESTADOS if es_musica else TIPOS_SFX
         if meta["categoria"] not in validos:
             print(f"❌ {audio.name}: categoría '{meta['categoria']}' no válida ({sorted(validos)})")
+            continue
+        if not es_musica and pico_db(audio) < PICO_MINIMO_DB:
+            print(f"❌ {audio.name}: prácticamente mudo (pico < {PICO_MINIMO_DB:.0f} dB); no entra al catálogo")
             continue
         carpeta = biblioteca / ("musica" if es_musica else "sfx") / meta["categoria"]
         carpeta.mkdir(parents=True, exist_ok=True)

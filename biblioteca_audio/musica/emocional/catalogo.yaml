@@ -1,0 +1,45 @@
+pistas:
+- archivo: mus_emocional_1.flac
+  duracion_s: 75.05
+  bpm: 139.7
+  inicio_recomendado: 8.22
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: emotional ambient piano with soft synth pads, slow, warm and intimate, 70
+    BPM, instrumental, no vocals, background for a talking video
+- archivo: mus_emocional_2.flac
+  duracion_s: 75.05
+  bpm: 99.4
+  inicio_recomendado: 5.108
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: heartfelt cinematic electronic, gentle piano melody, soft strings pad, 75
+    BPM, instrumental, no vocals, background for a talking video
+- archivo: mus_emocional_3.flac
+  duracion_s: 75.05
+  bpm: 129.2
+  inicio_recomendado: 3.622
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: reflective emotional underscore, felt piano, warm analog pads, 68 BPM, instrumental,
+    no vocals, background for a talking video
+- archivo: mus_emocional_4.flac
+  duracion_s: 75.05
+  bpm: 71.8
+  inicio_recomendado: 14.234
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: tender hopeful ambient, soft electric piano, distant textures, 72 BPM, instrumental,
+    no vocals, background for a talking video

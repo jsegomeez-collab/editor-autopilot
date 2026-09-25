@@ -37,9 +37,11 @@ ADELANTO_WHOOSH = 0.10
 TICKS_CONTEO = 4       # ticks durante el conteo de una cifra (solo densidad alta)
 DURACION_CONTEO = 1.0
 
-# Prioridad al recortar densidad (mayor = se conserva antes).
-PRIORIDAD = {"impacto": 9, "notificacion": 8, "whoosh": 7, "ding": 6, "alerta": 6, "swipe": 5,
-             "pop": 4, "click": 3, "tick": 1}
+# Prioridad al recortar densidad (mayor = se conserva antes). Los efectos ligados a un gráfico
+# van por delante de los whoosh de layout: con un ritmo rápido (un cambio cada ~2 s) los whoosh
+# coparían la densidad y el resultado sería monótono.
+PRIORIDAD = {"impacto": 9, "notificacion": 8, "ding": 7, "alerta": 7, "swipe": 6, "pop": 5,
+             "click": 4, "whoosh": 3, "tick": 1}
 BASICOS = {"impacto", "whoosh", "notificacion"}  # densidad baja
 
 

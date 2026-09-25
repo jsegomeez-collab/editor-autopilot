@@ -1,0 +1,37 @@
+pistas:
+- archivo: sfx_swipe_tech1.flac
+  duracion_s: 0.6
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: quick digital swipe, holographic interface slide, short synth swish, no
+    voice
+- archivo: sfx_swipe_tech2.flac
+  duracion_s: 0.6
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: quick digital swipe, holographic interface slide, short synth swish, brighter
+    and lighter, no voice
+- archivo: sfx_swipe_tech3.flac
+  duracion_s: 0.6
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: quick digital swipe, holographic interface slide, short synth swish, deeper
+    and warmer, no voice
+- archivo: sfx_swipe_tech4.flac
+  duracion_s: 0.6
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: quick digital swipe, holographic interface slide, short synth swish, slightly
+    glitchy texture, no voice

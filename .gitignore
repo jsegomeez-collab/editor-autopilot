@@ -20,3 +20,9 @@ plantillas/*/preview.mp4
 
 # Sistema
 .DS_Store
+
+# Biblioteca de audio: pesada (~300 MB). En git solo van los catálogos y el plan.
+biblioteca_audio/**/*.flac
+biblioteca_audio/**/*.mp3
+biblioteca_audio/_entrada/
+biblioteca_audio/_escucha/

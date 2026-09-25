@@ -7,3 +7,38 @@ pistas:
   - organico
   - anuncios
   prompt: soft minimal UI pop, short clean bubble pop, no reverb
+- archivo: sfx_pop_tech1.flac
+  duracion_s: 0.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: digital UI pop, futuristic interface blip, short clean synth pop, no voice
+- archivo: sfx_pop_tech2.flac
+  duracion_s: 0.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: digital UI pop, futuristic interface blip, short clean synth pop, brighter
+    and lighter, no voice
+- archivo: sfx_pop_tech3.flac
+  duracion_s: 0.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: digital UI pop, futuristic interface blip, short clean synth pop, deeper
+    and warmer, no voice
+- archivo: sfx_pop_tech4.flac
+  duracion_s: 0.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: digital UI pop, futuristic interface blip, short clean synth pop, slightly
+    glitchy texture, no voice

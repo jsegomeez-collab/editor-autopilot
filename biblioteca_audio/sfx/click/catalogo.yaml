@@ -1,0 +1,36 @@
+pistas:
+- archivo: sfx_click_tech1.flac
+  duracion_s: 0.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: crisp futuristic UI click, digital interface tap, very short, no voice
+- archivo: sfx_click_tech2.flac
+  duracion_s: 0.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: crisp futuristic UI click, digital interface tap, very short, brighter and
+    lighter, no voice
+- archivo: sfx_click_tech3.flac
+  duracion_s: 0.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: crisp futuristic UI click, digital interface tap, very short, deeper and
+    warmer, no voice
+- archivo: sfx_click_tech4.flac
+  duracion_s: 0.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: crisp futuristic UI click, digital interface tap, very short, slightly glitchy
+    texture, no voice

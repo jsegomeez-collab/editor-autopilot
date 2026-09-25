@@ -1,0 +1,45 @@
+pistas:
+- archivo: mus_tension_1.flac
+  duracion_s: 75.05
+  bpm: 89.1
+  inicio_recomendado: 17.09
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: tense dark minimal electronic, pulsing low synth, ticking hi-hats, suspenseful,
+    90 BPM, instrumental, no vocals, background for a talking video
+- archivo: mus_tension_2.flac
+  duracion_s: 75.05
+  bpm: 95.7
+  inicio_recomendado: 21.362
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: cyber thriller underscore, deep drones, glitchy percussion, uneasy, 95 BPM,
+    instrumental, no vocals, background for a talking video
+- archivo: mus_tension_3.flac
+  duracion_s: 75.05
+  bpm: 117.5
+  inicio_recomendado: 14.907
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: suspenseful tech documentary music, heartbeat bass pulse, cold synth stabs,
+    88 BPM, instrumental, no vocals, background for a talking video
+- archivo: mus_tension_4.flac
+  duracion_s: 75.05
+  bpm: 123.0
+  inicio_recomendado: 17.833
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: ominous data breach mood, dark arpeggio, sparse industrial hits, 92 BPM,
+    instrumental, no vocals, background for a talking video
