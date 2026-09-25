@@ -1,0 +1,69 @@
+<!doctype html>
+<!-- Plantilla "gancho": titular del gancho, visible desde el frame 0 (sin fundido desde negro).
+     Panel split 1080x960 opaco. render_plantillas.py sustituye data-duration y pasa las variables. -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"titular\":\"Nunca uses Claude Code sin esto\",\"destacado\":\"Claude Code\",\"t_aterrizaje\":0}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #titular {
+      display: flex; flex-wrap: wrap; align-content: center; justify-content: center;
+      gap: 0 0.28em; text-align: center; line-height: 1.04; letter-spacing: -0.02em;
+      transform-origin: 50% 50%;
+    }
+    .palabra { position: relative; display: inline-block; }
+    .palabra.resaltada { color: var(--acento); } /* legible en el frame 0; se oscurece con el barrido */
+    .palabra.resaltada::before {
+      content: ""; position: absolute; inset: -0.02em -0.12em -0.04em -0.12em; z-index: -1;
+      background: var(--acento); border-radius: 0.12em;
+      transform: scaleX(var(--barrido, 0)); transform-origin: 0 50%;
+    }
+    .resplandor { left: 60px; top: 60px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="titular" data-start="0" data-duration="3"></div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { titular, destacado = "" } = HF.datos;
+    const caja = document.getElementById("titular");
+    caja.style.fontSize = HF.tamanoTexto(titular, 900, 620, 140, 60) + "px";
+
+    // Palabras a resaltar (comparación sin mayúsculas ni puntuación).
+    const limpiar = (s) => s.toLowerCase().replace(/[¿?¡!.,;:«»"]/g, "");
+    const resaltar = new Set(destacado.split(/\s+/).filter(Boolean).map(limpiar));
+    const palabras = titular.split(/\s+/).map((texto) => {
+      const span = document.createElement("span");
+      span.className = "palabra" + (resaltar.has(limpiar(texto)) ? " resaltada" : "");
+      span.textContent = texto;
+      caja.appendChild(span);
+      return span;
+    });
+
+    const tl = gsap.timeline({ paused: true });
+    // Frame 0: el titular ya se lee. Solo un leve asentamiento de escala (sigue legible).
+    tl.fromTo(caja, { scale: 1.06 }, { scale: 1, duration: 0.45, ease: HF.EASE_ENTRADA }, 0);
+    // Un elemento nuevo cada vez: el barrido de acento sobre las palabras destacadas.
+    palabras.filter((p) => p.classList.contains("resaltada")).forEach((p, i) => {
+      const t = 0.2 + i * 0.15;
+      tl.fromTo(p, { "--barrido": 0 }, { "--barrido": 1, duration: 0.35, ease: HF.EASE_ENTRADA }, t);
+      tl.fromTo(p, { color: HF.color("acento") }, { color: HF.color("fondo"), duration: 0.2, ease: HF.EASE_ENTRADA }, t + 0.12);
+    });
+    // Deriva sutil: el panel nunca queda estático.
+    tl.fromTo("#resplandor", { x: -40, y: 0 }, { x: 60, y: 40, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    tl.to(caja, { scale: 1.03, duration: Math.max(0.1, HF.duracion - 0.45), ease: HF.EASE_SUAVE }, 0.45);
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

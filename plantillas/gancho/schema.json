@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "gancho",
+  "description": "Titular del gancho (promesa o tesis con palabras literales del vídeo). Visible desde el frame 0.",
+  "formato": "panel",
+  "type": "object",
+  "required": ["titular"],
+  "additionalProperties": false,
+  "properties": {
+    "titular": { "type": "string", "minLength": 1, "maxPalabras": 7 },
+    "destacado": { "type": "string", "description": "Palabra(s) del titular a resaltar con el color de acento" },
+    "t_aterrizaje": { "type": "number", "minimum": 0, "description": "Siempre 0: el gancho se lee en el frame 0" }
+  },
+  "ejemplo": { "titular": "Nunca uses Claude Code sin esto", "destacado": "Claude Code", "t_aterrizaje": 0 }
+}

@@ -1,0 +1,57 @@
+/* Base común de todas las plantillas. render_plantillas.py copia en cada slot:
+   _comun/ (este archivo, base.js, gsap.min.js) y fuentes/ (titulares, enfasis, texto)
+   con las tipografías del perfil. Los colores llegan como variables y base.js los
+   vuelca en las propiedades CSS --fondo, --primario, --acento. */
+
+@font-face { font-family: "Titulares"; src: url("../fuentes/titulares.ttf"); }
+@font-face { font-family: "Enfasis"; src: url("../fuentes/enfasis.ttf"); }
+@font-face { font-family: "Texto"; src: url("../fuentes/texto.ttf"); }
+
+:root {
+  --fondo: #121827;
+  --primario: #ffffff;
+  --acento: #ffdb00;
+  /* Área útil del panel split 1080x960: fuera quedan la zona segura superior
+     (220 px), la derecha (120 px) y el margen sobre la divisoria (subtítulos). */
+  --util-x: 60px;
+  --util-y: 240px;
+  --util-w: 900px;
+  --util-h: 620px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: var(--ancho, 1080px);
+  height: var(--alto, 960px);
+  overflow: hidden;
+  background: var(--fondo);
+  color: var(--primario);
+  font-family: "Titulares", "Texto", sans-serif;
+}
+
+/* Panel opaco (split). Las plantillas a pantalla completa con alfa (cta) ponen
+   class="transparente" en <html> y --ancho/--alto a 1080x1920. */
+html.transparente, html.transparente body { background: transparent; }
+
+#root { position: relative; width: 100%; height: 100%; }
+
+.util {
+  position: absolute;
+  left: var(--util-x);
+  top: var(--util-y);
+  width: var(--util-w);
+  height: var(--util-h);
+}
+
+.acento { color: var(--acento); }
+
+/* Resplandor de fondo muy suave (estética de los vídeos de referencia). */
+.resplandor {
+  position: absolute;
+  width: 900px;
+  height: 900px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--acento) 18%, transparent) 0%, transparent 65%);
+  pointer-events: none;
+}
