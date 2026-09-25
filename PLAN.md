@@ -124,3 +124,26 @@ Fuente: `tests/referencias/ANALISIS_ESTILO.md`. Todos son configurables por perf
 - Regla de selección nueva: toda ventana split debe llevar una representación visual (icono/diagrama/dato). El texto solo aparece como rótulo corto (1–4 palabras). `palabra_clave` pasa a último recurso y se anota en QA si se usa.
 - SFX con sentido: cada icono y plantilla visual lleva un sonido semántico (moneda, papel, despegue, red, teclado, candado, reloj, subida, bajada, transformación, cámara, mensaje). El LLM puede fijarlo en `datos.sonido`. Kit adicional aprobado: ~500 créditos.
 - Estilo sin referencias del cliente: flat de líneas con glow, coherente con su paleta (azul marino, blanco, amarillo #FFDB00).
+
+## 11. Frontend local + edición automática (petición del cliente, 2026-09-25)
+- Adelanta las Fases 6 y 7 y añade un frontend web local (no estaba en el encargo; aprobado por el cliente).
+- **Motor** `autopilot/editar.py`: un vídeo + perfil → vídeo final. Los pasos deterministas los ejecuta Python. Claude (headless, suscripción, `claude-sonnet-5`) solo decide lo creativo en 2 llamadas con salida estructurada (`--json-schema`):
+  1. cortes, estrategia, música y palabra del CTA;
+  2. gráficos por ventana + stickers.
+
+  Las salidas se validan con las mismas reglas del pipeline y, si fallan, se reintenta con los errores.
+- **Coste por llamada:** con system prompt propio (`--system-prompt`, `--tools ""`, `--setting-sources ""`) baja de ~$0,53 a ~$0,006 estimados. El modelo se fija por variables de entorno (`ANTHROPIC_DEFAULT_HAIKU_MODEL`, `CLAUDE_CODE_SUBAGENT_MODEL`) y `--model`. Siempre `env -u ANTHROPIC_API_KEY -u CLAUDE_CODE_OAUTH_TOKEN -u ANTHROPIC_AUTH_TOKEN`.
+- **Cola** `autopilot/cola.py`:
+  - persistente e idempotente por hash;
+  - 1 reintento;
+  - `errores/` con log;
+  - `pausado_por_limite` si se alcanza el límite de la suscripción;
+  - límite diario;
+  - vigila `entrada/<perfil>/`.
+- **Frontend** `autopilot/servidor.py` + `autopilot/web/` en http://localhost:8765:
+  - subir 1–N vídeos con perfil;
+  - cola con progreso por etapas;
+  - galería con reproductor;
+  - Ajustes: carpeta de destino con el selector nativo de macOS (osascript), perfil por defecto, límite diario.
+  - Se arranca con doble clic en `Iniciar editor.command`.
+- **Salida elegida por el cliente:** en la carpeta de destino, solo el MP4 final. Los ⚠️ REVISAR van a la subcarpeta `revisar/`. El paquete completo (portada, informe, transcripción) sigue en `~/VideoAutopilot/revision/<perfil>/`.
