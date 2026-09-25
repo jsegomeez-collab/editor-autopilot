@@ -1,8 +1,7 @@
 # Imágenes de marca para la plantilla `imagen`. Una entrada por archivo (rutas relativas a esta carpeta).
-# Solo entran imágenes con procedencia anotada (captura propia, kit de prensa oficial, etc.).
-#
-# - archivo: claude_code/terminal.png
-#   terminos: ["Claude Code"]        # términos del glosario que la activan
-#   tipo: captura                    # captura | logo
-#   fuente: "captura propia"
-imagenes: []
+# Solo entran imágenes con procedencia anotada.
+imagenes:
+  - archivo: claude/logo.png          # WebP con alfa (1280x1280), aunque la extensión sea .png
+    terminos: ["Claude", "Claude Code"]
+    tipo: logo
+    fuente: "aportado por el cliente (2026-09-25)"
