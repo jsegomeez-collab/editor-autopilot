@@ -1,0 +1,12 @@
+pistas:
+- archivo: mus_neutra_1.flac
+  duracion_s: 20.01
+  bpm: 92.3
+  inicio_recomendado: 0.116
+  fuente: ElevenLabs Eleven Music
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: calm minimal lo-fi electronic background, soft electric piano, light gentle
+    beat, unobtrusive, 92 BPM, clean modern tech vibe, instrumental, no vocals

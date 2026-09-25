@@ -1,0 +1,6 @@
+# Kit inicial de audio (sección 6.6). Música instrumental 75 s; efectos estilo "minimal".
+# Aprobado: plan Starter, presupuesto ~24.000 créditos (hasta ~30.000).
+items:
+  # --- piloto ---
+  - {id: sfx_pop_1, clase: sfx, categoria: pop, duracion_s: 0.5, prompt: "soft minimal UI pop, short clean bubble pop, no reverb"}
+  - {id: mus_neutra_1, clase: musica, categoria: neutra, duracion_s: 20, prompt: "calm minimal lo-fi electronic background, soft electric piano, light gentle beat, unobtrusive, 92 BPM, clean modern tech vibe, instrumental, no vocals"}

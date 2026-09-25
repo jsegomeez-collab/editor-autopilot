@@ -5,9 +5,11 @@ description = "Editor de vídeo automático construido sobre video-use"
 requires-python = ">=3.12"
 dependencies = [
     "jsonschema>=4.26.0",
+    "librosa>=1.0.0",
     "opencv-python-headless>=5.0.0.93",
     "pydantic>=2.13.5",
     "pyyaml>=6.0.3",
+    "requests>=2.34.2",
     "text2num>=3.1.0",
 ]
 

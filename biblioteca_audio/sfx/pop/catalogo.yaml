@@ -1,0 +1,9 @@
+pistas:
+- archivo: sfx_pop_1.flac
+  duracion_s: 0.48
+  fuente: ElevenLabs Sound Effects
+  licencia: ElevenLabs plan starter — uso comercial incluido
+  uso_permitido:
+  - organico
+  - anuncios
+  prompt: soft minimal UI pop, short clean bubble pop, no reverb
