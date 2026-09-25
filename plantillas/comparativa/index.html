@@ -1,0 +1,106 @@
+<!doctype html>
+<!-- Plantilla "comparativa": antes/después, mito/realidad, X vs Y. Dos tarjetas en columnas;
+     la izquierda aterriza en t_izquierda, luego el separador "vs" y la derecha (resaltada con
+     acento) aterriza en t_derecha. Panel split 1080x960 opaco. render_plantillas.py sustituye
+     data-duration y pasa las variables. -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"izquierda\":{\"titulo\":\"Mito\",\"texto\":\"La IA te quita el trabajo\"},\"derecha\":{\"titulo\":\"Realidad\",\"texto\":\"Te quita las tareas repetitivas\"},\"t_izquierda\":0.4,\"t_derecha\":1.6}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #contenido { transform-origin: 50% 50%; }
+    /* Dos tarjetas de 390x560 dentro de .util (900x620) con 120 px centrales para el "vs". */
+    .tarjeta {
+      position: absolute; top: 30px; width: 390px; height: 560px; border-radius: 28px;
+      padding: 44px 34px; display: flex; flex-direction: column; gap: 26px;
+      background: color-mix(in srgb, var(--primario) 6%, var(--fondo));
+      border: 2px solid color-mix(in srgb, var(--primario) 14%, transparent);
+    }
+    #izq { left: 0; }
+    #der {
+      left: 510px;
+      background: color-mix(in srgb, var(--acento) 9%, var(--fondo));
+      border-color: var(--acento);
+      box-shadow: 0 0 80px color-mix(in srgb, var(--acento) 22%, transparent);
+    }
+    .titulo {
+      font-family: "Titulares", sans-serif; line-height: 1.05; letter-spacing: -0.01em;
+      text-transform: uppercase; color: color-mix(in srgb, var(--primario) 55%, transparent);
+    }
+    #der .titulo { color: var(--acento); }
+    .regla { width: 64px; height: 6px; border-radius: 3px; background: color-mix(in srgb, var(--primario) 30%, transparent); }
+    #der .regla { background: var(--acento); }
+    .texto {
+      flex: 1; display: flex; align-items: center;
+      font-family: "Titulares", sans-serif; line-height: 1.08; letter-spacing: -0.02em;
+      color: color-mix(in srgb, var(--primario) 72%, transparent);
+    }
+    #der .texto { color: var(--primario); }
+    #vs {
+      position: absolute; left: 400px; top: 260px; width: 100px; height: 100px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: "Titulares", sans-serif; font-size: 40px; letter-spacing: -0.02em;
+      background: var(--fondo); border: 2px solid color-mix(in srgb, var(--primario) 24%, transparent);
+      color: var(--primario);
+    }
+    .resplandor { left: 420px; top: 10px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="contenido" data-start="0" data-duration="3">
+      <div class="tarjeta" id="izq"><div class="titulo"></div><div class="regla"></div><div class="texto"></div></div>
+      <div class="tarjeta" id="der"><div class="titulo"></div><div class="regla"></div><div class="texto"></div></div>
+      <div id="vs">vs</div>
+    </div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { izquierda = {}, derecha = {}, t_izquierda = 0.4, t_derecha = 1.5 } = HF.datos;
+
+    // Rellena cada tarjeta (tamaños deterministas, sin medir el DOM).
+    function rellenar(id, { titulo = "", texto = "" }) {
+      const tarjeta = document.getElementById(id);
+      const [tit, , txt] = tarjeta.children;
+      tit.textContent = titulo;
+      // Mayúsculas: ~0,72 em por carácter.
+      tit.style.fontSize = HF.tamanoTexto(titulo, 320, 90, 40, 24, 0.72) + "px";
+      txt.textContent = texto;
+      return tarjeta;
+    }
+    const izq = rellenar("izq", izquierda);
+    const der = rellenar("der", derecha);
+    // Mismo cuerpo de letra en las dos tarjetas (el menor de los dos) para que se lean parejas.
+    const cuerpo = Math.min(...[izquierda, derecha].map((l) => HF.tamanoTexto(l.texto || "x", 318, 380, 64, 32, 0.56)));
+    izq.children[2].style.fontSize = der.children[2].style.fontSize = cuerpo + "px";
+
+    const tl = gsap.timeline({ paused: true });
+    const tIzq = HF.limitar(t_izquierda);
+    const tDer = Math.max(tIzq, HF.limitar(t_derecha));
+    // El separador aterriza entre las dos tarjetas (un elemento nuevo cada vez).
+    const tVs = tDer - tIzq >= 0.5 ? (tIzq + tDer) / 2 : tIzq;
+
+    HF.revelar(tl, izq, tIzq, { y: 40 });
+    HF.revelar(tl, "#vs", tVs, { y: 0, escala: 0.4, revelado: 0.3 });
+    HF.revelar(tl, der, tDer, { y: 40, escala: 0.94 });
+    // Al aterrizar la derecha, la izquierda cede protagonismo.
+    tl.to(izq, { opacity: 0.6, duration: 0.4, ease: HF.EASE_SUAVE }, tDer);
+    tl.to(der, { scale: 1.04, duration: 0.12, ease: HF.EASE_ENTRADA }, tDer);
+    tl.to(der, { scale: 1, duration: 0.3, ease: HF.EASE_SUAVE }, tDer + 0.12);
+
+    // Deriva sutil: el panel nunca queda estático.
+    tl.fromTo("#resplandor", { x: -120, y: 20, scale: 0.85 }, { x: 40, y: -10, scale: 1.05, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    HF.deriva(tl, "#contenido");
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

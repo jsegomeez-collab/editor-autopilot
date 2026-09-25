@@ -1,0 +1,142 @@
+<!doctype html>
+<!-- Plantilla "pasos": proceso numerado de 2 a 5 pasos. Números grandes de acento unidos por
+     un conector vertical que avanza hasta cada paso nuevo; cada paso aterriza en su t.
+     Panel split 1080x960 opaco. render_plantillas.py sustituye data-duration y pasa las variables. -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"titulo\":\"Crea tu agente de IA\",\"pasos\":[{\"texto\":\"Elige una tarea repetitiva\",\"t\":0.4},{\"texto\":\"Conecta tus herramientas\",\"t\":1.0},{\"texto\":\"Pruébalo con casos reales\",\"t\":1.6}]}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #contenido { transform-origin: 50% 50%; }
+    .titulo {
+      position: absolute; left: 0; width: 100%;
+      font-family: "Titulares", sans-serif; line-height: 1.08; letter-spacing: -0.02em;
+    }
+    .titulo::after {
+      content: ""; display: block; width: 72px; height: 6px; margin-top: 16px;
+      border-radius: 3px; background: var(--acento);
+    }
+    .paso { position: absolute; left: 0; width: 100%; }
+    .numero {
+      position: absolute; left: 0; top: 0; bottom: 0; width: 120px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: "Titulares", sans-serif; line-height: 1; color: var(--acento);
+      text-shadow: 0 0 36px color-mix(in srgb, var(--acento) 45%, transparent);
+    }
+    .texto {
+      position: absolute; left: 150px; right: 20px; top: 0; bottom: 0;
+      display: flex; align-items: center;
+      font-family: "Titulares", sans-serif; line-height: 1.1; letter-spacing: -0.01em;
+    }
+    .conector { /* línea de acento que avanza de un paso al siguiente */
+      position: absolute; left: 57px; width: 6px; border-radius: 3px;
+      background: var(--acento); transform-origin: 50% 0; transform: scaleY(0);
+      box-shadow: 0 0 14px color-mix(in srgb, var(--acento) 50%, transparent);
+    }
+    .resplandor { left: -260px; top: 40px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="contenido" data-start="0" data-duration="3"></div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { titulo = "", pasos = [] } = HF.datos;
+    const caja = document.getElementById("contenido");
+    // Margen de 8 px: con la deriva (escala 1,02) nada se sale del área útil.
+    const ANCHO = 900, ALTO = 604, MARGEN = 8;
+
+    // Geometría fija según el nº de pasos (sin medir el DOM).
+    let y0 = 0;
+    if (titulo) {
+      const el = document.createElement("div");
+      el.className = "titulo";
+      el.style.top = MARGEN + "px";
+      el.style.fontSize = HF.tamanoTexto(titulo, ANCHO, 110, 60, 38) + "px";
+      el.textContent = titulo;
+      caja.appendChild(el);
+      y0 = 150;
+    }
+    const n = pasos.length;
+    const disponible = ALTO - y0;
+    const fila = Math.min(160, disponible / n);              // paso vertical entre filas
+    const inicioY = MARGEN + y0 + (disponible - n * fila) / 2;
+    const tamNumero = Math.round(Math.min(120, fila * 0.8));
+    const tamTexto = Math.min(...pasos.map((p) =>
+      HF.tamanoTexto(p.texto, ANCHO - 170, fila - 16, Math.min(62, fila * 0.5), 28, 0.53, 1.1)));
+    const centro = (i) => inicioY + i * fila + fila / 2;
+    const semi = tamNumero * 0.38 + 8;                         // media altura de la cifra + aire
+
+    // Conectores entre pasos consecutivos (crecen hacia el paso nuevo).
+    const conectores = [];
+    for (let i = 0; i < n - 1; i++) {
+      const top = centro(i) + semi, alto = Math.max(4, centro(i + 1) - semi - top);
+      const el = document.createElement("div");
+      el.className = "conector";
+      el.style.top = top + "px";
+      el.style.height = alto + "px";
+      caja.appendChild(el);
+      conectores.push(el);
+    }
+
+    const filas = pasos.map((p, i) => {
+      const el = document.createElement("div");
+      el.className = "paso";
+      el.style.top = inicioY + i * fila + "px";
+      el.style.height = fila + "px";
+      el.innerHTML = '<div class="numero"></div><div class="texto"></div>';
+      const num = el.querySelector(".numero");
+      num.style.fontSize = tamNumero + "px";
+      num.textContent = String(i + 1);
+      const texto = el.querySelector(".texto");
+      texto.style.fontSize = tamTexto + "px";
+      texto.textContent = p.texto;
+      caja.appendChild(el);
+      return el;
+    });
+
+    const tl = gsap.timeline({ paused: true });
+
+    // Aterriza exactamente en t (misma lógica que HF.revelar; t limitado para sostener ≥ 1 s).
+    function aterrizar(el, t, desde, hasta) {
+      const fin = HF.limitar(t);
+      if (fin <= 0) return 0; // visible desde el frame 0
+      const d = Math.min(HF.REVELADO, fin);
+      tl.fromTo(el, desde, { ...hasta, duration: d, ease: HF.EASE_ENTRADA }, fin - d);
+      return fin;
+    }
+
+    filas.forEach((el, i) => {
+      const t = pasos[i].t;
+      const fin = aterrizar(el.querySelector(".texto"), t, { opacity: 0, x: -30 }, { opacity: 1, x: 0 });
+      aterrizar(el.querySelector(".numero"), t, { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1 });
+      if (i > 0) {
+        const d = Math.min(HF.REVELADO, fin) || HF.REVELADO;
+        const ini = Math.max(0, fin - d);
+        // El conector crece desde el paso anterior y llega a la vez que el paso nuevo.
+        if (fin > 0) tl.fromTo(conectores[i - 1], { scaleY: 0 }, { scaleY: 1, duration: d, ease: HF.EASE_SUAVE }, ini);
+        else conectores[i - 1].style.transform = "scaleY(1)";
+        // El paso anterior se atenúa un poco (sigue legible).
+        const prev = filas[i - 1];
+        tl.fromTo(prev.querySelector(".texto"), { opacity: 1 }, { opacity: 0.55, duration: d, ease: HF.EASE_SUAVE, immediateRender: false }, ini);
+        tl.fromTo(prev.querySelector(".numero"), { opacity: 1 }, { opacity: 0.6, duration: d, ease: HF.EASE_SUAVE, immediateRender: false }, ini);
+      }
+    });
+
+    // Deriva sutil: el panel nunca queda estático.
+    tl.fromTo("#resplandor", { x: 0, y: -20 }, { x: 160, y: 60, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    HF.deriva(tl, caja, 1.02);
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

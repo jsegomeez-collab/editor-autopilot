@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "cifra",
+  "description": "Contador animado de una cifra dicha en el vídeo ($, € o %). Cuenta desde 0 y aterriza en t_aterrizaje; después aparece la etiqueta.",
+  "formato": "panel",
+  "type": "object",
+  "required": ["valor", "t_aterrizaje"],
+  "additionalProperties": false,
+  "properties": {
+    "valor": { "type": "number", "description": "Cifra final, tal y como se dice (sin formato: 30000, 93, 4.5)" },
+    "prefijo": { "type": "string", "enum": ["$", "€", ""], "description": "Símbolo delante de la cifra" },
+    "sufijo": { "type": "string", "enum": ["%", ""], "description": "Símbolo detrás de la cifra" },
+    "decimales": { "type": "integer", "minimum": 0, "maximum": 2, "description": "Decimales a mostrar (coma decimal)" },
+    "etiqueta": { "type": "string", "minLength": 1, "maxPalabras": 5, "description": "Qué mide la cifra (≤ 5 palabras)" },
+    "t_aterrizaje": { "type": "number", "minimum": 0, "description": "Segundos desde el inicio de la ventana en que el contador llega al valor (cuando se dice la cifra)" }
+  },
+  "ejemplo": { "valor": 30000, "prefijo": "$", "etiqueta": "al mes con un agente", "t_aterrizaje": 1.3 }
+}

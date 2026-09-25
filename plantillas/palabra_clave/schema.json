@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "palabra_clave",
+  "description": "Palabra o frase clave (1–3 palabras literales del vídeo) en serif itálica grande. Plantilla de respaldo cuando ninguna otra encaja.",
+  "formato": "panel",
+  "type": "object",
+  "required": ["texto", "t_aterrizaje"],
+  "additionalProperties": false,
+  "properties": {
+    "texto": { "type": "string", "minLength": 1, "maxPalabras": 3, "pattern": "^\\s*\\S+(\\s+\\S+){0,2}\\s*$", "description": "1–3 palabras literales de lo que se dice" },
+    "destacado": { "type": "string", "description": "Palabra(s) de texto a pintar con el color de acento (opcional)" },
+    "t_aterrizaje": { "type": "number", "minimum": 0, "description": "Segundos desde el inicio de la ventana en que termina de aparecer la última palabra" }
+  },
+  "ejemplo": { "texto": "un solo lugar", "destacado": "solo", "t_aterrizaje": 0.8 }
+}

@@ -34,17 +34,23 @@
       return Math.min(Math.max(0, t), Math.max(0, HF.duracion - HF.SOSTENER));
     },
 
-    /* Aparición estándar: sube 40 px y funde, aterriza exactamente en t. */
+    /* Aparición estándar: sube 40 px y funde, aterriza exactamente en t.
+       Si t = 0, el elemento ya está aterrizado en el frame 0. */
     revelar(tl, el, t, opciones = {}) {
       const r = opciones.revelado ?? HF.REVELADO;
       const fin = HF.limitar(t);
-      tl.fromTo(el, { opacity: 0, y: opciones.y ?? 40, scale: opciones.escala ?? 1 },
-        { opacity: 1, y: 0, scale: 1, duration: Math.min(r, fin || r), ease: HF.EASE_ENTRADA },
-        fin === 0 ? 0 : HF.inicioRevelado(fin, r));
+      const desde = { opacity: 0, y: opciones.y ?? 40, scale: opciones.escala ?? 1 };
+      const hasta = { opacity: 1, y: 0, scale: 1 };
+      if (fin === 0) {
+        tl.set(el, hasta, 0);
+        return;
+      }
+      const dur = Math.min(r, fin);
+      tl.fromTo(el, desde, { ...hasta, duration: dur, ease: HF.EASE_ENTRADA }, fin - dur);
     },
 
     /* Deriva sutil de todo el contenido durante la ventana (el panel nunca está quieto). */
-    deriva(tl, el, escala = 1.035) {
+    deriva(tl, el, escala = 1.02) { // 1,02 no saca del área útil lo que la llena
       tl.fromTo(el, { scale: 1 }, { scale: escala, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
     },
 

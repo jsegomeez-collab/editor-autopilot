@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "alerta",
+  "description": "Error o advertencia: icono de alerta en acento, título opcional y el aviso en blanco (palabras literales del vídeo).",
+  "formato": "panel",
+  "type": "object",
+  "required": ["texto", "t_aterrizaje"],
+  "additionalProperties": false,
+  "properties": {
+    "texto": { "type": "string", "minLength": 1, "maxPalabras": 7, "description": "El aviso (≤ 7 palabras)" },
+    "titulo": { "type": "string", "maxPalabras": 2, "description": "Etiqueta corta sobre el aviso, p. ej. \"Cuidado\" o \"Error\" (opcional)" },
+    "t_aterrizaje": { "type": "number", "minimum": 0, "description": "Segundos desde el inicio de la ventana en que termina de aparecer el texto" }
+  },
+  "ejemplo": { "texto": "No subas tus claves a GitHub", "titulo": "Cuidado", "t_aterrizaje": 0.9 }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "cta",
+  "description": "Llamada a la acción sobre la cámara a pantalla completa: \"Comenta\" / \"la palabra\" en blanco y la palabra en mayúsculas, amarilla y entre comillas. Fondo transparente.",
+  "formato": "pantalla",
+  "type": "object",
+  "required": ["linea1", "palabra", "t_aterrizaje"],
+  "additionalProperties": false,
+  "properties": {
+    "linea1": { "type": "string", "minLength": 1, "maxPalabras": 3, "description": "Primera línea en blanco, p. ej. \"Comenta\"" },
+    "linea2": { "type": "string", "maxPalabras": 3, "description": "Segunda línea en blanco, p. ej. \"la palabra\" (opcional)" },
+    "palabra": { "type": "string", "minLength": 1, "maxLength": 12, "pattern": "^\\S+$", "description": "Una sola palabra que se pide comentar; se muestra en MAYÚSCULAS" },
+    "t_aterrizaje": { "type": "number", "minimum": 0, "description": "Segundos desde el inicio de la ventana en que la palabra termina su golpe de escala" }
+  },
+  "ejemplo": { "linea1": "Comenta", "linea2": "la palabra", "palabra": "SISTEMAS", "t_aterrizaje": 1.0 }
+}

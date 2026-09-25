@@ -1,0 +1,97 @@
+<!doctype html>
+<!-- Plantilla "palabra_clave": tipografía cinética de 1–3 palabras en serif itálica grande
+     (fuente "Enfasis"), como "Build by NVIDIA" o "un solo lugar" en los vídeos de referencia.
+     Plantilla de respaldo: debe quedar bien con cualquier texto corto.
+     Panel split 1080x960 opaco. render_plantillas.py sustituye data-duration y pasa las variables. -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"texto\":\"un solo lugar\",\"destacado\":\"solo\",\"t_aterrizaje\":0.8}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #texto {
+      display: flex; flex-wrap: wrap; align-content: center; justify-content: center;
+      gap: 0 0.24em; text-align: center; line-height: 1.02;
+      font-family: "Enfasis", "Titulares", serif; font-style: italic; font-weight: 400;
+      color: var(--primario); transform-origin: 50% 50%;
+    }
+    /* Cada unidad animada (palabra, o letra si el texto es una sola palabra). */
+    .unidad { display: inline-block; transform-origin: 50% 70%; padding: 0 0.04em; will-change: transform, filter; }
+    .unidad.resaltada { color: var(--acento); }
+    .letra { padding: 0; }
+    .resplandor { left: 90px; top: 30px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="texto" data-start="0" data-duration="3"></div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { texto, destacado = "", t_aterrizaje = 0 } = HF.datos;
+    const caja = document.getElementById("texto");
+    const palabras = String(texto).trim().split(/\s+/).filter(Boolean);
+    // Serif itálica condensada: ~0,46 em por carácter. Tamaño fijo por cálculo, sin medir el DOM.
+    caja.style.fontSize = HF.tamanoTexto(texto, 860, 600, 230, 90, 0.46, 1.04) + "px";
+
+    // Palabras a resaltar en acento (comparación sin mayúsculas ni puntuación).
+    const limpiar = (s) => s.toLowerCase().replace(/[¿?¡!.,;:«»"“”]/g, "");
+    const resaltar = new Set(destacado.split(/\s+/).filter(Boolean).map(limpiar));
+
+    // Una sola palabra: letra a letra (más cinético). Varias: palabra a palabra.
+    const unidades = [];
+    if (palabras.length === 1) {
+      const palabra = document.createElement("span");
+      palabra.style.whiteSpace = "nowrap";
+      const destacar = resaltar.has(limpiar(palabras[0]));
+      for (const ch of Array.from(palabras[0])) {
+        const s = document.createElement("span");
+        s.className = "unidad letra" + (destacar ? " resaltada" : "");
+        s.textContent = ch;
+        palabra.appendChild(s);
+        unidades.push(s);
+      }
+      caja.appendChild(palabra);
+    } else {
+      for (const p of palabras) {
+        const s = document.createElement("span");
+        s.className = "unidad" + (resaltar.has(limpiar(p)) ? " resaltada" : "");
+        s.textContent = p;
+        caja.appendChild(s);
+        unidades.push(s);
+      }
+    }
+
+    const tl = gsap.timeline({ paused: true });
+    // La última unidad aterriza exactamente en t_aterrizaje (limitado para sostener ≥ 1 s);
+    // las anteriores aterrizan escalonadas justo antes (un elemento nuevo cada vez).
+    const fin = HF.limitar(t_aterrizaje);
+    const paso = palabras.length === 1 ? Math.min(0.06, 0.5 / unidades.length) : 0.16;
+    const revelado = 0.5;
+    unidades.forEach((el, i) => {
+      const llega = Math.max(0, fin - (unidades.length - 1 - i) * paso);
+      const inicio = Math.max(0, llega - revelado);
+      const final = { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" };
+      if (llega - inicio < 0.04) {
+        tl.set(el, final, 0); // aterriza en el frame 0: visible desde el principio
+      } else {
+        tl.fromTo(el, { opacity: 0, y: 36, scale: 1.18, filter: "blur(16px)" },
+          { ...final, duration: llega - inicio, ease: HF.EASE_ENTRADA }, inicio);
+      }
+    });
+
+    // Deriva sutil: el panel nunca queda estático.
+    tl.fromTo("#resplandor", { x: -50, y: 0 }, { x: 50, y: 50, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    HF.deriva(tl, caja);
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

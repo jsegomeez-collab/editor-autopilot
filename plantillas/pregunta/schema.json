@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "pregunta",
+  "description": "Pregunta retórica en grande con los signos ¿ ? en acento. El ? aterriza en t_aterrizaje.",
+  "formato": "panel",
+  "type": "object",
+  "required": ["pregunta"],
+  "additionalProperties": false,
+  "properties": {
+    "pregunta": { "type": "string", "minLength": 1, "maxPalabras": 7, "description": "Pregunta literal del vídeo, con ¿? (si faltan, la plantilla los añade)" },
+    "t_aterrizaje": { "type": "number", "minimum": 0, "description": "Segundos desde el inicio de la ventana en que la pregunta queda completa (aterriza el ?). 0 = visible desde el frame 0" }
+  },
+  "ejemplo": { "pregunta": "¿Sigues haciendo todo esto a mano?", "t_aterrizaje": 0.9 }
+}

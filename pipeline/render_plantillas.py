@@ -40,6 +40,15 @@ RAIZ = Path(__file__).resolve().parent.parent
 PLANTILLAS = RAIZ / "plantillas"
 HYPERFRAMES = "hyperframes@0.8.77"  # versión fijada: el mismo gráfico se renderiza igual siempre
 MAX_PALABRAS = 7
+
+
+def _max_palabras(validador, limite, instancia, schema):
+    """Palabra clave propia de los schema.json: límite de palabras de un texto."""
+    if isinstance(instancia, str) and len(instancia.split()) > limite:
+        yield jsonschema.ValidationError(f"«{instancia}» tiene más de {limite} palabras")
+
+
+Validador = jsonschema.validators.extend(jsonschema.Draft202012Validator, {"maxPalabras": _max_palabras})
 FORMATOS = {"panel": ("mp4", 1080, 960), "pantalla": ("webm", 1080, 1920)}
 
 
@@ -116,10 +125,15 @@ def validar(g: dict, permitidas: list[str], edl: dict | None, transcripcion: dic
     if p not in permitidas:
         raise ValueError(f"{g['id']}: plantilla '{p}' no permitida por el perfil")
     schema = json.loads((PLANTILLAS / p / "schema.json").read_text(encoding="utf-8"))
-    jsonschema.validate(g["datos"], schema)
+    Validador(schema).validate(g["datos"])
     for t in textos(g["datos"]):
         if len(t.split()) > MAX_PALABRAS:
             raise ValueError(f"{g['id']}: más de {MAX_PALABRAS} palabras en «{t}»")
+    # Los aterrizajes de una lista (items/pasos) deben ir en orden creciente.
+    for lista in (v for v in g["datos"].values() if isinstance(v, list)):
+        ts = [x["t"] for x in lista if isinstance(x, dict) and "t" in x]
+        if ts != sorted(ts):
+            raise ValueError(f"{g['id']}: tiempos de aterrizaje desordenados {ts}")
     if edl and transcripcion:
         dichos = numeros_dichos(edl, transcripcion, g["inicio"], g["inicio"] + g["duracion"])
         inventados = {n for n in numeros_de_datos(g["datos"]) if n not in dichos}

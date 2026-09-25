@@ -1,0 +1,131 @@
+<!doctype html>
+<!-- Plantilla "lista": 2–4 puntos que aparecen de uno en uno, cada uno aterriza en su t.
+     El punto recién aparecido va destacado (marco de acento); los anteriores se atenúan un poco.
+     Panel split 1080x960 opaco. render_plantillas.py sustituye data-duration y pasa las variables. -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"titulo\":\"Tu negocio con IA\",\"items\":[{\"texto\":\"Responde clientes a cualquier hora\",\"t\":0.4},{\"texto\":\"Crea contenido en minutos\",\"t\":0.9},{\"texto\":\"Automatiza tus facturas\",\"t\":1.4}]}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #contenido { transform-origin: 50% 50%; }
+    .titulo {
+      position: absolute; left: 0; width: 100%;
+      font-family: "Titulares", sans-serif; line-height: 1.08; letter-spacing: -0.02em;
+    }
+    .titulo::after { /* barra corta de acento bajo el título */
+      content: ""; display: block; width: 72px; height: 6px; margin-top: 16px;
+      border-radius: 3px; background: var(--acento);
+    }
+    .item { position: absolute; left: 0; width: 100%; }
+    .tarjeta {
+      position: absolute; inset: 0; border-radius: 24px;
+      background: color-mix(in srgb, var(--primario) 6%, transparent);
+      border: 1px solid color-mix(in srgb, var(--primario) 10%, transparent);
+    }
+    .marco { /* destaque del punto activo */
+      position: absolute; inset: 0; border-radius: 24px; opacity: 0;
+      border: 2px solid color-mix(in srgb, var(--acento) 70%, transparent);
+      background: color-mix(in srgb, var(--acento) 7%, transparent);
+      box-shadow: 0 0 40px color-mix(in srgb, var(--acento) 22%, transparent);
+    }
+    .vineta {
+      position: absolute; left: 34px; top: 50%; width: 20px; height: 20px; margin-top: -10px;
+      border-radius: 50%; background: var(--acento);
+      box-shadow: 0 0 18px color-mix(in srgb, var(--acento) 55%, transparent);
+    }
+    .texto {
+      position: absolute; left: 84px; right: 32px; top: 0; bottom: 0;
+      display: flex; align-items: center;
+      font-family: "Titulares", sans-serif; line-height: 1.1; letter-spacing: -0.01em;
+    }
+    .resplandor { left: -120px; top: 80px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="contenido" data-start="0" data-duration="3"></div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { titulo = "", items = [] } = HF.datos;
+    const caja = document.getElementById("contenido");
+    // Margen de 8 px: con la deriva (escala 1,02) nada se sale del área útil.
+    const ANCHO = 900, ALTO = 604, HUECO = 18, MARGEN = 8;
+
+    // Geometría fija según el nº de puntos (sin medir el DOM).
+    let y0 = 0;
+    if (titulo) {
+      const tam = HF.tamanoTexto(titulo, ANCHO, 110, 60, 38);
+      const el = document.createElement("div");
+      el.className = "titulo";
+      el.style.top = MARGEN + "px";
+      el.style.fontSize = tam + "px";
+      el.textContent = titulo;
+      caja.appendChild(el);
+      y0 = 150;
+    }
+    const n = items.length;
+    const disponible = ALTO - y0;
+    const alto = Math.min(140, (disponible - HUECO * (n - 1)) / n);
+    const total = n * alto + HUECO * (n - 1);
+    const inicioY = MARGEN + y0 + (disponible - total) / 2;
+    const tamTexto = Math.min(...items.map((it) =>
+      HF.tamanoTexto(it.texto, ANCHO - 84 - 40, alto - 28, Math.min(60, alto * 0.5), 30, 0.53, 1.1)));
+
+    const filas = items.map((it, i) => {
+      const fila = document.createElement("div");
+      fila.className = "item";
+      fila.style.top = inicioY + i * (alto + HUECO) + "px";
+      fila.style.height = alto + "px";
+      fila.innerHTML = '<div class="tarjeta"></div><div class="marco"></div><div class="vineta"></div><div class="texto"></div>';
+      const texto = fila.querySelector(".texto");
+      texto.style.fontSize = tamTexto + "px";
+      texto.textContent = it.texto;
+      caja.appendChild(fila);
+      return fila;
+    });
+
+    const tl = gsap.timeline({ paused: true });
+
+    // Aterriza exactamente en t (misma lógica que HF.revelar; t limitado para sostener ≥ 1 s).
+    function aterrizar(el, t, desde, hasta) {
+      const fin = HF.limitar(t);
+      if (fin <= 0) return 0; // visible desde el frame 0
+      const d = Math.min(HF.REVELADO, fin);
+      tl.fromTo(el, desde, { ...hasta, duration: d, ease: HF.EASE_ENTRADA }, fin - d);
+      return fin;
+    }
+
+    let anterior = null;
+    filas.forEach((fila, i) => {
+      const t = items[i].t;
+      const fin = aterrizar(fila, t, { opacity: 0, y: 36 }, { opacity: 1, y: 0 });
+      aterrizar(fila.querySelector(".vineta"), t, { scale: 0 }, { scale: 1 });
+      if (aterrizar(fila.querySelector(".marco"), t, { opacity: 0 }, { opacity: 1 }) === 0)
+        fila.querySelector(".marco").style.opacity = 1; // activo desde el frame 0
+      const d = Math.min(HF.REVELADO, fin) || HF.REVELADO;
+      if (anterior) { // el punto anterior deja de ser el activo (sigue legible)
+        const ini = Math.max(0, fin - d);
+        tl.fromTo(anterior.querySelector(".marco"), { opacity: 1 }, { opacity: 0, duration: d, ease: HF.EASE_SUAVE, immediateRender: false }, ini);
+        tl.fromTo(anterior.querySelector(".texto"), { opacity: 1 }, { opacity: 0.55, duration: d, ease: HF.EASE_SUAVE, immediateRender: false }, ini);
+        tl.fromTo(anterior.querySelector(".vineta"), { opacity: 1 }, { opacity: 0.45, duration: d, ease: HF.EASE_SUAVE, immediateRender: false }, ini);
+      }
+      anterior = fila;
+    });
+
+    // Deriva sutil: el panel nunca queda estático.
+    tl.fromTo("#resplandor", { x: 0, y: -30 }, { x: 140, y: 50, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    HF.deriva(tl, caja, 1.02);
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

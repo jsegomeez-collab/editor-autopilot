@@ -1,0 +1,98 @@
+<!doctype html>
+<!-- Plantilla "alerta": error o advertencia. Icono de triángulo con "!" en acento (SVG inline)
+     con un pulso suave, título opcional en acento y el texto en blanco. Alerta sin estridencia.
+     Panel split 1080x960 opaco. render_plantillas.py sustituye data-duration y pasa las variables. -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"texto\":\"No subas tus claves a GitHub\",\"titulo\":\"Cuidado\",\"t_aterrizaje\":0.9}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #contenido {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 28px; text-align: center; transform-origin: 50% 50%;
+    }
+    /* Icono: triángulo redondeado en acento con "!" del color de fondo, y un anillo que pulsa. */
+    #icono { position: relative; width: 200px; height: 179px; flex: none; }
+    #icono svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    #icono .triangulo { fill: var(--acento); stroke: var(--acento); stroke-width: 14; stroke-linejoin: round; }
+    #icono .signo { fill: var(--fondo); }
+    #icono .onda { fill: none; stroke: var(--acento); stroke-width: 5; stroke-linejoin: round; }
+    #titulo {
+      font-family: "Titulares", sans-serif; font-size: 44px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--acento); line-height: 1;
+    }
+    #texto { font-family: "Titulares", sans-serif; line-height: 1.06; letter-spacing: -0.02em; color: var(--primario); max-width: 900px; }
+    .resplandor { left: 90px; top: -120px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="contenido" data-start="0" data-duration="3">
+      <div id="icono">
+        <svg viewBox="0 0 170 152" aria-hidden="true">
+          <path class="onda" id="onda1" d="M85 12 L160 142 L10 142 Z" />
+          <path class="onda" id="onda2" d="M85 12 L160 142 L10 142 Z" />
+          <g id="nucleo">
+            <path class="triangulo" d="M85 12 L160 142 L10 142 Z" />
+            <rect class="signo" x="77" y="52" width="16" height="52" rx="8" />
+            <circle class="signo" cx="85" cy="122" r="9.5" />
+          </g>
+        </svg>
+      </div>
+      <div id="titulo"></div>
+      <div id="texto"></div>
+    </div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { texto, titulo = "", t_aterrizaje = 0 } = HF.datos;
+    const elTitulo = document.getElementById("titulo");
+    const elTexto = document.getElementById("texto");
+    elTexto.textContent = texto;
+    // Caja del texto: 900 px de ancho y el alto que dejan libre icono y título (620 - 179 - 44 - huecos).
+    elTexto.style.fontSize = HF.tamanoTexto(texto, 880, titulo ? 320 : 390, 110, 48, 0.6, 1.06) + "px";
+    if (titulo) elTitulo.textContent = titulo; else elTitulo.remove();
+
+    const tl = gsap.timeline({ paused: true });
+    const R = HF.REVELADO;
+    // Aterriza el elemento en `llega` (nunca antes de 0; si llega en 0, visible desde el frame 0).
+    const aterrizar = (el, llega, desde) => {
+      const inicio = Math.max(0, llega - R);
+      const final = { opacity: 1, x: 0, y: 0, scale: 1 };
+      if (llega - inicio < 0.04) { tl.set(el, final, 0); return; }
+      tl.fromTo(el, desde, { ...final, duration: llega - inicio, ease: HF.EASE_ENTRADA }, inicio);
+    };
+    // Un elemento nuevo cada vez: icono → título → texto (el texto aterriza en t_aterrizaje).
+    const fin = HF.limitar(t_aterrizaje);
+    const tIcono = Math.max(0, fin - (titulo ? 0.4 : 0.25));
+    const tTitulo = Math.max(0, fin - 0.2);
+    aterrizar("#icono", tIcono, { opacity: 0, scale: 0.6, y: 20 });
+    if (titulo) aterrizar(elTitulo, tTitulo, { opacity: 0, y: 24 });
+    aterrizar(elTexto, fin, { opacity: 0, y: 36 });
+
+    // Pulso suave del icono: una onda que se expande y se apaga, y un leve latido del triángulo.
+    // Tweens explícitos (sin repeat infinito): la línea de tiempo es finita y determinista.
+    tl.set(".onda", { opacity: 0 }, 0);
+    for (let t = tIcono, i = 0; t + 0.3 < HF.duracion; t += 0.9, i++) {
+      const onda = i % 2 ? "#onda2" : "#onda1";
+      const dur = Math.min(0.9, HF.duracion - t);
+      tl.fromTo(onda, { opacity: 0.6, scale: 1, transformOrigin: "50% 62%" }, { opacity: 0, scale: 1.5, duration: dur, ease: HF.EASE_ENTRADA }, t);
+      tl.fromTo("#nucleo", { scale: 1, transformOrigin: "50% 62%" }, { scale: 1.06, duration: Math.min(0.2, dur / 2), ease: HF.EASE_SUAVE, yoyo: true, repeat: 1 }, t);
+    }
+
+    // Deriva sutil: el panel nunca queda estático.
+    tl.fromTo("#resplandor", { x: 40, y: 0 }, { x: -40, y: 40, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    HF.deriva(tl, "#contenido");
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

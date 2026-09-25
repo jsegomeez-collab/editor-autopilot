@@ -1,0 +1,200 @@
+<!doctype html>
+<!-- Plantilla "grafico": barras (2–5) o línea simple. Las barras (o los puntos de la línea)
+     aparecen de una en una; la última aterriza exactamente en t_aterrizaje. La barra mayor
+     (o la última si empatan) va en acento. Panel split 1080x960 opaco. render_plantillas.py
+     sustituye data-duration y pasa las variables. -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"tipo\":\"barras\",\"etiquetas\":[\"2023\",\"2024\",\"2025\"],\"valores\":[20,45,93],\"unidad\":\"%\",\"titulo\":\"Empresas que usan IA\",\"t_aterrizaje\":1.8}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #contenido { transform-origin: 50% 60%; }
+    #titulo {
+      position: absolute; left: 0; top: 0; width: 900px; height: 110px;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      font-family: "Titulares", sans-serif; line-height: 1.05; letter-spacing: -0.02em;
+    }
+    /* Zona del gráfico dentro de .util: y 130–620 (base de las barras en y 540). */
+    #grafico { position: absolute; left: 0; top: 130px; width: 900px; height: 490px; }
+    #eje { position: absolute; left: 0; top: 410px; width: 900px; height: 3px; border-radius: 2px;
+           background: color-mix(in srgb, var(--primario) 18%, transparent); transform-origin: 0 50%; }
+    .columna { position: absolute; top: 0; height: 490px; }
+    .barra {
+      position: absolute; bottom: 80px; left: 0; width: 100%; border-radius: 14px 14px 4px 4px;
+      background: color-mix(in srgb, var(--primario) 26%, var(--fondo)); transform-origin: 50% 100%;
+    }
+    .barra.destacada {
+      background: var(--acento);
+      box-shadow: 0 0 60px color-mix(in srgb, var(--acento) 35%, transparent);
+    }
+    .valor {
+      position: absolute; left: -40px; right: -40px; text-align: center; white-space: nowrap;
+      font-family: "Titulares", sans-serif; line-height: 1; letter-spacing: -0.02em;
+      text-shadow: 0 0 14px var(--fondo), 0 0 6px var(--fondo); /* legible si cruza la línea */
+    }
+    .valor.destacada { color: var(--acento); }
+    .etiqueta {
+      position: absolute; left: -10px; right: -10px; top: 425px; height: 65px; text-align: center;
+      font-family: "Texto", sans-serif; line-height: 1.05;
+      color: color-mix(in srgb, var(--primario) 70%, transparent);
+    }
+    #linea { position: absolute; left: 0; top: 0; overflow: visible; }
+    .punto { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%;
+             background: var(--primario); }
+    .punto.destacada { background: var(--acento); box-shadow: 0 0 40px var(--acento); }
+    .resplandor { left: 300px; top: 20px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="contenido" data-start="0" data-duration="3">
+      <div id="titulo"></div>
+      <div id="grafico"><div id="eje"></div></div>
+    </div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { tipo = "barras", etiquetas = [], valores = [], unidad = "", titulo = "", t_aterrizaje = 1.5 } = HF.datos;
+    const n = Math.min(valores.length, 5);
+    const svgNS = "http://www.w3.org/2000/svg";
+
+    /* Formato es-LatAm: miles con "." desde 10.000, decimal con ",". Unidad: $/€ delante,
+       % pegado detrás, cualquier otra detrás con espacio. */
+    function formatear(v) {
+      const dec = Number.isInteger(v) ? 0 : 1;
+      let [entero, fraccion] = Math.abs(v).toFixed(dec).split(".");
+      if (entero.length >= 5) entero = entero.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      const num = (v < 0 ? "-" : "") + entero + (fraccion ? "," + fraccion : "");
+      if (unidad === "$" || unidad === "€") return unidad + num;
+      if (unidad === "%" || unidad === "") return num + unidad;
+      return num + " " + unidad;
+    }
+
+    const grafico = document.getElementById("grafico");
+    const tituloEl = document.getElementById("titulo");
+    if (titulo) {
+      tituloEl.textContent = titulo;
+      tituloEl.style.fontSize = HF.tamanoTexto(titulo, 880, 110, 72, 36) + "px";
+    }
+
+    // Escala proporcional al máximo (base 0). Alto máximo de barra: 300 px (deja sitio al valor).
+    const maximo = Math.max(...valores.slice(0, n), 1e-9);
+    const ALTO = 300, BASE = 410; // y de la base dentro de #grafico
+    let destacada = 0;
+    valores.slice(0, n).forEach((v, i) => { if (v >= valores[destacada]) destacada = i; });
+
+    // Aterrizajes: el último en t_aterrizaje; los anteriores escalonados hacia atrás.
+    const T = HF.limitar(t_aterrizaje);
+    const paso = Math.min(0.4, Math.max(0.15, (T - 0.3) / Math.max(1, n)));
+    const aterrizajes = Array.from({ length: n }, (_, i) => Math.max(0, T - (n - 1 - i) * paso));
+
+    const tl = gsap.timeline({ paused: true });
+    /* Anima de "desde" a "hasta" para que termine exactamente en t (empieza antes si puede). */
+    function aterrizar(el, desde, hasta, t, dur = HF.REVELADO) {
+      const ini = Math.max(0, t - dur);
+      if (t - ini <= 0) { tl.set(el, hasta, 0); return; }
+      tl.fromTo(el, desde, { ...hasta, duration: t - ini, ease: HF.EASE_ENTRADA }, ini);
+    }
+
+    // Primer elemento: título y eje, antes que la primera barra.
+    const tTitulo = Math.max(0, Math.min(0.4, aterrizajes[0] - 0.2));
+    if (titulo) aterrizar(tituloEl, { opacity: 0, y: 30 }, { opacity: 1, y: 0 }, tTitulo);
+    aterrizar("#eje", { scaleX: 0 }, { scaleX: 1 }, tTitulo, 0.5);
+
+    const hueco = 900 / n;
+    const valorPx = Math.round(Math.min(64, (hueco + 60) / (Math.max(...valores.slice(0, n).map((v) => formatear(v).length)) * 0.64)));
+
+    if (tipo === "barras") {
+      const ancho = Math.min(150, hueco * 0.62);
+      valores.slice(0, n).forEach((v, i) => {
+        const col = document.createElement("div");
+        col.className = "columna";
+        col.style.left = (i * hueco + (hueco - ancho) / 2) + "px";
+        col.style.width = ancho + "px";
+        const alto = Math.max(8, (v / maximo) * ALTO);
+        const d = i === destacada ? " destacada" : "";
+        col.innerHTML = `<div class="barra${d}"></div><div class="valor${d}"></div><div class="etiqueta"></div>`;
+        const [barra, valor, etq] = col.children;
+        barra.style.height = alto + "px";
+        valor.textContent = formatear(v);
+        valor.style.fontSize = valorPx + "px";
+        valor.style.top = (BASE - alto - 20 - valorPx) + "px";
+        etq.textContent = etiquetas[i] ?? "";
+        etq.style.left = etq.style.right = (-(hueco - 20 - ancho) / 2) + "px";
+        etq.style.fontSize = HF.tamanoTexto(etq.textContent || "x", hueco - 20, 65, 38, 22) + "px";
+        grafico.appendChild(col);
+
+        // Un elemento nuevo cada vez: barra + su valor + su etiqueta aterrizan juntos en t.
+        const t = aterrizajes[i];
+        aterrizar(barra, { scaleY: 0 }, { scaleY: 1 }, t, 0.5);
+        aterrizar(etq, { opacity: 0 }, { opacity: 1 }, t, 0.35);
+        aterrizar(valor, { opacity: 0, y: 20 }, { opacity: 1, y: 0 }, t, 0.3);
+        if (i === destacada) {
+          tl.to(valor, { scale: 1.12, duration: 0.12, ease: HF.EASE_ENTRADA }, t);
+          tl.to(valor, { scale: 1, duration: 0.3, ease: HF.EASE_SUAVE }, t + 0.12);
+        }
+      });
+    } else {
+      // Línea: un punto por valor; cada tramo se dibuja hasta su punto.
+      const svg = document.createElementNS(svgNS, "svg");
+      svg.id = "linea";
+      svg.setAttribute("width", "900");
+      svg.setAttribute("height", "490");
+      grafico.appendChild(svg);
+      const pts = valores.slice(0, n).map((v, i) => ({ x: i * hueco + hueco / 2, y: BASE - 20 - (v / maximo) * (ALTO - 20) }));
+      pts.forEach((p, i) => {
+        const d = i === destacada ? " destacada" : "";
+        const t = aterrizajes[i];
+        if (i > 0) {
+          const a = pts[i - 1];
+          const largo = Math.hypot(p.x - a.x, p.y - a.y); // geometría, no medida del DOM
+          const tramo = document.createElementNS(svgNS, "line");
+          Object.entries({ x1: a.x, y1: a.y, x2: p.x, y2: p.y, "stroke-width": 8, "stroke-linecap": "round",
+            "stroke-dasharray": largo, stroke: i === n - 1 ? HF.color("acento") : HF.color("primario") })
+            .forEach(([k, val]) => tramo.setAttribute(k, val));
+          svg.appendChild(tramo);
+          tramo.setAttribute("opacity", "0");
+          aterrizar(tramo, { strokeDashoffset: largo, opacity: 0 }, { strokeDashoffset: 0, opacity: 1 }, t, Math.min(0.5, paso + 0.1));
+        }
+        const punto = document.createElement("div");
+        punto.className = "punto" + d;
+        punto.style.left = p.x + "px";
+        punto.style.top = p.y + "px";
+        const valor = document.createElement("div");
+        valor.className = "valor" + d;
+        valor.textContent = formatear(valores[i]);
+        valor.style.fontSize = valorPx + "px";
+        valor.style.left = (p.x - hueco / 2 - 40) + "px";
+        valor.style.right = "auto";
+        valor.style.width = (hueco + 80) + "px";
+        valor.style.top = (p.y - 30 - valorPx) + "px";
+        const etq = document.createElement("div");
+        etq.className = "etiqueta";
+        etq.textContent = etiquetas[i] ?? "";
+        etq.style.left = (p.x - hueco / 2 + 10) + "px";
+        etq.style.right = "auto";
+        etq.style.width = (hueco - 20) + "px";
+        etq.style.fontSize = HF.tamanoTexto(etq.textContent || "x", hueco - 20, 65, 38, 22) + "px";
+        grafico.append(punto, valor, etq);
+        aterrizar(punto, { scale: 0 }, { scale: 1 }, t, 0.3);
+        aterrizar(valor, { opacity: 0, y: 20 }, { opacity: 1, y: 0 }, t, 0.3);
+        aterrizar(etq, { opacity: 0 }, { opacity: 1 }, t, 0.3);
+      });
+    }
+
+    // Deriva sutil: el panel nunca queda estático.
+    tl.fromTo("#resplandor", { x: -60, y: 0 }, { x: 40, y: 30, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    HF.deriva(tl, "#contenido");
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

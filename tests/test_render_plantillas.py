@@ -49,7 +49,8 @@ def test_cifra_de_otra_ventana_rechazada():
 
 
 def test_mas_de_siete_palabras_rechazado():
-    with pytest.raises(ValueError, match="7 palabras"):
+    import jsonschema as js
+    with pytest.raises((ValueError, js.ValidationError)):  # lo para el schema o el tope global
         validar({"id": "v1", "plantilla": "gancho", "inicio": 0, "duracion": 2,
                  "datos": {"titular": "uno dos tres cuatro cinco seis siete ocho"}}, TODAS, None, None)
 
@@ -58,3 +59,13 @@ def test_plantilla_no_permitida():
     with pytest.raises(ValueError, match="no permitida"):
         validar({"id": "v1", "plantilla": "gancho", "inicio": 0, "duracion": 2,
                  "datos": {"titular": "hola"}}, ["cta"], None, None)
+
+
+def test_max_palabras_del_schema():
+    # schema de gancho: titular con maxPalabras 7; se comprueba vía la palabra clave propia.
+    from render_plantillas import Validador
+    import jsonschema as js
+    esquema = {"type": "object", "properties": {"t": {"type": "string", "maxPalabras": 3}}}
+    Validador(esquema).validate({"t": "uno dos tres"})
+    with pytest.raises(js.ValidationError):
+        Validador(esquema).validate({"t": "uno dos tres cuatro"})

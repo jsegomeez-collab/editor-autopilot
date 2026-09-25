@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "comparativa",
+  "description": "Dos ideas enfrentadas (antes/después, mito/realidad, X vs Y). La izquierda aterriza en t_izquierda y la derecha, resaltada con acento, en t_derecha.",
+  "formato": "panel",
+  "type": "object",
+  "required": ["izquierda", "derecha", "t_izquierda", "t_derecha"],
+  "additionalProperties": false,
+  "$defs": {
+    "lado": {
+      "type": "object",
+      "required": ["titulo", "texto"],
+      "additionalProperties": false,
+      "properties": {
+        "titulo": { "type": "string", "minLength": 1, "maxPalabras": 2, "description": "Rótulo corto: \"Antes\", \"Mito\", \"ChatGPT\"" },
+        "texto": { "type": "string", "minLength": 1, "maxPalabras": 7, "description": "La idea de ese lado, con palabras del vídeo" }
+      }
+    }
+  },
+  "properties": {
+    "izquierda": { "$ref": "#/$defs/lado", "description": "Lo que se descarta o el punto de partida" },
+    "derecha": { "$ref": "#/$defs/lado", "description": "Lo que se defiende o el resultado (va resaltado)" },
+    "t_izquierda": { "type": "number", "minimum": 0, "description": "Segundos desde el inicio de la ventana en que aterriza la tarjeta izquierda" },
+    "t_derecha": { "type": "number", "minimum": 0, "description": "Segundos desde el inicio de la ventana en que aterriza la tarjeta derecha (≥ t_izquierda)" }
+  },
+  "ejemplo": {
+    "izquierda": { "titulo": "Mito", "texto": "La IA te quita el trabajo" },
+    "derecha": { "titulo": "Realidad", "texto": "Te quita las tareas repetitivas" },
+    "t_izquierda": 0.4,
+    "t_derecha": 1.6
+  }
+}

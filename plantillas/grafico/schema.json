@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "grafico",
+  "description": "Gráfico de barras (2–5) o de línea simple con cifras dichas en el vídeo. Los elementos aparecen de uno en uno; el último aterriza en t_aterrizaje.",
+  "formato": "panel",
+  "type": "object",
+  "required": ["tipo", "etiquetas", "valores", "t_aterrizaje"],
+  "additionalProperties": false,
+  "properties": {
+    "tipo": { "type": "string", "enum": ["barras", "linea"] },
+    "etiquetas": {
+      "type": "array", "minItems": 2, "maxItems": 5,
+      "items": { "type": "string", "minLength": 1, "maxPalabras": 2 },
+      "description": "Nombre de cada barra o punto (1–2 palabras; mismo número que valores)"
+    },
+    "valores": {
+      "type": "array", "minItems": 2, "maxItems": 5,
+      "items": { "type": "number", "minimum": 0 },
+      "description": "Valores sin formato; la escala es proporcional al máximo (base 0)"
+    },
+    "unidad": { "type": "string", "maxLength": 4, "description": "\"$\" o \"€\" van delante; \"%\" pegado detrás; otra (\"h\", \"k\") detrás con espacio" },
+    "titulo": { "type": "string", "minLength": 1, "maxPalabras": 7 },
+    "t_aterrizaje": { "type": "number", "minimum": 0, "description": "Segundos desde el inicio de la ventana en que aterriza la última barra o punto" }
+  },
+  "ejemplo": {
+    "tipo": "barras",
+    "etiquetas": ["Enero", "Marzo", "Junio"],
+    "valores": [2000, 8500, 30000],
+    "unidad": "$",
+    "titulo": "Ingresos de la agencia",
+    "t_aterrizaje": 2.2
+  }
+}

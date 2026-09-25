@@ -1,0 +1,91 @@
+<!doctype html>
+<!-- Plantilla "cta": llamada a la acción sobre la cámara a pantalla completa.
+     "Comenta" / "la palabra" en blanco y la palabra en MAYÚSCULAS, amarilla, grande y entre comillas.
+     Pantalla completa 1080x1920 con FONDO TRANSPARENTE (webm con alfa). Sin logo.
+     Zonas seguras: todo por encima de y=1520 (inferior 380 px) y a la izquierda de x=960 (derecha 120 px).
+     render_plantillas.py sustituye data-duration y pasa las variables. -->
+<html lang="es" class="transparente" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"linea1\":\"Comenta\",\"linea2\":\"la palabra\",\"palabra\":\"SISTEMAS\",\"t_aterrizaje\":1.0}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1920" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    :root { --ancho: 1080px; --alto: 1920px; }
+    /* Bloque centrado en x=540, 840 px de ancho (x 120–960) y desde y=1000 hasta, como mucho, y=1500. */
+    #bloque {
+      position: absolute; left: 120px; top: 1000px; width: 840px; height: 500px;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      text-align: center; transform-origin: 50% 30%;
+    }
+    .linea {
+      font-family: "Titulares", sans-serif; font-size: 76px; line-height: 1.08; letter-spacing: -0.01em;
+      color: var(--primario); white-space: nowrap;
+      text-shadow: 0 4px 22px color-mix(in srgb, var(--fondo) 80%, transparent),
+                   0 2px 6px color-mix(in srgb, var(--fondo) 90%, transparent);
+    }
+    #palabra {
+      margin-top: 14px; font-family: "Titulares", sans-serif; line-height: 1; letter-spacing: -0.02em;
+      color: var(--acento); white-space: nowrap; text-transform: uppercase; transform-origin: 50% 55%;
+      text-shadow: 0 6px 30px color-mix(in srgb, var(--fondo) 85%, transparent),
+                   0 3px 8px color-mix(in srgb, var(--fondo) 90%, transparent);
+    }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="1920">
+    <div class="clip" id="bloque" data-start="0" data-duration="3">
+      <div class="linea" id="linea1"></div>
+      <div class="linea" id="linea2"></div>
+      <div id="palabra"></div>
+    </div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { linea1, linea2 = "", palabra, t_aterrizaje = 0 } = HF.datos;
+    document.getElementById("linea1").textContent = linea1;
+    const el2 = document.getElementById("linea2");
+    if (linea2) el2.textContent = linea2; else el2.remove();
+    const elPalabra = document.getElementById("palabra");
+    const conComillas = "“" + String(palabra).toLocaleUpperCase("es") + "”";
+    elPalabra.textContent = conComillas;
+    // Mayúsculas de Inter ExtraBold: ~0,74 em por carácter. Una sola línea de 840 px, entre 90 y 180 px.
+    elPalabra.style.fontSize = HF.tamanoTexto(conComillas, 830, 200, 180, 90, 0.74, 1) + "px";
+
+    const tl = gsap.timeline({ paused: true });
+    const R = HF.REVELADO;
+    const aterrizar = (el, llega, desde) => {
+      const inicio = Math.max(0, llega - R);
+      const final = { opacity: 1, y: 0, scale: 1 };
+      if (llega - inicio < 0.04) { tl.set(el, final, 0); return; }
+      tl.fromTo(el, desde, { ...final, duration: llega - inicio, ease: HF.EASE_ENTRADA }, inicio);
+    };
+
+    // Un elemento nuevo cada vez: línea 1 → línea 2 → la palabra, que aterriza en t_aterrizaje.
+    const fin = HF.limitar(t_aterrizaje);
+    const lineas = linea2 ? ["#linea1", "#linea2"] : ["#linea1"];
+    lineas.forEach((sel, i) => aterrizar(sel, Math.max(0, fin - 0.45 + i * 0.2), { opacity: 0, y: 40 }));
+
+    // Golpe de escala: entra grande, se comprime un poco (impacto) y asienta a 1 justo en t_aterrizaje.
+    const impacto = Math.max(0, fin - 0.12);
+    if (fin < 0.2) {
+      tl.set(elPalabra, { opacity: 1, scale: 1 }, 0);
+    } else {
+      const inicio = Math.max(0, impacto - 0.28);
+      tl.fromTo(elPalabra, { opacity: 0, scale: 1.5 },
+        { opacity: 1, scale: 0.92, duration: impacto - inicio, ease: "power2.in" }, inicio);
+      tl.to(elPalabra, { scale: 1, duration: fin - impacto, ease: HF.EASE_ENTRADA }, impacto);
+    }
+
+    // Deriva sutil del bloque: nunca queda estático.
+    HF.deriva(tl, "#bloque");
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

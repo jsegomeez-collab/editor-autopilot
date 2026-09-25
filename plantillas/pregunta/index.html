@@ -1,0 +1,107 @@
+<!doctype html>
+<!-- Plantilla "pregunta": pregunta retórica en grande con los signos ¿ ? en acento.
+     El ¿ entra primero, las palabras se suceden y el ? aterriza exactamente en t_aterrizaje.
+     Panel split 1080x960 opaco. render_plantillas.py sustituye data-duration y pasa las variables. -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"pregunta\":\"¿Sigues haciendo esto a mano?\",\"t_aterrizaje\":0.8}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #pregunta {
+      display: flex; flex-wrap: wrap; align-content: center; align-items: baseline; justify-content: center;
+      gap: 0 0.26em; text-align: center; line-height: 1.04; letter-spacing: -0.02em;
+      font-family: "Titulares", sans-serif; transform-origin: 50% 50%;
+    }
+    .palabra { display: inline-block; white-space: nowrap; }
+    .txt { display: inline-block; }
+    .signo {
+      display: inline-block; color: var(--acento); font-size: 1.12em;
+      text-shadow: 0 0 40px color-mix(in srgb, var(--acento) 55%, transparent);
+    }
+    .signo.abre { margin-right: 0.04em; }
+    .signo.cierra { margin-left: 0.03em; }
+    /* "?" gigante y muy tenue detrás del texto (símbolo decorativo, dentro del área útil). */
+    #fantasma {
+      display: flex; align-items: center; justify-content: flex-end;
+      font-family: "Titulares", sans-serif; font-size: 600px; line-height: 1;
+      color: color-mix(in srgb, var(--acento) 7%, transparent);
+    }
+    .resplandor { left: 90px; top: 40px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="fantasma" data-start="0" data-duration="3">?</div>
+    <div class="util clip" id="pregunta" data-start="0" data-duration="3"></div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { pregunta = "", t_aterrizaje = 0 } = HF.datos;
+    const caja = document.getElementById("pregunta");
+    // Los signos los pone la plantilla (en acento); se quitan del texto si ya vienen.
+    const limpio = pregunta.trim().replace(/^[¿]+/, "").replace(/[?]+$/, "").trim();
+    // Hueco extra para los signos (1,12 em) y la deriva: se calcula sobre 820 x 560.
+    caja.style.fontSize = HF.tamanoTexto("¿" + limpio + "?", 820, 560, 150, 60, 0.56) + "px";
+
+    const palabras = limpio.split(/\s+/).filter(Boolean).map((texto) => {
+      const span = document.createElement("span");
+      span.className = "palabra";
+      const txt = document.createElement("span"); // lo que se anima (los signos van aparte)
+      txt.className = "txt";
+      txt.textContent = texto;
+      span.appendChild(txt);
+      caja.appendChild(span);
+      return span;
+    });
+    // Los signos van pegados a la primera y última palabra (nunca quedan solos en una línea).
+    const abre = document.createElement("span");
+    abre.className = "signo abre";
+    abre.textContent = "¿";
+    palabras[0].prepend(abre);
+    const cierra = document.createElement("span");
+    cierra.className = "signo cierra";
+    cierra.textContent = "?";
+    palabras[palabras.length - 1].append(cierra);
+
+    const tl = gsap.timeline({ paused: true });
+    const T = HF.limitar(t_aterrizaje); // el "?" aterriza aquí; queda ≥ 1 s sostenido
+
+    if (T > 0) {
+      // Secuencia de entrada comprimida en la ventana [T - V, T]: ¿ → palabras → ?
+      const V = Math.min(T, 0.9);
+      const d = Math.min(HF.REVELADO, V);
+      const pasos = [abre, ...palabras.map((p) => p.querySelector(".txt")), cierra];
+      const hueco = pasos.length > 1 ? (V - d) / (pasos.length - 1) : 0;
+      pasos.forEach((el, i) => {
+        const ini = T - V + i * hueco;
+        if (el.classList.contains("signo")) {
+          // Signos con énfasis: entran grandes y girados y se asientan.
+          tl.fromTo(el, { opacity: 0, scale: 1.8, rotation: el === abre ? -14 : 14 },
+            { opacity: 1, scale: 1, rotation: 0, duration: d, ease: HF.EASE_ENTRADA }, ini);
+        } else {
+          tl.fromTo(el, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: d, ease: HF.EASE_ENTRADA }, ini);
+        }
+      });
+      // Pulso de acento en los signos justo después del aterrizaje (énfasis).
+      tl.fromTo([abre, cierra], { scale: 1 }, { scale: 1.12, duration: 0.18, ease: HF.EASE_SUAVE, yoyo: true, repeat: 1, immediateRender: false }, T);
+      // El "?" de fondo aparece a la vez que el texto.
+      tl.fromTo("#fantasma", { opacity: 0 }, { opacity: 1, duration: V, ease: HF.EASE_SUAVE }, T - V);
+    }
+
+    // Deriva sutil: el panel nunca queda estático.
+    tl.fromTo("#resplandor", { x: -40, y: 0 }, { x: 80, y: 50, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    tl.fromTo("#fantasma", { x: 0, rotation: -4 }, { x: -40, rotation: 4, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    HF.deriva(tl, caja);
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

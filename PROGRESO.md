@@ -49,3 +49,11 @@
 - `pipeline/zonas_debug.py`: dibuja el área útil y la divisoria sobre fotogramas.
 - Revisión: `tests/revisiones/fase3_frames.png` y `fase3_layout.mp4`.
 - Tests: 18 en verde.
+
+## 🛑 Fase 4 — Biblioteca de plantillas (2026-09-25, pendiente de aprobación plantilla por plantilla)
+- Base común `plantillas/_comun/` (GSAP 3.14.2 en local, base.css con tokens y área útil 60–960 × 240–860, base.js con HF.revelar/limitar/deriva/tamanoTexto/registrar). Easing siempre power2 (cúbico). Deriva de 1,02 para no salir del área útil. Con t = 0, el elemento ya está aterrizado en el frame 0.
+- 10 plantillas con index.html, schema.json, README.md y preview. Gancho la escribí yo; las otras 9 las hicieron 3 subagentes en paralelo, todas verificadas fotograma a fotograma:
+  gancho, cifra, lista, comparativa, pasos, pregunta, palabra_clave, alerta, grafico (paneles 1080×960 en mp4) y cta (1080×1920 webm con alfa, verificado con ALPHA_MODE=1).
+- `pipeline/render_plantillas.py`: valida con jsonschema (más la palabra clave propia `maxPalabras`), ≤ 7 palabras por texto, cifras presentes en lo dicho en la ventana y tiempos ordenados. Monta un slot por ventana con las fuentes del perfil y renderiza con `npx hyperframes@0.8.77` en procesos paralelos (concurrencia 2, `--workers 1`). Verifica tamaño y duración con ffprobe. Preview de una plantilla: ~17 s.
+- `pipeline/hoja_plantillas.py` → `plantillas/_hoja_contactos.png` (cada plantilla en contexto sobre el vídeo maquetado).
+- Tests: 26 en verde.

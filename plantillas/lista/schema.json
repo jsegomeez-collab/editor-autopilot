@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "lista",
+  "description": "Lista de 2 a 4 puntos que aparecen de uno en uno, cada uno cuando se nombra en el vídeo.",
+  "formato": "panel",
+  "type": "object",
+  "required": ["items"],
+  "additionalProperties": false,
+  "properties": {
+    "titulo": { "type": "string", "minLength": 1, "maxPalabras": 7, "description": "Encabezado opcional de la lista" },
+    "items": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["texto", "t"],
+        "additionalProperties": false,
+        "properties": {
+          "texto": { "type": "string", "minLength": 1, "maxPalabras": 7 },
+          "t": { "type": "number", "minimum": 0, "description": "Segundos desde el inicio de la ventana en que el punto aterriza (se dice). Orden creciente." }
+        }
+      }
+    }
+  },
+  "ejemplo": {
+    "titulo": "Lo que la IA hace por ti",
+    "items": [
+      { "texto": "Responde clientes a cualquier hora", "t": 0.5 },
+      { "texto": "Crea contenido en minutos", "t": 1.1 },
+      { "texto": "Automatiza tus facturas", "t": 1.8 },
+      { "texto": "Analiza tus ventas sin hojas", "t": 2.5 }
+    ]
+  }
+}

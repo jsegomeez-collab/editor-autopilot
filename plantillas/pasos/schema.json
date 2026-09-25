@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "pasos",
+  "description": "Proceso numerado de 2 a 5 pasos. Cada paso aparece cuando se dice, unido al anterior por un conector.",
+  "formato": "panel",
+  "type": "object",
+  "required": [
+    "pasos"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "minLength": 1,
+      "maxPalabras": 7,
+      "description": "Encabezado opcional del proceso"
+    },
+    "pasos": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": [
+          "texto",
+          "t"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "texto": {
+            "type": "string",
+            "minLength": 1,
+            "maxPalabras": 7
+          },
+          "t": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Segundos desde el inicio de la ventana en que el paso aterriza (se dice). Orden creciente."
+          }
+        }
+      }
+    }
+  },
+  "ejemplo": {
+    "titulo": "Crea tu primer agente",
+    "pasos": [
+      {
+        "texto": "Elige una tarea repetitiva",
+        "t": 0.5
+      },
+      {
+        "texto": "Conecta tus herramientas",
+        "t": 1.1
+      },
+      {
+        "texto": "Escribe instrucciones claras",
+        "t": 1.8
+      },
+      {
+        "texto": "Pruébalo con clientes reales",
+        "t": 2.5
+      }
+    ]
+  }
+}
