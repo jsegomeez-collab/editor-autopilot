@@ -26,3 +26,6 @@ biblioteca_audio/**/*.flac
 biblioteca_audio/**/*.mp3
 biblioteca_audio/_entrada/
 biblioteca_audio/_escucha/
+
+# Historial de rotación de música: es de cada Mac (no se comparte).
+perfiles/*/uso_audio.json

@@ -83,14 +83,27 @@ def svgs_en_linea(nombres: set[str]) -> dict[str, str]:
     return salida
 
 
+def version_node(binario: Path) -> int:
+    try:
+        v = subprocess.run([str(binario), "--version"], capture_output=True, text=True, timeout=10).stdout
+        return int(v.strip().lstrip("v").split(".")[0])
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return 0
+
+
 def entorno_node() -> dict:
-    """Entorno con Node 22 (el Node por defecto de la máquina es 20)."""
+    """Entorno con Node ≥ 22 (HyperFrames lo exige). Busca en nvm, Homebrew (node@22) y el PATH."""
     nvm = Path.home() / ".nvm" / "versions" / "node"
-    candidatos = sorted(nvm.glob("v22*/bin")) + sorted(nvm.glob("v2[3-9]*/bin"))
-    if not candidatos:
-        raise RuntimeError("no hay Node ≥ 22 en ~/.nvm: HyperFrames lo necesita")
+    candidatos = sorted(nvm.glob("v2[2-9]*/bin")) + [Path("/opt/homebrew/opt/node@22/bin"),
+                                                     Path("/usr/local/opt/node@22/bin")]
+    en_path = shutil.which("node")
+    if en_path:
+        candidatos.append(Path(en_path).parent)
+    validos = [c for c in candidatos if (c / "node").exists() and version_node(c / "node") >= 22]
+    if not validos:
+        raise RuntimeError("no encuentro Node ≥ 22 (nvm, Homebrew node@22 o PATH): HyperFrames lo necesita")
     env = dict(os.environ)
-    env["PATH"] = f"{candidatos[-1]}:{env['PATH']}"
+    env["PATH"] = f"{validos[0]}:{env['PATH']}"
     env["HYPERFRAMES_NO_UPDATE_CHECK"] = "1"
     return env
 
