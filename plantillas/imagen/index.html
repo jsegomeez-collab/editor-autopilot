@@ -1,0 +1,74 @@
+<!doctype html>
+<!-- Plantilla "imagen": logo o captura de pantalla de un término mencionado (p. ej. Claude Code).
+     Panel split 1080x960 opaco. La imagen sale de perfiles/<marca>/imagenes/ (catalogo.yaml) y
+     render_plantillas.py la copia al slot en media/. -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"archivo\":\"media/captura_prueba.png\",\"tipo\":\"captura\",\"pie\":\"Claude Code\",\"t_aterrizaje\":0.6}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #contenido {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
+      transform-origin: 50% 50%;
+    }
+    /* Captura: tarjeta con esquinas redondeadas; el zoom lento va DENTRO (overflow hidden). */
+    .tarjeta {
+      border-radius: 28px; overflow: hidden; line-height: 0;
+      border: 2px solid color-mix(in srgb, var(--primario) 14%, transparent);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), 0 0 60px color-mix(in srgb, var(--acento) 12%, transparent);
+    }
+    .tarjeta img { display: block; max-width: 860px; max-height: 500px; width: auto; height: auto; transform-origin: 50% 40%; }
+    .tarjeta.sin-pie img { max-height: 580px; }
+    /* Logo: centrado sobre un resplandor, sin marco. */
+    .logo img { display: block; max-width: 460px; max-height: 420px; width: auto; height: auto; }
+    #pie {
+      font-family: "Titulares"; font-size: 60px; letter-spacing: -0.01em; text-align: center;
+      padding: 6px 22px; border-radius: 14px; background: rgba(40, 44, 56, 0.72);
+    }
+    .resplandor { left: 90px; top: 30px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="contenido" data-start="0" data-duration="3">
+      <div id="marco"><img id="img" alt="" /></div>
+      <div id="pie"></div>
+    </div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { archivo, tipo = "captura", pie = "", t_aterrizaje = 0 } = HF.datos;
+    const marco = document.getElementById("marco");
+    const img = document.getElementById("img");
+    const piel = document.getElementById("pie");
+    img.src = archivo;
+    marco.className = tipo === "logo" ? "logo" : "tarjeta" + (pie ? "" : " sin-pie");
+    if (pie) piel.textContent = pie; else piel.remove();
+
+    const tl = gsap.timeline({ paused: true });
+    const t = HF.limitar(t_aterrizaje);
+    // 1) La imagen aterriza justo cuando se dice el término.
+    HF.revelar(tl, marco, t, { y: 60, escala: tipo === "logo" ? 0.7 : 0.94, revelado: 0.45 });
+    // 2) Después, el pie (un elemento nuevo cada vez).
+    if (pie) HF.revelar(tl, piel, Math.min(HF.limitar(t + 0.35), HF.duracion), { y: 24 });
+    // 3) Movimiento continuo: zoom lento dentro de la captura o flotación del logo + deriva general.
+    if (tipo === "logo") {
+      tl.fromTo(img, { y: 0 }, { y: -12, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    } else {
+      tl.fromTo(img, { scale: 1 }, { scale: 1.06, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    }
+    tl.fromTo("#resplandor", { x: -40, y: 0 }, { x: 50, y: 40, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    HF.deriva(tl, "#contenido");
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

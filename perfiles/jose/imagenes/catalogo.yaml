@@ -1,0 +1,8 @@
+# Imágenes de marca para la plantilla `imagen`. Una entrada por archivo (rutas relativas a esta carpeta).
+# Solo entran imágenes con procedencia anotada (captura propia, kit de prensa oficial, etc.).
+#
+# - archivo: claude_code/terminal.png
+#   terminos: ["Claude Code"]        # términos del glosario que la activan
+#   tipo: captura                    # captura | logo
+#   fuente: "captura propia"
+imagenes: []

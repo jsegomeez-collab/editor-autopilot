@@ -110,3 +110,9 @@ Fuente: `tests/referencias/ANALISIS_ESTILO.md`. Todos son configurables por perf
 - Bordes del EDL alineados a la rejilla de fotogramas. Sin esto, cada segmento se redondea hacia arriba y el total se desvía (+0,16 s en la prueba), fuera de la tolerancia de ±0,1 s del QA.
 - ffmpeg 9 ya no tiene `-filter_complex_script`: se usa `-/filter_complex <archivo>`.
 - Composición del layout con 3 cadenas sincronizadas (recorte de tamaño fijo y posición por ventana) en lugar de trocear en N ramas, que obligaría a ffmpeg a acumular frames en memoria (8 GB de RAM).
+
+## 9. Imágenes de marca (aprobado por el cliente, 2026-09-25)
+- Excepción acotada al punto 7 del §7 (b-roll fuera de alcance): cuando se menciona un término con imagen en `perfiles/<marca>/imagenes/catalogo.yaml` (p. ej. Claude Code), la ventana split usa la plantilla nueva `imagen` (logo o captura).
+- Prioridad: plantillas de datos (cifra, lista, pasos, comparativa, gráfico, alerta, pregunta) > imagen > palabra_clave. No se repite la misma imagen en ventanas seguidas.
+- Las imágenes las aporta el cliente, con procedencia anotada en el catálogo. `render_plantillas.py` solo acepta imágenes del catálogo (en los previews, también las de `tests/fixtures/imagenes/`).
+- Aviso operativo: el Escritorio y Documentos se sincronizan con iCloud y macOS los descarga ("dataless") cuando falta disco. Las carpetas de trabajo no deben estar ahí (`~/VideoAutopilot/` no lo está).

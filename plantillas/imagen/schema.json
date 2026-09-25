@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "imagen",
+  "description": "Logo o captura de un término mencionado en la ventana (p. ej. Claude Code). La imagen debe estar en perfiles/<marca>/imagenes/catalogo.yaml.",
+  "formato": "panel",
+  "type": "object",
+  "required": ["archivo", "t_aterrizaje"],
+  "additionalProperties": false,
+  "properties": {
+    "archivo": { "type": "string", "description": "Ruta relativa a perfiles/<marca>/imagenes/ tal como figura en catalogo.yaml" },
+    "tipo": { "enum": ["logo", "captura"] },
+    "pie": { "type": "string", "maxPalabras": 4, "description": "Texto dicho en la ventana (opcional)" },
+    "t_aterrizaje": { "type": "number", "minimum": 0, "description": "Momento en que se dice el término" }
+  },
+  "ejemplo": { "archivo": "captura_prueba.png", "tipo": "captura", "pie": "Claude Code", "t_aterrizaje": 0.6 }
+}

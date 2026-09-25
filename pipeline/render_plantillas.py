@@ -143,7 +143,30 @@ def validar(g: dict, permitidas: list[str], edl: dict | None, transcripcion: dic
 
 # ---------- slots y render ----------
 
-def preparar_slot(g: dict, perfil_dir: Path, dir_animaciones: Path, perfil) -> tuple[Path, Path, str]:
+def catalogo_imagenes(perfil_dir: Path) -> list[dict]:
+    """Imágenes de la marca (perfiles/<marca>/imagenes/catalogo.yaml)."""
+    import yaml
+    ruta = perfil_dir / "imagenes" / "catalogo.yaml"
+    if not ruta.exists():
+        return []
+    return (yaml.safe_load(ruta.read_text(encoding="utf-8")) or {}).get("imagenes") or []
+
+
+def resolver_imagen(archivo: str, perfil_dir: Path, preview: bool) -> Path:
+    """Ruta real de una imagen: solo del catálogo del perfil (o de tests/ en previews)."""
+    if any(i["archivo"] == archivo for i in catalogo_imagenes(perfil_dir)):
+        ruta = perfil_dir / "imagenes" / archivo
+    elif preview:
+        ruta = RAIZ / "tests" / "fixtures" / "imagenes" / archivo
+    else:
+        raise ValueError(f"imagen '{archivo}' no está en {perfil_dir / 'imagenes' / 'catalogo.yaml'}")
+    if not ruta.is_file():
+        raise FileNotFoundError(ruta)
+    return ruta
+
+
+def preparar_slot(g: dict, perfil_dir: Path, dir_animaciones: Path, perfil,
+                  preview: bool = False) -> tuple[Path, Path, str]:
     schema = json.loads((PLANTILLAS / g["plantilla"] / "schema.json").read_text(encoding="utf-8"))
     ext, ancho, alto = FORMATOS[schema.get("formato", "panel")]
     slot = dir_animaciones / f"slot_{g['id']}"
@@ -156,13 +179,19 @@ def preparar_slot(g: dict, perfil_dir: Path, dir_animaciones: Path, perfil) -> t
     t = perfil.tipografias
     for nombre, fuente in (("titulares", t.titulares), ("enfasis", t.enfasis or t.titulares), ("texto", t.subtitulos)):
         shutil.copy2(perfil_dir / fuente.archivo, fuentes / f"{nombre}.ttf")
+    datos = dict(g["datos"])
+    if "archivo" in datos:  # plantilla imagen: la imagen viaja con el slot
+        origen = resolver_imagen(datos["archivo"], perfil_dir, preview)
+        (slot / "media").mkdir()
+        shutil.copy2(origen, slot / "media" / origen.name)
+        datos["archivo"] = f"media/{origen.name}"
     html = slot / "index.html"
     duracion = f"{g['duracion']:.3f}"
     html.write_text(re.sub(r'data-duration="[\d.]+"', f'data-duration="{duracion}"',
                            html.read_text(encoding="utf-8")), encoding="utf-8")
     variables = {"fondo": perfil.colores.fondo, "primario": perfil.colores.primario,
                  "acento": perfil.colores.acentos[0], "duracion": g["duracion"],
-                 "datos": json.dumps(g["datos"], ensure_ascii=False)}
+                 "datos": json.dumps(datos, ensure_ascii=False)}
     (slot / "variables.json").write_text(json.dumps(variables, ensure_ascii=False), encoding="utf-8")
     return slot, slot / f"render.{ext}", f"{ancho}x{alto}"
 
@@ -192,12 +221,12 @@ def verificar(salida: Path, tam: str, duracion: float, fps: float) -> None:
 
 
 def render_todos(graficos: list[dict], perfil_dir: Path, edit: Path, fps: float, concurrencia: int,
-                 edl: dict | None = None, transcripcion: dict | None = None) -> list[dict]:
+                 edl: dict | None = None, transcripcion: dict | None = None, preview: bool = False) -> list[dict]:
     perfil = cargar(perfil_dir)
     for g in graficos:
         validar(g, perfil.plantillas_permitidas, edl, transcripcion)
     env = entorno_node()
-    trabajos = [(g, *preparar_slot(g, perfil_dir, edit / "animations", perfil)) for g in graficos]
+    trabajos = [(g, *preparar_slot(g, perfil_dir, edit / "animations", perfil, preview)) for g in graficos]
 
     def uno(item):
         g, slot, salida, tam = item
@@ -230,7 +259,7 @@ def main() -> None:
         g = {"id": f"preview_{args.preview}", "plantilla": args.preview, "inicio": 0.0,
              "duracion": args.duracion, "datos": schema["ejemplo"]}
         tmp = (args.salida.parent if args.salida else PLANTILLAS / args.preview) / ".preview"
-        [o] = render_todos([g], args.perfil, tmp, args.fps, 1)
+        [o] = render_todos([g], args.perfil, tmp, args.fps, 1, preview=True)
         destino = args.salida or PLANTILLAS / args.preview / f"preview{Path(o['archivo']).suffix}"
         shutil.move(o["archivo"], destino)
         shutil.rmtree(tmp)
