@@ -200,18 +200,23 @@ def entregar(trabajo: Path, perfil: str, exportacion: dict, informe: Path, vered
     final = Path(exportacion["final"])
     prefijo = "REVISAR_" if veredicto.startswith("⚠️") else ""
     base = prefijo + final.stem
-    shutil.copy2(final, carpeta / f"{base}.mp4")
+    shutil.move(str(final), carpeta / f"{base}.mp4")  # mover, no copiar: una sola copia del final
     shutil.copy2(exportacion["portada"], carpeta / f"{base}_portada.jpg")
     shutil.copy2(informe, carpeta / f"{base}_informe_qa.md")
     shutil.copy2(exportacion["transcripcion"], carpeta / f"{base}_transcripcion.txt")
     # Intermedios regenerables (decisión aprobada): se borran; el original nunca se toca.
     edit = trabajo / "edit"
-    # compuesto.mp4 se conserva: permite rehacer solo el audio (/corregir, variantes) sin recomponer.
-    for p in (edit / "clips", edit / "musica_ajustada.wav"):
+    # Solo quedan el original y las decisiones (JSON, ASS, transcripciones): todo lo demás se regenera
+    # desde el original. Imprescindible con poco disco (decisión aprobada: borrar intermedios).
+    salida = trabajo / "salida"
+    for p in (edit / "clips", edit / "musica_ajustada.wav", edit / "base.mp4", edit / "compuesto.mp4",
+              edit / "mezcla.wav", edit / "animations", *(trabajo / "fuente").glob("src_*.mp4")):
         if p.is_dir():
             shutil.rmtree(p)
         elif p.exists():
             p.unlink()
+    exportacion["final"] = str(carpeta / f"{base}.mp4")
+    (salida / "exportacion.json").write_text(json.dumps(exportacion, ensure_ascii=False, indent=2), encoding="utf-8")
     return carpeta / f"{base}.mp4"
 
 

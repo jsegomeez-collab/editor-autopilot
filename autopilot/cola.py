@@ -30,6 +30,7 @@ AJUSTES = BASE / "ajustes.json"
 EXTENSIONES = {".mp4", ".mov", ".m4v", ".mkv"}
 PAUSA_LIMITE = timedelta(minutes=30)
 INTENTOS = 2  # 1 intento + 1 reintento
+ESPACIO_MINIMO_GB = 2.5  # un vídeo necesita ~0,5 GB y HyperFrames exige ≥ 2 GB libres
 AJUSTES_POR_DEFECTO = {"carpeta_salida": None, "perfil_por_defecto": "jose", "limite_diario": 20}
 
 
@@ -210,6 +211,15 @@ class Cola:
                 if not it or self.hechos_hoy() >= leer_ajustes()["limite_diario"]:
                     self.trabajando = False
                     parar.wait(5)
+                    continue
+                libres = shutil.disk_usage(BASE).free / 1e9
+                if libres < ESPACIO_MINIMO_GB:
+                    with self.cerrojo:
+                        it["mensaje"] = (f"Esperando espacio en disco: hay {libres:.1f} GB libres y hacen falta "
+                                         f"{ESPACIO_MINIMO_GB} GB")
+                        self._guardar()
+                    self.trabajando = False
+                    parar.wait(30)
                     continue
                 self.trabajando = True
                 self.procesar(it)
