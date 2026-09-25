@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editor Autopilot</title>
+  <link rel="stylesheet" href="/estilos.css">
+</head>
+<body>
+  <!-- Resplandor de fondo decorativo -->
+  <div class="fondo-glow" aria-hidden="true"></div>
+
+  <!-- ============ CABECERA ============ -->
+  <header class="cabecera">
+    <div class="cabecera__marca">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>
+      </div>
+      <div>
+        <h1 class="marca__nombre">Editor Autopilot</h1>
+        <p class="marca__sub">Edición automática de vídeos verticales</p>
+      </div>
+    </div>
+
+    <div class="cabecera__derecha">
+      <div class="contador-hoy" id="contadorHoy" title="Vídeos editados hoy / límite diario">
+        <svg class="anillo" viewBox="0 0 36 36" aria-hidden="true">
+          <circle class="anillo__fondo" cx="18" cy="18" r="15"/>
+          <circle class="anillo__valor" id="anilloValor" cx="18" cy="18" r="15"/>
+        </svg>
+        <div>
+          <strong id="contadorTexto">0 / 0</strong>
+          <span>editados hoy</span>
+        </div>
+      </div>
+
+      <div class="estado-motor" id="estadoMotor" data-estado="conectando">
+        <span class="estado-motor__punto"></span>
+        <span id="estadoMotorTexto">Conectando…</span>
+      </div>
+
+      <button class="boton-icono" id="botonAjustes" type="button" aria-label="Ajustes" title="Ajustes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <!-- Aviso: no hay carpeta de destino configurada -->
+    <div class="aviso-carpeta" id="avisoCarpeta" hidden>
+      <div class="aviso-carpeta__icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 11v3M12 16.5v.01"/></svg>
+      </div>
+      <div class="aviso-carpeta__texto">
+        <strong>Elige dónde guardar tus vídeos terminados</strong>
+        <span>Aún no hay carpeta de destino. Los vídeos se editan igual y quedan guardados en el sistema hasta que la configures.</span>
+      </div>
+      <button class="boton boton--primario" id="botonConfigurarCarpeta" type="button">Configurar carpeta</button>
+    </div>
+
+    <!-- ============ SUBIDA ============ -->
+    <section class="subida" aria-labelledby="tituloSubida">
+      <h2 class="visualmente-oculto" id="tituloSubida">Subir vídeos</h2>
+
+      <label class="zona-subida" id="zonaSubida" for="inputArchivos">
+        <input type="file" id="inputArchivos" accept="video/*" multiple hidden>
+        <div class="zona-subida__icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M20 16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2"/></svg>
+        </div>
+        <p class="zona-subida__titulo">Arrastra aquí tus vídeos</p>
+        <p class="zona-subida__sub">Hasta 15 vídeos verticales a la vez · se editan solos, uno a uno</p>
+        <span class="boton boton--secundario">Elegir vídeos</span>
+      </label>
+
+      <div class="panel-subida">
+        <div class="panel-subida__cabecera">
+          <h3>Vídeos elegidos</h3>
+          <span class="chip" id="contadorSeleccion">0 / 15</span>
+        </div>
+
+        <ul class="lista-archivos" id="listaArchivos"></ul>
+        <p class="lista-vacia" id="listaVacia">Todavía no has elegido ningún vídeo.</p>
+
+        <div class="panel-subida__pie">
+          <label class="campo">
+            <span class="campo__etiqueta">Perfil de edición</span>
+            <select id="selectPerfil" class="select"></select>
+          </label>
+
+          <div class="progreso-subida" id="progresoSubida" hidden>
+            <div class="progreso-subida__texto">
+              <span id="progresoSubidaTexto">Subiendo…</span>
+              <strong id="progresoSubidaPct">0%</strong>
+            </div>
+            <div class="barra"><div class="barra__relleno" id="progresoSubidaBarra"></div></div>
+          </div>
+
+          <button class="boton boton--primario boton--grande" id="botonEditar" type="button" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 1.9 5.8L20 10l-5 3.9L16.2 20 12 16.6 7.8 20 9 13.9 4 10l6.1-1.2z"/></svg>
+            <span id="botonEditarTexto">Editar vídeos</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ESTADO VACÍO GLOBAL ============ -->
+    <section class="vacio" id="estadoVacio" hidden>
+      <div class="vacio__ilustracion" aria-hidden="true">
+        <div class="vacio__movil vacio__movil--1"></div>
+        <div class="vacio__movil vacio__movil--2"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg></div>
+        <div class="vacio__movil vacio__movil--3"></div>
+      </div>
+      <h2>Tu mesa de edición está lista</h2>
+      <p>Sube tus primeros vídeos y el piloto automático se encarga de los cortes, los gráficos, los subtítulos, la música y los efectos.</p>
+    </section>
+
+    <!-- ============ COLA ============ -->
+    <section class="seccion" id="seccionCola" hidden>
+      <div class="seccion__cabecera">
+        <h2>En cola <span class="chip" id="chipCola">0</span></h2>
+        <p class="seccion__sub">Se editan de uno en uno, en orden de llegada.</p>
+      </div>
+      <div class="lista-cola" id="listaCola"></div>
+    </section>
+
+    <!-- ============ RESULTADOS ============ -->
+    <section class="seccion" id="seccionResultados" hidden>
+      <div class="seccion__cabecera">
+        <h2>Terminados <span class="chip" id="chipResultados">0</span></h2>
+        <div class="leyenda">
+          <span class="badge badge--listo">Listo</span> para publicar
+          <span class="badge badge--revisar">Revisar</span> échale un vistazo antes
+        </div>
+      </div>
+      <div class="galeria" id="galeria"></div>
+      <p class="galeria-vacia" id="galeriaVacia" hidden>Aquí aparecerán tus vídeos cuando terminen de editarse.</p>
+    </section>
+  </main>
+
+  <!-- ============ PANEL DE AJUSTES (drawer) ============ -->
+  <div class="capa" id="capaAjustes" hidden>
+    <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="tituloAjustes">
+      <div class="drawer__cabecera">
+        <h2 id="tituloAjustes">Ajustes</h2>
+        <button class="boton-icono boton-icono--suave" type="button" data-cerrar="ajustes" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+
+      <form class="drawer__cuerpo" id="formAjustes">
+        <div class="bloque-ajuste">
+          <span class="campo__etiqueta">Carpeta de destino</span>
+          <div class="ruta" id="rutaCarpeta" data-vacia="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            <span id="rutaCarpetaTexto">Sin configurar</span>
+          </div>
+          <button class="boton boton--secundario" id="botonElegirCarpeta" type="button">Elegir carpeta…</button>
+          <p class="nota">Los vídeos listos se guardan en esta carpeta. Los vídeos a revisar se guardan en la subcarpeta <code>revisar/</code>.</p>
+        </div>
+
+        <label class="bloque-ajuste campo">
+          <span class="campo__etiqueta">Perfil por defecto</span>
+          <select id="ajustePerfil" class="select"></select>
+        </label>
+
+        <label class="bloque-ajuste campo">
+          <span class="campo__etiqueta">Límite diario de vídeos</span>
+          <input type="number" id="ajusteLimite" class="input" min="1" max="200" step="1">
+          <p class="nota">Al llegar al límite, el motor se pausa y continúa al día siguiente.</p>
+        </label>
+      </form>
+
+      <div class="drawer__pie">
+        <button class="boton boton--fantasma" type="button" data-cerrar="ajustes">Cancelar</button>
+        <button class="boton boton--primario" id="botonGuardarAjustes" type="button">Guardar</button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ============ MODAL DE VÍDEO ============ -->
+  <div class="capa capa--centro" id="capaVideo" hidden>
+    <div class="modal-video" role="dialog" aria-modal="true" aria-labelledby="modalVideoTitulo">
+      <div class="modal-video__reproductor">
+        <video id="modalVideoEl" controls playsinline preload="metadata"></video>
+      </div>
+      <div class="modal-video__info">
+        <button class="boton-icono boton-icono--suave modal-video__cerrar" type="button" data-cerrar="video" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+        <div id="modalVideoBadge"></div>
+        <h2 id="modalVideoTitulo">Vídeo</h2>
+        <dl class="datos" id="modalVideoDatos"></dl>
+        <div id="modalVideoAvisos"></div>
+        <button class="boton boton--primario" id="modalVideoFinder" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          Mostrar en Finder
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TOASTS ============ -->
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
