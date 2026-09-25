@@ -72,3 +72,15 @@
   - faltaba la etiqueta BT.709 en ffmpeg 9 (ahora con setparams).
 - Prueba de punta a punta con JOSE49 y 13 gráficos: 14/15 ✅. Pendiente: la biblioteca de SFX (solo existe el pop del piloto).
 - Pendiente: OK del cliente al estilo del piloto → generar el kit completo → 🛑 checkpoint de escucha.
+- Motion graphics visuales (PLAN §10), a petición del cliente:
+  - 138 iconos Lucide etiquetados en español;
+  - 6 plantillas nuevas: icono (mía) y red, transformacion, crecimiento, terminal, uno_vs_muchos (subagentes);
+  - 36 SFX semánticos (12 tipos × 3, ~207–373 créditos);
+  - el sonido de cada gráfico depende del icono o la plantilla.
+- Correcciones:
+  - los nombres de icono ("trash-2") ya no cuentan como cifras;
+  - QA ya no lee iconos como texto;
+  - los valores por defecto del schema se aplican antes de inyectar SVG (faltaba el icono "user");
+  - terminal en monoespaciada.
+- Disco: `uv cache clean` con OK del cliente (quedan ~3,1 GB).
+- Vídeo de prueba con gráficos visuales: ✅ LISTO 14/14.

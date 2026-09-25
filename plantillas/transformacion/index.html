@@ -1,0 +1,200 @@
+<!doctype html>
+<!-- Plantilla "transformacion": A → B. El icono A aparece a la izquierda; después una flecha en arco
+     se traza hacia la derecha, A se apaga y "suelta" partículas de luz que viajan por el arco y
+     construyen B, que se dibuja y aterriza en t_aterrizaje con un destello, resaltado en acento.
+     Panel split 1080x960 opaco. Los SVG llegan en línea en la variable "svgs". -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"icono_a\":\"folder\",\"icono_b\":\"map\",\"rotulo_a\":\"tu proyecto\",\"rotulo_b\":\"un mapa\",\"t_aterrizaje\":1.4}"},
+  {"id":"svgs","type":"string","label":"SVG en línea (JSON)","default":"{}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #escena { transform-origin: 50% 45%; }
+    #trazo { position: absolute; inset: 0; width: 900px; height: 620px; overflow: visible; }
+    #arco { fill: none; stroke: color-mix(in srgb, var(--primario) 55%, transparent); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 2 14; }
+    #punta { fill: none; stroke: var(--acento); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .particula { fill: var(--acento); filter: drop-shadow(0 0 7px var(--acento)); }
+    #rayos line { stroke: var(--acento); stroke-width: 4; stroke-linecap: round; }
+    #destello { fill: none; stroke: var(--acento); stroke-width: 3; }
+    .lado { position: absolute; top: 0; width: 380px; height: 620px; display: flex; flex-direction: column; align-items: center; }
+    #lado_a { left: 0; } #lado_b { left: 520px; }
+    .marco {
+      position: relative; margin-top: 120px; width: 300px; height: 300px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: color-mix(in srgb, var(--fondo) 80%, var(--primario) 6%);
+      border: 2.5px solid color-mix(in srgb, var(--primario) 40%, transparent);
+    }
+    #lado_b .marco { border: 3px solid var(--acento); box-shadow: 0 0 50px color-mix(in srgb, var(--acento) 35%, transparent); }
+    .icono {
+      width: 170px; height: 170px; color: var(--primario); stroke-width: 1.6; overflow: visible;
+      filter: drop-shadow(0 0 16px color-mix(in srgb, var(--acento) 45%, transparent));
+    }
+    #lado_b .icono { color: var(--acento); filter: drop-shadow(0 0 20px color-mix(in srgb, var(--acento) 70%, transparent)); }
+    .rotulo {
+      margin-top: 30px; width: 380px; height: 110px; text-align: center; font-family: "Titulares";
+      line-height: 1.05; letter-spacing: -0.01em;
+    }
+    #lado_a .rotulo { color: color-mix(in srgb, var(--primario) 70%, transparent); }
+    #lado_b .rotulo { color: var(--acento); }
+    .resplandor { left: 310px; top: 10px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="escena" data-start="0" data-duration="3">
+      <svg id="trazo" viewBox="0 0 900 620">
+        <path id="arco" />
+        <polyline id="punta" />
+      </svg>
+      <div class="lado" id="lado_a"><div class="marco" id="marco_a"></div><div class="rotulo" id="rotulo_a"></div></div>
+      <div class="lado" id="lado_b"><div class="marco" id="marco_b"></div><div class="rotulo" id="rotulo_b"></div></div>
+      <svg id="efectos" viewBox="0 0 900 620" style="position:absolute;inset:0;width:900px;height:620px;overflow:visible">
+        <circle id="destello" cx="710" cy="270" r="150" opacity="0" />
+        <g id="rayos" opacity="0"></g>
+      </svg>
+    </div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { icono_a, icono_b, rotulo_a = "", rotulo_b = "", t_a = null, t_aterrizaje = 1.2 } = HF.datos;
+    const NS = "http://www.w3.org/2000/svg";
+    const tl = gsap.timeline({ paused: true });
+    const t = HF.limitar(t_aterrizaje);
+    const T = 0.75; // duración de la transformación (A se apaga, partículas viajan, B se dibuja)
+    // A aterriza en t_a (o, si no se da, antes de que empiece la transformación); nunca después.
+    const ta = Math.max(0, Math.min(t_a ?? t - T - 0.25, t - T * 0.8));
+    const inicioT = Math.max(0, t - T);
+
+    const ACENTO = HF.color("acento");
+    /* Color con alfa a partir de un hex del perfil (GSAP no interpola color-mix). */
+    const conAlfa = (hex, a) => { const h = hex.replace("#", ""); const c = h.length === 3 ? h.split("").map((x) => x + x).join("") : h.slice(0, 6);
+      return `rgba(${parseInt(c.slice(0, 2), 16)},${parseInt(c.slice(2, 4), 16)},${parseInt(c.slice(4, 6), 16)},${a})`; };
+    function aterrizar(el, desde, hasta, fin, dur, ease = HF.EASE_ENTRADA) {
+      if (fin <= 0) { tl.set(el, hasta, 0); return; }
+      const d = Math.min(dur, fin);
+      tl.fromTo(el, desde, { ...hasta, duration: d, ease }, fin - d);
+    }
+
+    // ---- Iconos y rótulos ----
+    const marcoA = document.getElementById("marco_a"), marcoB = document.getElementById("marco_b");
+    const icoA = HF.svg(icono_a), icoB = HF.svg(icono_b);
+    marcoA.appendChild(icoA);
+    marcoB.appendChild(icoB);
+    [["rotulo_a", rotulo_a], ["rotulo_b", rotulo_b]].forEach(([id, txt]) => {
+      const el = document.getElementById(id);
+      if (!txt) { el.style.visibility = "hidden"; return; }
+      el.textContent = txt;
+      el.style.fontSize = HF.tamanoTexto(txt, 370, 110, 58, 34) + "px";
+    });
+
+    // ---- Arco A → B (bézier cuadrática calculada: posiciones deterministas) ----
+    const P0 = { x: 352, y: 225 }, P1 = { x: 450, y: 105 }, P2 = { x: 548, y: 225 };
+    const bez = (u) => ({
+      x: (1 - u) ** 2 * P0.x + 2 * (1 - u) * u * P1.x + u * u * P2.x,
+      y: (1 - u) ** 2 * P0.y + 2 * (1 - u) * u * P1.y + u * u * P2.y,
+    });
+    const arco = document.getElementById("arco");
+    arco.setAttribute("d", `M${P0.x},${P0.y} Q${P1.x},${P1.y} ${P2.x},${P2.y}`);
+    const punta = document.getElementById("punta");
+    // Punta de flecha orientada según la tangente del arco en su final.
+    const ang = Math.atan2(P2.y - P1.y, P2.x - P1.x), LP = 24;
+    const ala = (s) => `${P2.x - LP * Math.cos(ang + s)},${P2.y - LP * Math.sin(ang + s)}`;
+    punta.setAttribute("points", `${ala(0.5)} ${P2.x},${P2.y} ${ala(-0.5)}`);
+
+    // Máscara de dibujado del arco punteado: se revela con un trazo sólido en una máscara.
+    const mask = document.createElementNS(NS, "mask");
+    mask.id = "m_arco";
+    mask.setAttribute("maskUnits", "userSpaceOnUse");
+    const mpath = document.createElementNS(NS, "path");
+    mpath.setAttribute("d", arco.getAttribute("d"));
+    Object.assign(mpath.style, { fill: "none", stroke: "#fff", strokeWidth: 20 });
+    mask.appendChild(mpath);
+    document.getElementById("trazo").prepend(mask);
+    arco.setAttribute("mask", "url(#m_arco)");
+    const L = Math.ceil(mpath.getTotalLength()) + 1;
+    mpath.style.strokeDasharray = L;
+
+    // Partículas: salen de A, viajan por el arco (con desvíos fijos) y entran en B.
+    const DESV = [0, -18, 14, -8, 22, -24, 6, 16, -12];
+    const efectos = document.getElementById("trazo");
+    const parts = DESV.map((dv, i) => {
+      const c = document.createElementNS(NS, "circle");
+      c.setAttribute("class", "particula");
+      c.setAttribute("r", i % 3 === 0 ? 7 : 4.5);
+      c.setAttribute("opacity", 0);
+      efectos.appendChild(c);
+      const st = { _u: 0, get u() { return this._u; }, set u(v) {
+        this._u = v;
+        // Recorre el arco del borde de A al borde de B, con un desvío lateral fijo por partícula.
+        const pt = bez(v);
+        const off = Math.sin(v * Math.PI) * dv;
+        c.setAttribute("cx", pt.x);
+        c.setAttribute("cy", pt.y + off);
+        c.setAttribute("opacity", v > 0.01 && v < 0.99 ? 1 : 0);
+      } };
+      st.u = 0;
+      return st;
+    });
+
+    // Rayos del destello alrededor de B.
+    const rayos = document.getElementById("rayos");
+    for (let k = 0; k < 10; k++) {
+      const a = (k / 10) * Math.PI * 2 - Math.PI / 2, r1 = 178, r2 = 214;
+      const l = document.createElementNS(NS, "line");
+      l.setAttribute("x1", 710 + r1 * Math.cos(a)); l.setAttribute("y1", 270 + r1 * Math.sin(a));
+      l.setAttribute("x2", 710 + r2 * Math.cos(a)); l.setAttribute("y2", 270 + r2 * Math.sin(a));
+      rayos.appendChild(l);
+    }
+
+    // ---- Línea de tiempo ----
+    // 1. A aparece y se dibuja.
+    aterrizar(marcoA, { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1 }, ta, 0.4);
+    HF.dibujar(tl, icoA, ta, 0.55);
+    if (rotulo_a) HF.revelar(tl, "#rotulo_a", Math.min(ta + 0.2, inicioT + 0.1), { y: 20 });
+
+    // 2. Transformación: el arco se traza, A se apaga y encoge, las partículas viajan a B.
+    if (t > 0) {
+      const dArco = Math.min(0.45, t);
+      tl.fromTo(mpath, { strokeDashoffset: L }, { strokeDashoffset: 0, duration: dArco, ease: HF.EASE_SUAVE }, Math.max(0, t - 0.6 - dArco * 0.5));
+      aterrizar(punta, { opacity: 0, x: -14 }, { opacity: 1, x: 0 }, Math.max(0, t - 0.25), 0.25);
+      tl.fromTo(marcoA, { scale: 1, opacity: 1 }, { scale: 0.86, opacity: 0.45, duration: Math.min(0.6, t), ease: HF.EASE_SUAVE, immediateRender: false }, Math.max(0, t - 0.6));
+      tl.fromTo(icoA, { rotate: 0 }, { rotate: -12, duration: Math.min(0.6, t), ease: HF.EASE_SUAVE, immediateRender: false }, Math.max(0, t - 0.6));
+      parts.forEach((p, i) => {
+        const ini = Math.max(0, inicioT + i * 0.035);
+        const d = Math.max(0.05, t - ini - (DESV.length - 1 - i) * 0.012);
+        tl.fromTo(p, { u: 0 }, { u: 1, duration: d, ease: HF.EASE_SUAVE, immediateRender: false }, ini);
+      });
+    } else {
+      tl.set(mpath, { strokeDashoffset: 0 }, 0);
+      tl.set(marcoA, { scale: 0.86, opacity: 0.45 }, 0);
+      tl.set(punta, { opacity: 1 }, 0);
+    }
+
+    // 3. B se dibuja y aterriza en t con giro, escala y destello; queda resaltado en acento.
+    aterrizar(marcoB, { scale: 0.35, rotate: -40, opacity: 0 }, { scale: 1, rotate: 0, opacity: 1 }, t, 0.5);
+    HF.dibujar(tl, icoB, t, 0.5);
+    tl.fromTo("#destello", { attr: { r: 150 }, opacity: 0.95 }, { attr: { r: 270 }, opacity: 0, duration: 0.8, ease: HF.EASE_ENTRADA, immediateRender: false }, t);
+    tl.fromTo(rayos, { opacity: 1, scale: 0.85, transformOrigin: "710px 270px" }, { opacity: 0, scale: 1.2, duration: 0.55, ease: HF.EASE_ENTRADA, immediateRender: false }, t);
+    tl.fromTo(marcoB, { boxShadow: `0 0 90px ${conAlfa(ACENTO, 0.8)}` }, { boxShadow: `0 0 50px ${conAlfa(ACENTO, 0.3)}`, duration: 0.7, ease: HF.EASE_SUAVE, immediateRender: false }, t);
+    if (rotulo_b) HF.revelar(tl, "#rotulo_b", HF.limitar(t + 0.25), { y: 20 });
+
+    // 4. Movimiento continuo: B flota y respira; el arco "fluye"; A sigue apagándose despacio.
+    const resto = Math.max(0.2, HF.duracion - t);
+    tl.to(marcoB, { y: -12, duration: resto, ease: HF.EASE_SUAVE }, t);
+    tl.to(icoB, { scale: 1.05, duration: resto, ease: HF.EASE_SUAVE }, t);
+    tl.to(arco, { strokeDashoffset: -48, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    tl.fromTo("#resplandor", { x: -60, y: 0 }, { x: 30, y: 40, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    HF.deriva(tl, "#escena");
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{"estado_musica": "neutra",
+ "por_inicio": {
+  "0.00":  {"plantilla": "gancho", "datos": {"titular": "Nunca uses Claude Code", "destacado": "Claude Code", "t_aterrizaje": 0}},
+  "2.83":  {"plantilla": "icono", "datos": {"icono": "rocket", "movimiento": "subir", "rotulo": "otro nivel", "destacado": "nivel", "t_aterrizaje": 0.93}},
+  "6.53":  {"plantilla": "icono", "datos": {"icono": "file-text", "movimiento": "caer", "icono_receptor": "trash-2", "rotulo": "a la basura", "destacado": "basura", "t_aterrizaje": 1.15}},
+  "10.42": {"plantilla": "icono", "datos": {"icono": "zap", "movimiento": "latir", "rotulo": "una bestia", "destacado": "bestia", "t_aterrizaje": 0.44}},
+  "14.52": {"plantilla": "crecimiento", "datos": {"icono": "coins", "direccion": "baja", "rotulo": "menos tokens", "t_aterrizaje": 1.06}},
+  "18.24": {"plantilla": "red", "datos": {"icono_centro": "network", "iconos": ["server", "cloud", "cpu", "database", "bot", "globe"], "cantidad": 300, "rotulo": "proveedores", "t_aterrizaje": 0.62}},
+  "23.52": {"plantilla": "transformacion", "datos": {"icono_a": "folder", "icono_b": "map", "rotulo_b": "mapa", "t_a": 0.0, "t_aterrizaje": 1.30}},
+  "27.32": {"plantilla": "red", "datos": {"icono_centro": "package", "iconos": ["brain", "pen-tool", "code", "chart-line", "search", "megaphone"], "cantidad": 24, "rotulo": "habilidades", "t_aterrizaje": 1.28}},
+  "31.64": {"plantilla": "imagen", "datos": {"archivo": "claude/logo.png", "tipo": "logo", "pie": "Claude", "t_aterrizaje": 0.04}},
+  "34.90": {"plantilla": "uno_vs_muchos", "datos": {"iconos": ["code", "pen-tool", "chart-line", "megaphone", "mail"], "rotulo": "una sola persona", "t_aterrizaje": 0.52}},
+  "40.00": {"plantilla": "transformacion", "datos": {"icono_a": "hammer", "icono_b": "hand-coins", "rotulo_a": "construir", "rotulo_b": "vender", "t_a": 1.38, "t_aterrizaje": 1.94}},
+  "44.84": {"plantilla": "crecimiento", "datos": {"icono": "circle-dollar-sign", "valor": 10000, "prefijo": "$", "rotulo": "mensuales", "direccion": "sube", "sonido": "moneda", "t_aterrizaje": 1.88}},
+  "47.72": {"plantilla": "cta", "datos": {"linea1": "Escribe", "linea2": "la palabra", "palabra": "SISTEMAS", "t_aterrizaje": 0.76}}
+ }}

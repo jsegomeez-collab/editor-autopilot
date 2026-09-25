@@ -1,0 +1,189 @@
+<!doctype html>
+<!-- Plantilla "terminal": ventana de terminal tipo macOS (3 puntos, título opcional) donde se
+     TECLEA un comando y aparecen sus respuestas. Representa "con Claude Code…", "le pides que…",
+     "automatiza X". Panel split 1080x960 opaco. Los SVG llegan en línea en la variable "svgs". -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"titulo\":\"Claude Code\",\"icono\":\"terminal\",\"lineas\":[{\"texto\":\"automatiza mis facturas\",\"t\":0.9,\"tipo\":\"comando\"},{\"texto\":\"Leyendo facturas del correo\",\"t\":1.3,\"tipo\":\"salida\"},{\"texto\":\"Excel actualizado y enviado\",\"t\":1.7,\"tipo\":\"exito\"}],\"t_aterrizaje\":0.3}"},
+  {"id":"svgs","type":"string","label":"SVG en línea (JSON)","default":"{}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #escena { display: flex; align-items: center; justify-content: center; }
+    /* Ventana: 860 px de ancho para que la deriva (escala 1,02) no la saque del área útil. */
+    #ventana {
+      position: relative; width: 860px; border-radius: 22px; overflow: hidden;
+      background: color-mix(in srgb, var(--fondo) 55%, #000);
+      border: 1.5px solid color-mix(in srgb, var(--primario) 16%, transparent);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--acento) 10%, transparent),
+                  0 0 70px color-mix(in srgb, var(--acento) 16%, transparent),
+                  0 30px 60px rgba(0, 0, 0, 0.45);
+    }
+    #barra {
+      position: relative; height: 72px; display: flex; align-items: center; justify-content: center;
+      background: color-mix(in srgb, var(--primario) 6%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--primario) 10%, transparent);
+    }
+    #puntos { position: absolute; left: 26px; top: 26px; display: flex; gap: 11px; }
+    #puntos i { display: block; width: 18px; height: 18px; border-radius: 50%; }
+    #puntos i:nth-child(1) { background: #ff5f57; }
+    #puntos i:nth-child(2) { background: #febc2e; }
+    #puntos i:nth-child(3) { background: #28c840; }
+    #titulo {
+      display: flex; align-items: center; gap: 12px;
+      font-family: "Texto", sans-serif; font-size: 30px; letter-spacing: 0.01em;
+      color: color-mix(in srgb, var(--primario) 72%, transparent);
+    }
+    #titulo .icono-barra {
+      width: 34px; height: 34px; color: var(--acento); stroke-width: 1.8; overflow: visible;
+      filter: drop-shadow(0 0 8px color-mix(in srgb, var(--acento) 55%, transparent));
+    }
+    #cuerpo { position: relative; padding: 44px 44px 52px; min-height: 250px; display: flex; flex-direction: column; gap: 26px; }
+    .linea {
+      position: relative; display: flex; align-items: baseline; gap: 0.55em;
+      font-family: Menlo, "SF Mono", ui-monospace, "Texto", monospace; line-height: 1.25;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .prompt, .check {
+      flex: none; color: var(--acento);
+      text-shadow: 0 0 16px color-mix(in srgb, var(--acento) 60%, transparent);
+    }
+    .salida .txt { color: color-mix(in srgb, var(--primario) 62%, transparent); }
+    .exito .txt { color: var(--primario); }
+    .comando .txt { color: var(--primario); }
+    .cursor {
+      display: inline-block; width: 0.5em; height: 1.05em; margin: 0 -0.5em 0 0.06em; vertical-align: -0.16em;
+      background: var(--acento); border-radius: 2px; opacity: 0;
+      box-shadow: 0 0 14px color-mix(in srgb, var(--acento) 70%, transparent);
+    }
+    /* Barrido de luz que recorre la ventana (nunca queda estática). */
+    #barrido {
+      position: absolute; left: 0; right: 0; height: 140px; top: -140px; pointer-events: none;
+      background: linear-gradient(transparent, color-mix(in srgb, var(--acento) 7%, transparent), transparent);
+    }
+    .resplandor { left: 90px; top: 30px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="escena" data-start="0" data-duration="3">
+      <div id="ventana">
+        <div id="barra">
+          <div id="puntos"><i></i><i></i><i></i></div>
+          <div id="titulo"></div>
+        </div>
+        <div id="cuerpo"><div id="barrido"></div></div>
+      </div>
+    </div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { titulo = "", icono = "", prompt = "❯", lineas = [], t_aterrizaje } = HF.datos;
+    const cuerpo = document.getElementById("cuerpo");
+    const tit = document.getElementById("titulo");
+    const tl = gsap.timeline({ paused: true });
+
+    // Título de la barra (opcional) con icono pequeño de acento.
+    if (icono) tit.appendChild(HF.svg(icono, "icono-barra"));
+    if (titulo) tit.appendChild(document.createTextNode(titulo));
+
+    // Tamaño de letra único para todas las líneas: la más larga cabe en una línea de ~760 px
+    // (determinista: ratio fijo por carácter, sin medir el DOM).
+    const ANCHO_TXT = 700;
+    const larga = Math.max(...lineas.map((l) => l.texto.length + 2), 10);
+    // Menlo: cada carácter ocupa 0,602 em (monoespaciada); +2 caracteres para prompt y cursor.
+    const px = Math.floor(Math.max(26, Math.min(54, ANCHO_TXT / ((larga + 2) * 0.602))));
+    cuerpo.style.fontSize = px + "px";
+
+    // Aterrizaje de la ventana: t_aterrizaje o, si falta, un poco antes de la primera línea.
+    const t0 = lineas.length ? lineas[0].t : 0.5;
+    const tVentana = HF.limitar(t_aterrizaje ?? Math.max(0, t0 - 0.9));
+    HF.revelar(tl, "#ventana", tVentana, { y: 50, escala: 0.94 });
+
+    const cursores = [];
+    let libre = tVentana; // no se teclea nada antes de que la ventana haya aterrizado
+    lineas.forEach((l, i) => {
+      const tipo = l.tipo || (i === 0 ? "comando" : "salida");
+      const el = document.createElement("div");
+      el.className = "linea " + tipo;
+      const marca = document.createElement("span");
+      if (tipo === "comando") { marca.className = "prompt"; marca.textContent = prompt; }
+      if (tipo === "exito") { marca.className = "check"; marca.textContent = "✓"; }
+      if (marca.className) el.appendChild(marca);
+      const txt = document.createElement("span");
+      txt.className = "txt";
+      el.appendChild(txt);
+      const cur = document.createElement("span");
+      cur.className = "cursor";
+      txt.after(cur);
+      cuerpo.appendChild(el);
+      cursores.push(cur);
+
+      const fin = Math.max(HF.limitar(l.t), libre);
+      if (tipo === "comando") {
+        // Tecleo: un contador avanza con power2.inOut y revela los caracteres (sin azar ni timers).
+        const chars = Array.from(l.texto);
+        const dur = Math.min(0.08 + chars.length * 0.035, 0.95, Math.max(0, fin - libre));
+        const cont = { n: 0 };
+        // El resto del texto ocupa su sitio invisible: la ventana no cambia de alto al teclear.
+        const hecho = document.createElement("span"), resto = document.createElement("span");
+        resto.style.visibility = "hidden";
+        txt.append(hecho, cur, resto);
+        const pintar = () => {
+          const k = Math.round(cont.n);
+          hecho.textContent = chars.slice(0, k).join("");
+          resto.textContent = chars.slice(k).join("");
+        };
+        if (dur <= 0.02) { cont.n = chars.length; pintar(); }
+        else {
+          tl.fromTo(cont, { n: 0 }, { n: chars.length, duration: dur, ease: "power2.inOut", onUpdate: pintar }, fin - dur);
+          if (fin - dur > 0) tl.set(el, { opacity: 1 }, fin - dur);
+        }
+        pintar();
+        if (fin - dur > 0) gsap.set(el, { opacity: 0 });
+        l._inicio = fin - dur;
+      } else {
+        txt.textContent = l.texto;
+        // Salida / éxito: aparecen de golpe con un fundido corto; el ✓ entra con un pequeño salto.
+        const d = Math.min(0.22, fin);
+        if (d > 0) {
+          tl.fromTo(el, { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: d, ease: "power2.out" }, fin - d);
+          if (tipo === "exito") tl.fromTo(marca, { scale: 0.3 }, { scale: 1, duration: 0.3, ease: "power2.out" }, fin - d);
+        }
+        if (tipo === "exito") tl.fromTo(el, { textShadow: "0 0 18px " + HF.color("acento") }, { textShadow: "0 0 0px transparent", duration: 0.6, ease: "power2.out" }, fin);
+        l._inicio = fin - d;
+      }
+      l._fin = fin;
+      libre = fin + 0.05;
+    });
+
+    // Cursor: vive en la línea activa (desde que empieza hasta que empieza la siguiente)
+    // y la última lo conserva, parpadeando con tiempos fijos.
+    cursores.forEach((cur, i) => {
+      const desde = i === 0 ? Math.min(tVentana, lineas[0]._inicio) : lineas[i]._inicio;
+      const hasta = i + 1 < lineas.length ? lineas[i + 1]._inicio : HF.duracion;
+      tl.set(cur, { opacity: 1 }, desde);
+      tl.set(cur, { opacity: 0 }, hasta);
+      // Parpadeo solo cuando no teclea (tras su aterrizaje).
+      for (let k = lineas[i]._fin + 0.25; k + 0.5 < hasta; k += 0.55) {
+        tl.to(cur, { opacity: 0.1, duration: 0.2, ease: "power2.inOut" }, k);
+        tl.to(cur, { opacity: 1, duration: 0.2, ease: "power2.inOut" }, k + 0.27);
+      }
+    });
+
+    // Vida constante: barrido de luz, resplandor que deriva y leve escala del conjunto.
+    tl.fromTo("#barrido", { y: 0 }, { y: 900, duration: HF.duracion, ease: "power2.inOut" }, 0);
+    tl.fromTo("#resplandor", { x: -40, y: 0 }, { x: 50, y: 40, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    HF.deriva(tl, "#escena");
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

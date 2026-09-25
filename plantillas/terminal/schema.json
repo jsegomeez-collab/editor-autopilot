@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "terminal",
+  "description": "Ventana de terminal tipo macOS donde se teclea un comando y aparecen sus respuestas.",
+  "formato": "panel",
+  "type": "object",
+  "required": [
+    "lineas"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "maxPalabras": 4,
+      "description": "Título de la barra (p. ej. «Claude Code»)"
+    },
+    "icono": {
+      "type": "string",
+      "description": "Icono pequeño junto al título (nombre en plantillas/_iconos/catalogo.yaml; p. ej. terminal, bot)"
+    },
+    "prompt": {
+      "enum": ["❯", "$"],
+      "description": "Símbolo del prompt de las líneas «comando»"
+    },
+    "lineas": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["texto", "t"],
+        "additionalProperties": false,
+        "properties": {
+          "texto": {
+            "type": "string",
+            "maxPalabras": 7
+          },
+          "t": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Instante en que la línea termina de teclearse / aparece"
+          },
+          "tipo": {
+            "enum": ["comando", "salida", "exito"],
+            "description": "comando: se teclea con prompt; salida: aparece atenuada; exito: con ✓ en acento. Por defecto la primera es comando y el resto salida"
+          }
+        }
+      }
+    },
+    "sonido": {
+      "type": "string",
+      "description": "Tipo de SFX (recomendado: teclado / tecleo; o «exito» si hay línea de éxito)"
+    },
+    "t_aterrizaje": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Aterrizaje de la ventana; si falta, 0,9 s antes de la primera línea"
+    }
+  },
+  "ejemplo": {
+    "titulo": "Claude Code",
+    "icono": "terminal",
+    "lineas": [
+      { "texto": "automatiza mis facturas del mes", "t": 1.0, "tipo": "comando" },
+      { "texto": "Leyendo facturas del correo…", "t": 1.35, "tipo": "salida" },
+      { "texto": "Excel actualizado y enviado", "t": 1.8, "tipo": "exito" }
+    ],
+    "t_aterrizaje": 0.3
+  }
+}

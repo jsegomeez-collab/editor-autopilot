@@ -69,3 +69,7 @@ def test_max_palabras_del_schema():
     Validador(esquema).validate({"t": "uno dos tres"})
     with pytest.raises(js.ValidationError):
         Validador(esquema).validate({"t": "uno dos tres cuatro"})
+
+
+def test_nombres_de_icono_no_son_cifras():
+    assert numeros_de_datos({"icono": "trash-2", "iconos": ["share-2"], "rotulo": "a la basura"}) == set()

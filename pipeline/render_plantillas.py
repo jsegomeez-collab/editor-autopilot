@@ -97,11 +97,15 @@ def entorno_node() -> dict:
 
 # ---------- validación ----------
 
+TECNICOS = ("icono", "archivo", "sonido", "movimiento", "direccion", "tipo", "prompt")
+
+
 def textos(valor) -> list[str]:
+    """Textos que se VEN en pantalla (sin nombres de icono, archivos ni otros campos técnicos)."""
     if isinstance(valor, str):
         return [valor]
     if isinstance(valor, dict):
-        return [t for v in valor.values() for t in textos(v)]
+        return [t for k, v in valor.items() if not any(x in k for x in TECNICOS) for t in textos(v)]
     if isinstance(valor, list):
         return [t for v in valor for t in textos(v)]
     return []
@@ -111,8 +115,10 @@ def numeros_de_datos(datos) -> set[float]:
     """Cifras que el gráfico va a mostrar: campos numéricos de contenido + números en los textos."""
     nums: set[float] = set()
 
+    tecnicos = TECNICOS  # no se muestran como texto ("trash-2" es un icono, no la cifra 2)
+
     def recorrer(v, clave=""):
-        if isinstance(v, bool):
+        if isinstance(v, bool) or any(t in clave for t in tecnicos):
             return
         if isinstance(v, (int, float)) and not clave.startswith("t_") and clave not in ("t", "decimales"):
             nums.add(float(v))
@@ -214,6 +220,10 @@ def preparar_slot(g: dict, perfil_dir: Path, dir_animaciones: Path, perfil,
     for nombre, fuente in (("titulares", t.titulares), ("enfasis", t.enfasis or t.titulares), ("texto", t.subtitulos)):
         shutil.copy2(perfil_dir / fuente.archivo, fuentes / f"{nombre}.ttf")
     datos = dict(g["datos"])
+    # Valores por defecto del schema (p. ej. icono_persona = "user"): así también se inyectan sus SVG.
+    for clave, prop in schema.get("properties", {}).items():
+        if "default" in prop:
+            datos.setdefault(clave, prop["default"])
     if "archivo" in datos:  # plantilla imagen: la imagen viaja con el slot
         origen = resolver_imagen(datos["archivo"], perfil_dir, preview)
         (slot / "media").mkdir()

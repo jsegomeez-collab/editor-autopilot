@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "red",
+  "description": "Red / órbita: un nodo central (icono o texto corto) conectado a 3–8 satélites con iconos. Las líneas se trazan de una en una con pulsos de luz; al aterrizar, pulso general en acento. Opcional: contador \"+N\" junto al centro.",
+  "formato": "panel",
+  "type": "object",
+  "required": ["iconos", "t_aterrizaje"],
+  "anyOf": [{ "required": ["icono_centro"] }, { "required": ["texto_centro"] }],
+  "additionalProperties": false,
+  "properties": {
+    "icono_centro": { "type": "string", "description": "Icono del nodo central (nombre en plantillas/_iconos/catalogo.yaml)" },
+    "texto_centro": { "type": "string", "minLength": 1, "maxPalabras": 2, "description": "Texto corto en el nodo central (p. ej. una marca dicha); sustituye al icono" },
+    "iconos": {
+      "type": "array", "minItems": 3, "maxItems": 8,
+      "items": { "type": "string" },
+      "description": "Iconos de los satélites, en el orden en que se conectan"
+    },
+    "cantidad": { "type": "number", "minimum": 0, "description": "Cifra dicha (p. ej. 300): se muestra como contador \"+300\" bajo el nodo central" },
+    "rotulo": { "type": "string", "minLength": 1, "maxPalabras": 4, "description": "Rótulo corto bajo la red (≤ 4 palabras)" },
+    "sonido": { "type": "string", "description": "Tipo de SFX; si falta, 'red'" },
+    "t_aterrizaje": { "type": "number", "minimum": 0, "description": "Segundos desde el inicio de la ventana en que se enciende el último satélite y estalla el pulso general" }
+  },
+  "ejemplo": {
+    "icono_centro": "bot",
+    "iconos": ["store", "package", "shopping-cart", "building-2", "handshake", "users"],
+    "cantidad": 300,
+    "rotulo": "proveedores conectados",
+    "t_aterrizaje": 1.2
+  }
+}

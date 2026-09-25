@@ -1,0 +1,207 @@
+<!doctype html>
+<!-- Plantilla "crecimiento": una curva de tendencia que se dibuja subiendo (o bajando) con área en
+     degradado, flecha en la punta, un icono opcional que viaja con la punta y un valor que cuenta
+     hasta su cifra (formato es-LatAm) aterrizando en t_aterrizaje junto con la punta.
+     Panel split 1080x960 opaco. Los SVG llegan en línea en la variable "svgs". -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"icono\":\"rocket\",\"valor\":10000,\"prefijo\":\"$\",\"rotulo\":\"al mes\",\"direccion\":\"sube\",\"t_aterrizaje\":1.5}"},
+  {"id":"svgs","type":"string","label":"SVG en línea (JSON)","default":"{}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #escena { transform-origin: 50% 55%; }
+    #grafica { position: absolute; inset: 0; width: 900px; height: 620px; overflow: visible; }
+    .rejilla line { stroke: color-mix(in srgb, var(--primario) 10%, transparent); stroke-width: 1.5; }
+    #eje { stroke: color-mix(in srgb, var(--primario) 35%, transparent); stroke-width: 2.5; stroke-linecap: round; }
+    #curva { fill: none; stroke: var(--acento); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round;
+      filter: drop-shadow(0 0 12px color-mix(in srgb, var(--acento) 60%, transparent)); }
+    #flecha { fill: var(--acento); filter: drop-shadow(0 0 10px var(--acento)); }
+    #onda { fill: none; stroke: var(--acento); stroke-width: 3; }
+    #cabeza {
+      position: absolute; left: 0; top: 0; width: 110px; height: 110px; margin: -55px 0 0 -55px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      background: color-mix(in srgb, var(--fondo) 80%, var(--primario) 6%);
+      border: 2.5px solid color-mix(in srgb, var(--primario) 40%, transparent);
+    }
+    .icono {
+      width: 66px; height: 66px; color: var(--primario); stroke-width: 1.6; overflow: visible;
+      filter: drop-shadow(0 0 10px color-mix(in srgb, var(--acento) 50%, transparent));
+    }
+    #bloque { position: absolute; top: 0; width: 560px; display: flex; flex-direction: column; gap: 6px; }
+    #bloque.izq { left: 10px; align-items: flex-start; text-align: left; }
+    #bloque.der { right: 10px; align-items: flex-end; text-align: right; }
+    #valor {
+      font-family: "Titulares"; line-height: 1; letter-spacing: -0.03em; white-space: nowrap;
+      font-variant-numeric: tabular-nums; color: var(--primario);
+    }
+    #rotulo { font-family: "Titulares"; line-height: 1.05; letter-spacing: -0.01em; color: color-mix(in srgb, var(--primario) 80%, transparent); }
+    #bloque.solo #rotulo { color: var(--primario); }
+    .resplandor { left: 200px; top: 20px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="escena" data-start="0" data-duration="3">
+      <svg id="grafica" viewBox="0 0 900 620">
+        <defs>
+          <linearGradient id="degradado" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="var(--acento)" stop-opacity="0.42" />
+            <stop offset="1" stop-color="var(--acento)" stop-opacity="0" />
+          </linearGradient>
+          <clipPath id="recorte"><rect id="recorte_rect" x="0" y="0" width="0" height="620" /></clipPath>
+        </defs>
+        <clipPath id="recorte_rejilla"><rect x="20" y="240" width="860" height="360" /></clipPath>
+        <g clip-path="url(#recorte_rejilla)"><g class="rejilla" id="rejilla"></g></g>
+        <line id="eje" x1="20" y1="590" x2="880" y2="590" />
+        <path id="area" fill="url(#degradado)" clip-path="url(#recorte)" />
+        <path id="curva" />
+        <circle id="onda" r="12" opacity="0" />
+        <polygon id="flecha" points="0,-17 30,0 0,17 7,0" />
+      </svg>
+      <div id="bloque"><div id="valor"></div><div id="rotulo"></div></div>
+    </div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { icono = "", valor = null, prefijo = "", sufijo = "", rotulo = "", direccion = "sube", t_aterrizaje = 1.2 } = HF.datos;
+    const escena = document.getElementById("escena");
+    const tl = gsap.timeline({ paused: true });
+    const t = HF.limitar(t_aterrizaje);
+    const sube = direccion !== "baja";
+    const hayValor = valor !== null && valor !== undefined;
+    const ACENTO = HF.color("acento"), PRIMARIO = HF.color("primario");
+
+    // ---- Valor y rótulo (arriba a la izquierda si sube; a la derecha si baja: el hueco libre) ----
+    const decimales = hayValor && !Number.isInteger(valor) ? 1 : 0;
+    /* Formato es-LatAm: miles con "." desde 10.000, decimal con ",". */
+    function formatear(v) {
+      let [entero, fraccion] = Math.abs(v).toFixed(decimales).split(".");
+      if (entero.length >= 5) entero = entero.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      return (v < 0 ? "-" : "") + entero + (fraccion ? "," + fraccion : "");
+    }
+    const texto = (v) => prefijo + formatear(v) + sufijo;
+    const bloque = document.getElementById("bloque");
+    const valEl = document.getElementById("valor");
+    const rotEl = document.getElementById("rotulo");
+    bloque.className = sube ? "izq" : "der";
+    if (hayValor) {
+      valEl.style.fontSize = Math.round(Math.min(140, 540 / (texto(valor).length * 0.64))) + "px";
+    } else {
+      valEl.remove();
+      bloque.classList.add("solo");
+    }
+    if (rotulo) {
+      rotEl.textContent = rotulo;
+      rotEl.style.fontSize = (hayValor ? HF.tamanoTexto(rotulo, 540, 60, 52, 32) : HF.tamanoTexto(rotulo, 540, 150, 80, 40)) + "px";
+    } else {
+      rotEl.remove();
+    }
+
+    // ---- Curva de tendencia (puntos fijos con ondulación determinista) ----
+    const N = 8, X0 = 40, X1 = 790, Y_BAJO = 545, Y_ALTO = 215;
+    const ONDA = [0, 22, -12, 18, -10, 12, -4, 0];
+    const pts = Array.from({ length: N }, (_, i) => {
+      const f = Math.pow(i / (N - 1), 1.45); // avance acelerado: la subida (o caída) se nota al final
+      const y = sube ? Y_BAJO - f * (Y_BAJO - Y_ALTO) + ONDA[i] : Y_ALTO + f * (Y_BAJO - Y_ALTO) - ONDA[i];
+      return { x: X0 + (i / (N - 1)) * (X1 - X0), y };
+    });
+    // Catmull-Rom → bézier cúbica (curva suave que pasa por todos los puntos).
+    let d = `M${pts[0].x},${pts[0].y}`;
+    for (let i = 0; i < N - 1; i++) {
+      const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(N - 1, i + 2)];
+      d += ` C${p1.x + (p2.x - p0.x) / 6},${p1.y + (p2.y - p0.y) / 6} ${p2.x - (p3.x - p1.x) / 6},${p2.y - (p3.y - p1.y) / 6} ${p2.x},${p2.y}`;
+    }
+    const curva = document.getElementById("curva");
+    curva.setAttribute("d", d);
+    document.getElementById("area").setAttribute("d", d + ` L${X1},590 L${X0},590 Z`);
+    const L = curva.getTotalLength();
+    curva.style.strokeDasharray = `${L} ${L}`;
+
+    // Rejilla sutil (se desplaza despacio: el panel nunca queda quieto).
+    const rejilla = document.getElementById("rejilla");
+    const NS = "http://www.w3.org/2000/svg";
+    [290, 390, 490].forEach((y) => { const l = document.createElementNS(NS, "line"); l.setAttribute("x1", 20); l.setAttribute("x2", 880); l.setAttribute("y1", y); l.setAttribute("y2", y); rejilla.appendChild(l); });
+    for (let x = 20; x <= 960; x += 110) { const l = document.createElementNS(NS, "line"); l.setAttribute("x1", x); l.setAttribute("x2", x); l.setAttribute("y1", 250); l.setAttribute("y2", 590); rejilla.appendChild(l); }
+
+    // Icono opcional que viaja con la punta.
+    let cabeza = null, icoEl = null;
+    if (icono) {
+      cabeza = document.createElement("div");
+      cabeza.id = "cabeza";
+      icoEl = HF.svg(icono);
+      cabeza.appendChild(icoEl);
+      escena.appendChild(cabeza);
+    }
+
+    // ---- Estado: un único progreso p (0→1) mueve trazo, área, flecha, icono y contador ----
+    const flecha = document.getElementById("flecha");
+    const recorte = document.getElementById("recorte_rect");
+    const onda = document.getElementById("onda");
+    const estado = {
+      _p: 0,
+      get p() { return this._p; },
+      set p(v) {
+        this._p = v;
+        const l = Math.max(0.001, v * L);
+        curva.style.strokeDashoffset = L - l;
+        curva.style.opacity = v > 0.005 ? 1 : 0; // sin punto suelto antes de empezar
+        const pt = curva.getPointAtLength(l), atras = curva.getPointAtLength(Math.max(0, l - 6));
+        const ang = Math.atan2(pt.y - atras.y, pt.x - atras.x) * 180 / Math.PI;
+        flecha.setAttribute("transform", `translate(${pt.x},${pt.y}) rotate(${v > 0.01 ? ang : (sube ? -30 : 30)}) translate(-8,0)`);
+        flecha.setAttribute("opacity", v > 0.005 ? 1 : 0);
+        recorte.setAttribute("width", pt.x);
+        onda.setAttribute("cx", pt.x); onda.setAttribute("cy", pt.y);
+        // Si baja, el icono va arriba a la derecha de la punta para no tapar la curva que llega desde arriba.
+        if (cabeza) { cabeza.style.left = pt.x + (sube ? 0 : 40) + "px"; cabeza.style.top = pt.y - 96 + "px"; }
+        if (hayValor) valEl.textContent = texto(valor * v);
+      },
+    };
+
+    // ---- Línea de tiempo ----
+    const D = Math.min(1.2, t); // la curva se dibuja durante D y la punta llega en t
+    const ini = t - D;
+    function aterrizar(el, desde, hasta, fin, dur) {
+      if (fin <= 0) { tl.set(el, hasta, 0); return; }
+      const dd = Math.min(dur, fin);
+      tl.fromTo(el, desde, { ...hasta, duration: dd, ease: HF.EASE_ENTRADA }, fin - dd);
+    }
+    aterrizar("#eje", { opacity: 0 }, { opacity: 1 }, Math.max(0, ini), 0.3);
+    aterrizar(rejilla, { opacity: 0 }, { opacity: 1 }, Math.max(0, ini), 0.3);
+    aterrizar(bloque, { opacity: 0, y: 24 }, { opacity: 1, y: 0 }, Math.min(t, ini + 0.3), 0.35);
+    if (t > 0) {
+      estado.p = 0;
+      tl.fromTo(estado, { p: 0 }, { p: 1, duration: D, ease: HF.EASE_SUAVE }, ini);
+    } else {
+      estado.p = 1;
+    }
+    if (cabeza) {
+      aterrizar(cabeza, { scale: 0.3, opacity: 0 }, { scale: 1, opacity: 1 }, Math.min(t, ini + 0.3), 0.3);
+      HF.dibujar(tl, icoEl, Math.min(t, ini + 0.5), 0.5);
+      tl.fromTo(icoEl, { color: ACENTO }, { color: PRIMARIO, duration: 0.7, ease: HF.EASE_SUAVE, immediateRender: false }, t);
+      tl.set(cabeza, { borderColor: ACENTO }, t);
+      tl.to(cabeza, { y: -12, duration: Math.max(0.2, HF.duracion - t), ease: HF.EASE_SUAVE }, t);
+    }
+    // Aterrizaje: la cifra se tiñe de acento y da un golpe; la punta emite ondas.
+    if (hayValor) {
+      tl.fromTo(valEl, { color: PRIMARIO }, { color: ACENTO, duration: 0.15, ease: HF.EASE_ENTRADA, immediateRender: false }, t);
+      tl.fromTo(valEl, { scale: 1.1, transformOrigin: sube ? "0% 60%" : "100% 60%" }, { scale: 1, duration: 0.4, ease: HF.EASE_ENTRADA, immediateRender: false }, t);
+    }
+    for (let k = 0; t + k * 0.8 + 0.3 < HF.duracion; k++) {
+      tl.fromTo(onda, { attr: { r: 12 }, opacity: 0.9 }, { attr: { r: 70 }, opacity: 0, duration: 0.7, ease: HF.EASE_ENTRADA, immediateRender: false }, t + k * 0.8);
+    }
+    tl.fromTo(rejilla, { x: 0 }, { x: -60, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    tl.fromTo("#resplandor", { x: -40, y: 0 }, { x: 50, y: 40, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    HF.deriva(tl, escena);
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

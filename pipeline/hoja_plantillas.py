@@ -17,7 +17,8 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 PLANTILLAS = RAIZ / "plantillas"
-ORDEN = ["gancho", "cifra", "lista", "comparativa", "pasos", "pregunta", "palabra_clave", "alerta", "grafico", "cta", "imagen"]
+ORDEN = ["icono", "red", "transformacion", "crecimiento", "uno_vs_muchos", "terminal", "gancho", "cifra", "lista",
+         "comparativa", "pasos", "pregunta", "alerta", "grafico", "imagen", "palabra_clave", "cta"]
 FUENTE = "/System/Library/Fonts/Supplemental/Arial Bold.ttf"
 
 

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "transformacion",
+  "description": "A → B: el icono A aparece, suelta partículas de luz por un arco y se convierte en B, que se dibuja y aterriza en t_aterrizaje resaltado en acento.",
+  "formato": "panel",
+  "type": "object",
+  "required": ["icono_a", "icono_b", "t_aterrizaje"],
+  "additionalProperties": false,
+  "properties": {
+    "icono_a": { "type": "string", "description": "Icono de partida (nombre en plantillas/_iconos/catalogo.yaml)" },
+    "icono_b": { "type": "string", "description": "Icono de llegada (nombre en plantillas/_iconos/catalogo.yaml)" },
+    "rotulo_a": { "type": "string", "minLength": 1, "maxPalabras": 4, "description": "Rótulo corto bajo A (≤ 4 palabras)" },
+    "rotulo_b": { "type": "string", "minLength": 1, "maxPalabras": 4, "description": "Rótulo corto bajo B, en acento (≤ 4 palabras)" },
+    "sonido": { "type": "string", "description": "Tipo de SFX; si falta, 'transformacion'" },
+    "t_a": { "type": "number", "minimum": 0, "description": "Segundos en que aterriza A (cuando se nombra el origen); por defecto ~1 s antes de t_aterrizaje" },
+    "t_aterrizaje": { "type": "number", "minimum": 0, "description": "Segundos en que B aterriza (cuando se nombra el resultado)" }
+  },
+  "ejemplo": {
+    "icono_a": "folder",
+    "icono_b": "map",
+    "rotulo_a": "tu proyecto",
+    "rotulo_b": "un mapa",
+    "t_a": 0.3,
+    "t_aterrizaje": 1.4
+  }
+}

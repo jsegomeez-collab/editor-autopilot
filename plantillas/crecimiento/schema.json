@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "crecimiento",
+  "description": "Curva de tendencia que se dibuja subiendo (o bajando) con área en degradado, flecha e icono opcional en la punta, y un valor que cuenta hasta su cifra aterrizando en t_aterrizaje.",
+  "formato": "panel",
+  "type": "object",
+  "required": ["t_aterrizaje"],
+  "additionalProperties": false,
+  "properties": {
+    "icono": { "type": "string", "description": "Icono que viaja con la punta (nombre en plantillas/_iconos/catalogo.yaml)" },
+    "valor": { "type": "number", "description": "Cifra final tal y como se dice (sin formato: 10000, 93, 4.5); solo si se dice en la ventana" },
+    "prefijo": { "type": "string", "enum": ["$", "€", ""], "description": "Símbolo delante de la cifra" },
+    "sufijo": { "type": "string", "enum": ["%", ""], "description": "Símbolo detrás de la cifra" },
+    "rotulo": { "type": "string", "minLength": 1, "maxPalabras": 4, "description": "Rótulo corto (≤ 4 palabras) bajo la cifra, o solo si no hay cifra" },
+    "direccion": { "enum": ["sube", "baja"], "description": "Sentido de la tendencia (por defecto 'sube')" },
+    "sonido": { "type": "string", "description": "Tipo de SFX; si falta, 'subida' (o 'bajada' si baja)" },
+    "t_aterrizaje": { "type": "number", "minimum": 0, "description": "Segundos en que la punta llega arriba (o abajo) y el contador alcanza la cifra" }
+  },
+  "ejemplo": {
+    "icono": "rocket",
+    "valor": 10000,
+    "prefijo": "$",
+    "rotulo": "mensuales",
+    "direccion": "sube",
+    "t_aterrizaje": 1.5
+  }
+}

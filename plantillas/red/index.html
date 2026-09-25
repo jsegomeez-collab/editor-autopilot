@@ -1,0 +1,240 @@
+<!doctype html>
+<!-- Plantilla "red": un nodo central (icono o texto corto) conectado a 3–8 satélites con iconos,
+     como una órbita / sistema solar. Las líneas se trazan de una en una con un pulso de luz
+     viajando por ellas; cada satélite se enciende al recibir su línea. Al aterrizar, pulso
+     general en acento. Después, órbita lenta y ondas de pulsos hasta el final.
+     Panel split 1080x960 opaco. Los SVG llegan en línea en la variable "svgs". -->
+<html lang="es" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":3},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"icono_centro\":\"bot\",\"iconos\":[\"store\",\"package\",\"shopping-cart\",\"building-2\",\"handshake\",\"users\"],\"cantidad\":300,\"rotulo\":\"proveedores conectados\",\"t_aterrizaje\":1.2}"},
+  {"id":"svgs","type":"string","label":"SVG en línea (JSON)","default":"{}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=960" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    #escena { transform-origin: 50% 45%; }
+    #lineas { position: absolute; inset: 0; width: 900px; height: 620px; overflow: visible; }
+    #lineas .orbita { fill: none; stroke: color-mix(in srgb, var(--primario) 16%, transparent); stroke-width: 2; stroke-dasharray: 3 12; }
+    #lineas .conexion { fill: none; stroke: var(--primario); stroke-opacity: 0.35; stroke-width: 2.5; stroke-linecap: round; }
+    #lineas .pulso { fill: var(--acento); filter: drop-shadow(0 0 8px var(--acento)); }
+    #lineas .onda { fill: none; stroke: var(--acento); stroke-width: 3; }
+    .sat, #centro { position: absolute; width: 0; height: 0; }
+    .nodo {
+      position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      background: color-mix(in srgb, var(--fondo) 80%, var(--primario) 6%);
+      border: 2.5px solid color-mix(in srgb, var(--primario) 40%, transparent);
+    }
+    .sat .nodo { left: -62px; top: -62px; width: 124px; height: 124px; }
+    #centro .nodo {
+      left: -95px; top: -95px; width: 190px; height: 190px; border-color: var(--acento); border-width: 3px;
+      box-shadow: 0 0 40px color-mix(in srgb, var(--acento) 35%, transparent);
+    }
+    .icono {
+      width: 66px; height: 66px; color: var(--primario); stroke-width: 1.6; overflow: visible;
+      filter: drop-shadow(0 0 10px color-mix(in srgb, var(--acento) 45%, transparent));
+    }
+    #centro .icono { width: 108px; height: 108px; filter: drop-shadow(0 0 16px color-mix(in srgb, var(--acento) 55%, transparent)); }
+    #texto_centro { font-family: "Titulares"; text-align: center; line-height: 1; padding: 0 14px; }
+    #cantidad {
+      position: absolute; left: -80px; top: 68px; width: 160px; height: 60px; border-radius: 30px;
+      background: var(--acento); color: var(--fondo); font-family: "Titulares"; font-size: 40px;
+      display: flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums;
+      white-space: nowrap; box-shadow: 0 0 30px color-mix(in srgb, var(--acento) 45%, transparent);
+    }
+    #rotulo {
+      position: absolute; left: 20px; width: 860px; top: 525px; height: 90px; display: flex;
+      align-items: center; justify-content: center; text-align: center;
+      font-family: "Titulares"; line-height: 1.05; letter-spacing: -0.01em;
+    }
+    .resplandor { left: 90px; top: 30px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="3" data-width="1080" data-height="960">
+    <div class="resplandor clip" id="resplandor" data-start="0" data-duration="3"></div>
+    <div class="util clip" id="escena" data-start="0" data-duration="3">
+      <svg id="lineas" viewBox="0 0 900 620"></svg>
+      <div id="rotulo"></div>
+    </div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { icono_centro = "", texto_centro = "", iconos = [], cantidad = null, rotulo = "", t_aterrizaje = 1 } = HF.datos;
+    const NS = "http://www.w3.org/2000/svg";
+    const escena = document.getElementById("escena");
+    const svg = document.getElementById("lineas");
+    const rot = document.getElementById("rotulo");
+    const tl = gsap.timeline({ paused: true });
+    const t = HF.limitar(t_aterrizaje);
+    const ACENTO = HF.color("acento"), PRIMARIO = HF.color("primario");
+    /* Color con alfa a partir de un hex del perfil (GSAP no interpola color-mix). */
+    const conAlfa = (hex, a) => { const h = hex.replace("#", ""); const c = h.length === 3 ? h.split("").map((x) => x + x).join("") : h.slice(0, 6);
+      return `rgba(${parseInt(c.slice(0, 2), 16)},${parseInt(c.slice(2, 4), 16)},${parseInt(c.slice(4, 6), 16)},${a})`; };
+
+    /* Aterriza un elemento exactamente en "fin" (si fin = 0, ya está aterrizado en el frame 0). */
+    function aterrizar(el, desde, hasta, fin, dur, ease = HF.EASE_ENTRADA) {
+      if (fin <= 0) { tl.set(el, hasta, 0); return; }
+      const d = Math.min(dur, fin);
+      tl.fromTo(el, desde, { ...hasta, duration: d, ease }, fin - d);
+    }
+    function nuevo(tag, attrs, padre = svg) {
+      const el = document.createElementNS(NS, tag);
+      for (const k in attrs) el.setAttribute(k, attrs[k]);
+      padre.appendChild(el);
+      return el;
+    }
+    /* Formato es-LatAm: miles con "." desde 10.000. */
+    const formatear = (v) => { let e = String(Math.round(v)); if (e.length >= 5) e = e.replace(/\B(?=(\d{3})+(?!\d))/g, "."); return e; };
+
+    // ---- Geometría: órbita elíptica alrededor del centro ----
+    const sats = iconos.slice(0, 8);
+    const n = sats.length;
+    const CX = 450, CY = rotulo ? 255 : 300, RX = 330, RY = 185;
+    // Con n par se desplaza medio paso para que ningún satélite quede justo arriba/abajo (más aire).
+    const base = sats.map((_, i) => (-90 + (n % 2 ? 0 : 180 / n) + (360 / n) * i) * Math.PI / 180);
+
+    nuevo("ellipse", { class: "orbita", cx: CX, cy: CY, rx: RX, ry: RY });
+    const onda = nuevo("circle", { class: "onda", cx: CX, cy: CY, r: 95, opacity: 0 });
+
+    // Conexiones (pathLength=1: el trazo se dibuja igual aunque la línea cambie de largo al orbitar).
+    const conex = sats.map(() => {
+      const l = nuevo("line", { class: "conexion", pathLength: 1, x1: CX, y1: CY, x2: CX, y2: CY });
+      l.style.strokeDasharray = "1 1";
+      l.style.strokeDashoffset = 1;
+      return l;
+    });
+    const pulsos = sats.map(() => nuevo("circle", { class: "pulso", r: 7, cx: CX, cy: CY, opacity: 0 }));
+
+    // Satélites (envoltorio posicionado + nodo que escala).
+    const satEls = sats.map((nombre) => {
+      const s = document.createElement("div");
+      s.className = "sat";
+      const nodo = document.createElement("div");
+      nodo.className = "nodo";
+      const ico = HF.svg(nombre);
+      nodo.appendChild(ico);
+      s.appendChild(nodo);
+      escena.insertBefore(s, rot);
+      return { s, nodo, ico };
+    });
+
+    // Nodo central: icono o, si se pasa, texto corto.
+    const centro = document.createElement("div");
+    centro.id = "centro";
+    Object.assign(centro.style, { left: CX + "px", top: CY + "px" });
+    const nodoC = document.createElement("div");
+    nodoC.className = "nodo";
+    let icoC = null;
+    if (texto_centro) {
+      const tx = document.createElement("div");
+      tx.id = "texto_centro";
+      tx.textContent = texto_centro;
+      tx.style.fontSize = HF.tamanoTexto(texto_centro, 150, 110, 56, 26) + "px";
+      nodoC.appendChild(tx);
+    } else {
+      icoC = HF.svg(icono_centro);
+      nodoC.appendChild(icoC);
+    }
+    centro.appendChild(nodoC);
+    let badge = null;
+    if (cantidad !== null && cantidad !== undefined) {
+      badge = document.createElement("div");
+      badge.id = "cantidad";
+      const final = "+" + formatear(cantidad);
+      badge.style.fontSize = Math.round(Math.min(40, 130 / (final.length * 0.62))) + "px";
+      centro.appendChild(badge);
+    }
+    escena.insertBefore(centro, rot);
+
+    // ---- Estado animado (proxies con setter: GSAP escribe, pintar() coloca; sin callbacks) ----
+    const estado = { rot: 0, p: sats.map(() => 0) };
+    function pintar() {
+      sats.forEach((_, i) => {
+        const a = base[i] + estado.rot;
+        const x = CX + RX * Math.cos(a), y = CY + RY * Math.sin(a);
+        satEls[i].s.style.left = x + "px";
+        satEls[i].s.style.top = y + "px";
+        conex[i].setAttribute("x2", x);
+        conex[i].setAttribute("y2", y);
+        const p = estado.p[i];
+        pulsos[i].setAttribute("cx", CX + (x - CX) * p);
+        pulsos[i].setAttribute("cy", CY + (y - CY) * p);
+        pulsos[i].setAttribute("opacity", p > 0.02 && p < 0.98 ? 1 : 0);
+      });
+    }
+    const orbita = { get v() { return estado.rot; }, set v(x) { estado.rot = x; pintar(); } };
+    const pulso = sats.map((_, i) => ({ get v() { return estado.p[i]; }, set v(x) { estado.p[i] = x; pintar(); } }));
+    pintar();
+
+    // ---- Tiempos: el último satélite se enciende exactamente en t ----
+    const paso = n > 1 ? Math.min(0.16, (t * 0.55) / (n - 1)) : 0;
+    const ts = sats.map((_, i) => Math.max(0, t - (n - 1 - i) * paso));
+    const tc = Math.max(0, (n ? ts[0] : t) - 0.35);
+
+    // Centro.
+    aterrizar(nodoC, { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1 }, tc, 0.4);
+    if (icoC) HF.dibujar(tl, icoC, tc, 0.45);
+    if (badge) {
+      aterrizar(badge, { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1 }, tc, 0.3);
+      // El contador sube mientras se conectan los satélites y llega a la cifra en t.
+      const cont = { _v: 0, get v() { return this._v; }, set v(x) { this._v = x; badge.textContent = "+" + formatear(x); } };
+      cont.v = t > 0 ? 0 : cantidad;
+      if (t > 0) tl.fromTo(cont, { v: 0 }, { v: cantidad, duration: Math.max(0.01, t - tc), ease: HF.EASE_ENTRADA, immediateRender: false }, tc);
+    }
+
+    // Una conexión cada vez: se traza la línea con un pulso de luz en la punta y el satélite se enciende.
+    sats.forEach((_, i) => {
+      const fin = ts[i];
+      const { nodo, ico } = satEls[i];
+      if (fin <= 0) {
+        tl.set(conex[i], { strokeDashoffset: 0 }, 0);
+      } else {
+        const d = Math.min(0.32, fin);
+        tl.fromTo(conex[i], { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: d, ease: HF.EASE_SUAVE }, fin - d);
+        tl.fromTo(pulso[i], { v: 0 }, { v: 1, duration: d, ease: HF.EASE_SUAVE, immediateRender: false }, fin - d);
+      }
+      aterrizar(nodo, { scale: 0.3, opacity: 0 }, { scale: 1, opacity: 1 }, fin, 0.28);
+      HF.dibujar(tl, ico, fin, 0.3);
+      tl.fromTo(nodo, { borderColor: ACENTO }, { borderColor: conAlfa(PRIMARIO, 0.4), duration: 0.45, ease: HF.EASE_SUAVE, immediateRender: false }, fin);
+    });
+
+    // Aterrizaje: pulso general en acento (onda desde el centro, pulsos por todas las líneas, satélites encendidos).
+    tl.fromTo(onda, { attr: { r: 95 }, opacity: 0.9 }, { attr: { r: 300 }, opacity: 0, duration: 0.9, ease: HF.EASE_ENTRADA, immediateRender: false }, t);
+    tl.fromTo(nodoC, { scale: 1.12 }, { scale: 1, duration: 0.4, ease: HF.EASE_ENTRADA, immediateRender: false }, t);
+    if (icoC) tl.fromTo(icoC, { color: ACENTO }, { color: PRIMARIO, duration: 0.6, ease: HF.EASE_SUAVE, immediateRender: false }, t);
+    conex.forEach((l) => tl.fromTo(l, { stroke: ACENTO, strokeOpacity: 1 }, { stroke: PRIMARIO, strokeOpacity: 0.35, duration: 0.8, ease: HF.EASE_SUAVE, immediateRender: false }, t));
+    satEls.forEach(({ ico }) => tl.fromTo(ico, { color: ACENTO }, { color: PRIMARIO, duration: 0.8, ease: HF.EASE_SUAVE, immediateRender: false }, t + 0.15));
+
+    // Movimiento continuo: ondas de pulsos del centro hacia los satélites (escalonadas, secuencia fija).
+    for (let k = 0; ; k++) {
+      const t0 = t + 0.1 + k * 0.85;
+      if (t0 + 0.5 > HF.duracion - 0.05) break;
+      sats.forEach((_, i) => {
+        const ti = t0 + (k === 0 ? 0 : ((i * 3) % n) * 0.07);
+        if (ti + 0.5 > HF.duracion) return;
+        tl.fromTo(pulso[i], { v: 0 }, { v: 1, duration: 0.5, ease: HF.EASE_SUAVE, immediateRender: false }, ti);
+      });
+    }
+    // Órbita lenta de los satélites durante toda la ventana.
+    tl.fromTo(orbita, { v: 0 }, { v: 0.3, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+
+    // Rótulo corto.
+    if (rotulo) {
+      rot.textContent = rotulo;
+      rot.style.fontSize = HF.tamanoTexto(rotulo, 860, 90, 64, 36) + "px";
+      HF.revelar(tl, rot, HF.limitar(t + 0.3), { y: 24 });
+    } else {
+      rot.remove();
+    }
+    tl.fromTo("#resplandor", { x: -40, y: 0 }, { x: 50, y: 40, duration: HF.duracion, ease: HF.EASE_SUAVE }, 0);
+    HF.deriva(tl, escena);
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

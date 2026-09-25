@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "uno_vs_muchos",
+  "description": "Una persona en el centro de la que salen, de una en una, las tareas que hace sola; al aterrizar, un contador «xN».",
+  "formato": "panel",
+  "type": "object",
+  "required": [
+    "iconos",
+    "t_aterrizaje"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "icono_persona": {
+      "type": "string",
+      "description": "Figura central (catálogo); por defecto «user». Alternativas: bot, user-check, briefcase",
+      "default": "user"
+    },
+    "iconos": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 6,
+      "items": {
+        "type": "string",
+        "description": "Tarea o herramienta (nombre en plantillas/_iconos/catalogo.yaml)"
+      }
+    },
+    "cantidad": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 999,
+      "description": "Multiplicador dicho en la ventana (10 → «x10»); si falta, solo onda de acento"
+    },
+    "rotulo": {
+      "type": "string",
+      "maxPalabras": 4
+    },
+    "sonido": {
+      "type": "string",
+      "description": "Tipo de SFX (recomendado: pops cortos por tarea + golpe/whoosh al contador)"
+    },
+    "t_aterrizaje": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Instante en que aterriza el contador (la palabra clave: «diez», «equipo»…)"
+    }
+  },
+  "ejemplo": {
+    "icono_persona": "user",
+    "iconos": [
+      "mail",
+      "calendar",
+      "chart-column",
+      "message-circle",
+      "receipt"
+    ],
+    "cantidad": 10,
+    "rotulo": "una sola persona",
+    "t_aterrizaje": 1.4
+  }
+}
