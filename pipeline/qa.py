@@ -35,6 +35,7 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from perfil import cargar  # noqa: E402
 from planificar_layout import palabras_en_salida  # noqa: E402
+from planificar_sfx import SEPARACION_MIN  # noqa: E402
 from render_plantillas import numeros_de_datos, numeros_dichos, textos  # noqa: E402
 
 MODELO_CARA = Path(__file__).resolve().parent / "modelos" / "face_detection_yunet_2023mar.onnx"
@@ -162,7 +163,8 @@ def comprobar_contenido(inf: Informe, graficos: list[dict], edl: dict, trans: di
 
 def comprobar_audio(inf: Informe, sfx: dict, mezcla: dict, duracion: float) -> None:
     ev = sfx.get("eventos", [])
-    solapes = [f"{a['t']:.2f}/{b['t']:.2f} s" for a, b in zip(ev, ev[1:]) if b["t"] - a["t"] < 0.3]
+    sep = SEPARACION_MIN.get(sfx.get("densidad"), 0.3) - 0.001  # la misma regla que el planificador
+    solapes = [f"{a['t']:.2f}/{b['t']:.2f} s" for a, b in zip(ev, ev[1:]) if b["t"] - a["t"] < sep]
     inf.comprobar(not solapes, f"{len(ev)} efectos sin solapes", "Efectos solapados: " + ", ".join(solapes))
     if sfx.get("densidad") == "media":
         inf.comprobar(len(ev) <= max(1, int(duracion / 2)), "Densidad de efectos dentro de «media»",

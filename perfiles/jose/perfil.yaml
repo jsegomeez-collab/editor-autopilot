@@ -27,6 +27,8 @@ layout:
     split_s: [1.5, 3.5]
     full_s: [1.2, 3.0]
     max_sin_cambio_s: 4.0
+    proporcion_split: 0.65   # más motion graphics (petición del cliente: ritmo "dopamínico")
+    punch_alterno: true
 
 subtitulos:
   estilos_permitidos: [mixto, caja, contorno]
@@ -41,11 +43,11 @@ audio:
   estado_animo_por_defecto: neutra
   sfx: true
   estilo_sfx: minimal
-  densidad_sfx: media
+  densidad_sfx: alta       # muchos efectos, todos limpios (petición del cliente)
   niveles:
     voz_lufs: -14
     musica_db_bajo_voz: 20
-    sfx_db_bajo_pico_voz: 9   # efectos discretos (petición del cliente)
+    sfx_db_bajo_pico_voz: 7   # presentes pero sin tapar la voz
 
 cta_por_defecto: "Comenta la palabra {palabra}"   # la palabra sale de lo que dice al final
 ctas_alternativos: ["Sígueme para más", "Guárdalo para después"]
@@ -58,4 +60,4 @@ palabras_a_no_cortar: []
 zonas_seguras: { superior: 220, inferior: 380, derecha: 120 }
 
 plantillas_permitidas: [gancho, cifra, lista, comparativa, pasos, pregunta, palabra_clave, alerta, grafico, cta, imagen,
-                        icono, red, transformacion, terminal, uno_vs_muchos, crecimiento]
+                        icono, red, transformacion, terminal, uno_vs_muchos, crecimiento, sticker]

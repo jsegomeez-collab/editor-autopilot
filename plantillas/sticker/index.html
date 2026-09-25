@@ -1,0 +1,79 @@
+<!doctype html>
+<!-- Plantilla "sticker": icono pequeño con glow que salta junto a la cara en las ventanas FULL
+     cuando se dice una palabra clave (ritmo "dopamínico"). Pantalla completa 1080x1920 con alfa.
+     Va a un lado de la cabeza, fuera de la cara, de la franja de subtítulos y de las zonas seguras. -->
+<html lang="es" class="transparente" data-composition-variables='[
+  {"id":"fondo","type":"color","label":"Fondo","default":"#121827"},
+  {"id":"primario","type":"color","label":"Texto","default":"#FFFFFF"},
+  {"id":"acento","type":"color","label":"Acento","default":"#FFDB00"},
+  {"id":"duracion","type":"number","label":"Duración (s)","default":1.4},
+  {"id":"datos","type":"string","label":"Datos (JSON)","default":"{\"icono\":\"rocket\",\"lado\":\"derecha\",\"rotulo\":\"nivel\",\"t_aterrizaje\":0.25}"},
+  {"id":"svgs","type":"string","label":"SVG en línea (JSON)","default":"{}"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1920" />
+  <link rel="stylesheet" href="_comun/base.css" />
+  <script src="_comun/gsap.min.js"></script>
+  <style>
+    :root { --ancho: 1080px; --alto: 1920px; }
+    /* Zonas: izquierda x 70–350, derecha x 690–950 (zona segura derecha 120 px); y 430–700,
+       a la altura de la cabeza pero fuera de la cara (la cara ocupa ~x 390–710 en full). */
+    #sticker { position: absolute; top: 470px; width: 240px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    #sticker.izquierda { left: 90px; }
+    #sticker.derecha { left: 700px; }
+    #insignia {
+      width: 190px; height: 190px; border-radius: 50%; display: grid; place-items: center;
+      background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--fondo) 70%, #2a3550), var(--fondo));
+      border: 3px solid var(--acento);
+      box-shadow: 0 0 36px color-mix(in srgb, var(--acento) 55%, transparent), 0 16px 40px rgba(0, 0, 0, 0.55);
+    }
+    .icono { width: 110px; height: 110px; color: var(--primario); stroke-width: 1.8; overflow: visible; }
+    #rotulo {
+      font-family: "Titulares"; font-size: 46px; color: var(--primario); text-align: center; line-height: 1;
+      padding: 8px 18px; border-radius: 12px; background: rgba(18, 24, 39, 0.82); white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="1.4" data-width="1080" data-height="1920">
+    <div class="clip" id="sticker" data-start="0" data-duration="1.4">
+      <div id="insignia"></div>
+      <div id="rotulo"></div>
+    </div>
+  </div>
+  <script src="_comun/base.js"></script>
+  <script>
+    const { icono, lado = "derecha", rotulo = "", t_aterrizaje = 0.25 } = HF.datos;
+    const st = document.getElementById("sticker");
+    const ins = document.getElementById("insignia");
+    const rot = document.getElementById("rotulo");
+    st.classList.add(lado === "izquierda" ? "izquierda" : "derecha");
+    const ico = HF.svg(icono);
+    ins.appendChild(ico);
+    if (rotulo) rot.textContent = rotulo; else rot.remove();
+
+    // Aquí el sticker no necesita sostener 1 s: sale antes de que termine su ventana corta.
+    const t = Math.min(Math.max(0, t_aterrizaje), Math.max(0, HF.duracion - 0.5));
+    const tl = gsap.timeline({ paused: true });
+    const entrada = Math.min(0.3, t);
+    // Pop con rebote (dos tramos cúbicos: sube de más y asienta) aterrizando justo en t.
+    if (entrada > 0) {
+      tl.fromTo(ins, { scale: 0, rotate: lado === "izquierda" ? -25 : 25 },
+        { scale: 1.15, rotate: 0, duration: entrada * 0.7, ease: HF.EASE_ENTRADA }, t - entrada);
+      tl.to(ins, { scale: 1, duration: entrada * 0.3, ease: HF.EASE_SUAVE }, t - entrada * 0.3);
+    } else {
+      tl.set(ins, { scale: 1 }, 0);
+    }
+    HF.dibujar(tl, ico, t, Math.max(0.2, entrada));
+    tl.fromTo(ico, { color: HF.color("acento") }, { color: HF.color("primario"), duration: 0.4, ease: HF.EASE_SUAVE }, t);
+    if (rotulo) tl.fromTo(rot, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.2, ease: HF.EASE_ENTRADA }, Math.min(t + 0.08, HF.duracion - 0.4));
+    // Vida: leve balanceo mientras está.
+    tl.to(ins, { rotate: lado === "izquierda" ? -6 : 6, duration: Math.max(0.1, HF.duracion - t - 0.3), ease: HF.EASE_SUAVE }, t);
+    // Salida rápida al final de su ventana (pop inverso).
+    const salida = Math.min(0.22, HF.duracion - t);
+    tl.to(st, { scale: 0.2, opacity: 0, duration: salida, ease: "power2.in", transformOrigin: "50% 40%" }, HF.duracion - salida);
+    HF.registrar(tl);
+  </script>
+</body>
+</html>

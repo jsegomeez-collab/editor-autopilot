@@ -18,7 +18,7 @@ HEX = r"^#[0-9A-Fa-f]{6}$"
 PLANTILLAS = Literal[
     "gancho", "cifra", "lista", "comparativa", "pasos",
     "pregunta", "palabra_clave", "alerta", "grafico", "cta", "imagen",
-    "icono", "red", "transformacion", "terminal", "uno_vs_muchos", "crecimiento",
+    "icono", "red", "transformacion", "terminal", "uno_vs_muchos", "crecimiento", "sticker",
 ]
 ESTADOS_ANIMO = Literal["energetica", "inspiradora", "tension", "neutra", "emocional"]
 # caja: bloques sobre caja oscura semitransparente siempre (6.5, por defecto).
@@ -68,6 +68,8 @@ class Ventanas(Estricto):
     split_s: Rango = (3.0, 6.0)
     full_s: Rango = (2.0, 5.0)
     max_sin_cambio_s: float = Field(8.0, gt=0)
+    proporcion_split: float = Field(0.5, ge=0.3, le=0.8)  # fracción del tiempo en split (tras el gancho)
+    punch_alterno: bool = False  # cada ventana full alterna zoom 1,0 / 1,12 respecto a la anterior
 
     @field_validator("gancho_s", "split_s", "full_s")
     @classmethod
@@ -146,7 +148,7 @@ class Perfil(Estricto):
     plantillas_permitidas: list[PLANTILLAS] = [
         "gancho", "cifra", "lista", "comparativa", "pasos",
         "pregunta", "palabra_clave", "alerta", "grafico", "cta", "imagen",
-        "icono", "red", "transformacion", "terminal", "uno_vs_muchos", "crecimiento",
+        "icono", "red", "transformacion", "terminal", "uno_vs_muchos", "crecimiento", "sticker",
     ]
 
     @field_validator("plantillas_permitidas")

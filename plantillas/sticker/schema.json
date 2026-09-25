@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "sticker",
+  "description": "Icono pequeño con glow que salta junto a la cara en ventanas FULL al decir una palabra clave.",
+  "formato": "pantalla",
+  "type": "object",
+  "required": ["icono", "t_aterrizaje"],
+  "additionalProperties": false,
+  "properties": {
+    "icono": { "type": "string" },
+    "lado": { "enum": ["izquierda", "derecha"] },
+    "rotulo": { "type": "string", "maxPalabras": 2 },
+    "sonido": { "type": "string" },
+    "t_aterrizaje": { "type": "number", "minimum": 0 }
+  },
+  "ejemplo": { "icono": "rocket", "lado": "derecha", "rotulo": "nivel", "t_aterrizaje": 0.25 }
+}

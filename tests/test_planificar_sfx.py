@@ -37,7 +37,7 @@ def test_densidad_baja_solo_basicos():
 def test_densidad_media_maximo_y_sin_solapes():
     final, descartados = aplicar_densidad(eventos_brutos(LAYOUT, GRAFICOS), "media", 10.0)
     assert len(final) <= 5 and descartados
-    assert all(b["t"] - a["t"] >= SEPARACION_MIN for a, b in zip(final, final[1:]))
+    assert all(b["t"] - a["t"] >= SEPARACION_MIN["media"] for a, b in zip(final, final[1:]))
     assert "impacto" in tipos(final) and "notificacion" in tipos(final)
 
 
@@ -73,3 +73,10 @@ def test_preferencia_por_efectos_propios_con_rotacion():
         ultima = elegir_variante(rng, ["mio1", "mio2"], ["gen1"], ultima)
         seq.append(ultima)
     assert set(seq) == {"mio1", "mio2"} and all(a != b for a, b in zip(seq, seq[1:]))
+
+
+def test_densidad_alta_suena_cada_subelemento():
+    graficos = [{"plantilla": "red", "inicio": 4.0, "duracion": 3.0,
+                 "datos": {"iconos": ["a", "b", "c", "d"], "t_aterrizaje": 1.0}}]
+    ev = eventos_brutos(LAYOUT, graficos, alta=True)
+    assert [e["tipo"] for e in ev if 4.0 <= e["t"] <= 5.0].count("click") == 3  # 3 satélites + aterrizaje "red"

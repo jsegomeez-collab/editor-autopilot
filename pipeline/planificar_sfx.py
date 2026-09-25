@@ -32,7 +32,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from perfil import cargar  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parent.parent
-SEPARACION_MIN = 0.35  # s entre dos efectos: "nunca dos a la vez"
+SEPARACION_MIN = {"baja": 0.35, "media": 0.35, "alta": 0.15}  # "nunca dos a la vez" (efectos cortos)
 ADELANTO_WHOOSH = 0.10
 TICKS_CONTEO = 4       # ticks durante el conteo de una cifra (solo densidad alta)
 DURACION_CONTEO = 1.0
@@ -85,15 +85,64 @@ def sonido_icono(nombre: str) -> str | None:
     return (iconos.get(nombre) or {}).get("sonido")
 
 
-def eventos_brutos(layout: dict, graficos: list[dict]) -> list[dict]:
+def limitar(t: float, dur: float) -> float:
+    """Igual que HF.limitar en base.js: el último aterrizaje deja ≥ 1 s sostenido."""
+    return min(max(0.0, t), max(0.0, dur - 1.0))
+
+
+def subeventos(g: dict) -> list[dict]:
+    """Efectos de los sub-elementos de cada gráfico (densidad alta), con los MISMOS tiempos que
+    usan las plantillas por dentro (ver sus index.html). Tiempos absolutos de salida."""
+    t0, dur, d, p = g["inicio"], g["duracion"], g["datos"], g["plantilla"]
+    t = limitar(d.get("t_aterrizaje", 0), dur)
+    ev = []
+    if p == "gancho":
+        ev.append({"t": t0 + 0.2, "tipo": "swipe", "motivo": "barrido del gancho"})
+    elif p == "red":
+        n = min(8, len(d.get("iconos", [])))
+        paso = min(0.16, t * 0.55 / (n - 1)) if n > 1 else 0
+        for i in range(n - 1):  # el último coincide con el aterrizaje
+            ev.append({"t": t0 + max(0.0, t - (n - 1 - i) * paso), "tipo": "click", "motivo": f"red: satélite {i + 1}"})
+    elif p == "uno_vs_muchos":
+        n = len(d.get("iconos", []))
+        pre = min(t, 0.45 + n * 0.17)
+        t_fig = max(0.0, t - pre)
+        paso = max(0.0, pre - 0.3) / n if n else 0
+        ev.append({"t": t0 + t_fig, "tipo": "pop", "motivo": "figura"})
+        for i in range(n):
+            ev.append({"t": t0 + min(t, t_fig + 0.1 + paso * (i + 1)), "tipo": "click", "motivo": f"tarea {i + 1}"})
+    elif p == "cifra":
+        conteo = min(1.0, t)
+        for k in range(TICKS_CONTEO):
+            ev.append({"t": t0 + t - conteo + k * conteo / TICKS_CONTEO, "tipo": "tick", "motivo": "conteo"})
+    elif p == "crecimiento" and d.get("valor") is not None:
+        for k in range(TICKS_CONTEO):
+            ev.append({"t": t0 + max(0.0, t - 1.0) + k * 0.25, "tipo": "tick", "motivo": "conteo de la curva"})
+    elif p == "transformacion":
+        T = 0.75
+        ta = max(0.0, min(d["t_a"] if d.get("t_a") is not None else t - T - 0.25, t - T * 0.8))
+        ev.append({"t": t0 + ta, "tipo": "pop", "motivo": "aparece A"})
+        ev.append({"t": t0 + max(0.0, t - T), "tipo": "whoosh", "motivo": "A viaja hacia B"})
+    elif p == "icono":
+        if d.get("movimiento") in ("subir", "caer"):
+            ev.append({"t": t0 + max(0.0, t - 0.5), "tipo": "whoosh", "motivo": f"icono: {d['movimiento']}"})
+        if d.get("rotulo"):
+            ev.append({"t": t0 + min(limitar(t + 0.35, dur), dur), "tipo": "pop", "motivo": "rótulo"})
+    elif p == "palabra_clave":
+        for k, _ in enumerate(d.get("texto", "").split()[:-1]):
+            ev.append({"t": t0 + max(0.0, t - 0.25 * (len(d["texto"].split()) - 1 - k)), "tipo": "pop", "motivo": "palabra"})
+    return ev
+
+
+def eventos_brutos(layout: dict, graficos: list[dict], alta: bool = False) -> list[dict]:
     ev = []
     vs = layout["ventanas"]
     if vs and vs[0]["tipo"] == "split":
         ev.append({"t": 0.0, "tipo": "impacto", "motivo": "gancho en el frame 0"})
     for a, b in zip(vs, vs[1:]):
-        if a["tipo"] != b["tipo"]:
+        if a["tipo"] != b["tipo"] or (alta and a.get("zoom") != b.get("zoom")):
             ev.append({"t": max(0.0, b["inicio"] - ADELANTO_WHOOSH), "tipo": "whoosh",
-                       "motivo": f"cambio {a['tipo']} -> {b['tipo']}"})
+                       "motivo": f"cambio {a['tipo']} -> {b['tipo']}" + (" (punch-in)" if a["tipo"] == b["tipo"] else "")})
     for g in graficos:
         t0, d, p = g["inicio"], g["datos"], g["plantilla"]
         propio = d.get("sonido")  # el LLM puede fijar el sonido con sentido para ese gráfico
@@ -126,10 +175,15 @@ def eventos_brutos(layout: dict, graficos: list[dict]) -> list[dict]:
             ev.append({"t": t0 + d["t_aterrizaje"], "tipo": "alerta", "motivo": "alerta"})
         elif p == "comparativa":
             ev.append({"t": t0 + d["t_derecha"], "tipo": "swipe", "motivo": "cambio de lado"})
+        elif p == "sticker":
+            ev.append({"t": t0 + d.get("t_aterrizaje", 0), "tipo": propio or "pop", "motivo": f"sticker {d['icono']}"})
         elif p == "grafico":
             ev.append({"t": t0 + d["t_aterrizaje"], "tipo": "pop", "motivo": "gráfico"})
         elif p != "gancho":  # el gancho ya tiene su impacto
             ev.append({"t": t0 + d.get("t_aterrizaje", 0), "tipo": propio or SONIDO_PLANTILLA.get(p, "pop"), "motivo": p})
+    if alta:
+        for g in graficos:
+            ev += subeventos(g)
     return sorted((e for e in ev if e["t"] >= 0), key=lambda e: e["t"])
 
 
@@ -155,8 +209,9 @@ def aplicar_densidad(ev: list[dict], densidad: str, duracion: float) -> tuple[li
         quedan = list(ev)
     # Nunca dos a la vez: ante un choque se queda el de mayor prioridad.
     final: list[dict] = []
+    separacion = SEPARACION_MIN[densidad]
     for e in quedan:
-        if final and e["t"] - final[-1]["t"] < SEPARACION_MIN:
+        if final and e["t"] - final[-1]["t"] < separacion:
             if PRIORIDAD[e["tipo"]] > PRIORIDAD[final[-1]["tipo"]]:
                 final[-1] = e
             continue
@@ -188,7 +243,7 @@ def planificar(layout: dict, graficos: list[dict], perfil_dir: Path, semilla: st
     perfil = cargar(perfil_dir)
     if not perfil.audio.sfx:
         return {"eventos": [], "descartados": [], "sin_archivo": [], "densidad": "ninguna"}
-    ev = eventos_brutos(layout, graficos)
+    ev = eventos_brutos(layout, graficos, alta=perfil.audio.densidad_sfx == "alta")
     if palabras:
         ajustar_a_palabras(ev, palabras)
     final, descartados = aplicar_densidad(ev, perfil.audio.densidad_sfx, layout["duracion"])

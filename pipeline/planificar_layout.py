@@ -216,9 +216,16 @@ def planificar(edl: dict, transcripcion: dict, caras: dict, perfil: Perfil, mome
         pal = texto_ventana(t, prueba_fin)
         decidido = tipo_por_momentos(momentos, t, prueba_fin) if momentos else None
         if decidido is None:
+            # Sin LLM: se reparte el tiempo según proporcion_split del perfil (tras el gancho),
+            # sin dos full seguidos y con preferencia por split si lo dicho es visualizable.
+            hechas = [b for b in brutas if b["motivo"] != "gancho"]
+            t_split = sum(b["fin"] - b["inicio"] for b in hechas if b["tipo"] == "split")
+            t_total = sum(b["fin"] - b["inicio"] for b in hechas) or 1.0
             visual = es_visualizable(" ".join(w["text"] for w in pal), pal)
-            decidido = "split" if visual and brutas[-1]["tipo"] == "full" else \
-                       ("full" if brutas[-1]["tipo"] == "split" else "split")
+            falta_split = t_split / t_total < v.proporcion_split
+            dos_split = len(brutas) >= 2 and brutas[-1]["tipo"] == brutas[-2]["tipo"] == "split"
+            decidido = "full" if dos_split else \
+                "split" if brutas[-1]["tipo"] == "full" or falta_split or visual and t_split / t_total < 0.85 else "full"
         rango = v.split_s if decidido == "split" else v.full_s
         fin = siguiente_fin(cands, t, rango, t_cta)
         if fin == t_cta:
@@ -253,6 +260,14 @@ def planificar(edl: dict, transcripcion: dict, caras: dict, perfil: Perfil, mome
             ventanas.append({**b, "inicio": t, "zoom": zoom})
         else:
             ventanas.append({**b, "zoom": 1.0})
+
+    # 3b) Punch-in alterno: cada ventana full cambia de zoom respecto a la full anterior.
+    if v.punch_alterno:
+        k = 0
+        for w in ventanas:
+            if w["tipo"] == "full" and w["zoom"] == 1.0:
+                w["zoom"] = ZOOM_PUNCH if k % 2 else 1.0
+                k += 1
 
     # 4) Recorte estático por ventana, destellos y avisos.
     for i, w in enumerate(ventanas):
