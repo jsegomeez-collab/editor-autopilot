@@ -90,3 +90,16 @@ Fase 0 del ENCARGO: reconocimiento sin instalar nada. Se ha leído entero el ups
 - `~/VideoAutopilot/` sigue siendo configurable (se puede mover a un disco externo).
 - Aprobado sustituir ffmpeg por una versión con libass y zimg, y actualizar Claude Code.
 - Muestra: `tests/muestras/JOSE49.mp4` (68 s, 1080×1920, 25 fps CFR, SDR, AAC 48 kHz). No es HDR, así que el tone map se probará con un clip sintético.
+
+## 7. Cambios de reglas aprobados tras analizar los vídeos de referencia (2026-09-25)
+Fuente: `tests/referencias/ANALISIS_ESTILO.md`. Todos son configurables por perfil. Los valores por defecto del esquema siguen siendo los del ENCARGO, y el perfil `jose` los sustituye.
+1. Subtítulos: `mayusculas: false`, en minúsculas.
+2. Nuevo estilo `mixto`: caja sobre los gráficos y sin caja (solo sombra) sobre la cámara.
+3. Posición de los subtítulos en `full`: `posicion_full_pct` (en jose, 50 %; por defecto, 67 %).
+4. Ritmo: la duración de las ventanas pasa a ser configurable (`layout.ventanas`). En jose: gancho 1,2–2,5 s, split 1,5–3,5 s, full 1,2–3 s, máximo 4 s sin cambio visual.
+5. Formato de cifras según el idioma. es-LatAm: "$30.000" y "93%". es-ES: "30.000 $" y "10 %".
+6. Nueva transición `destello`: corte seco más un destello de luz en los cambios de bloque.
+7. Fuera de alcance: b-roll automático (capturas de pantalla, clips). El panel superior solo lleva motion graphics desde plantillas.
+- Otros cambios: el logo pasa a ser opcional (jose no tiene) y hay una tipografía opcional de `enfasis` (serif itálica para `palabra_clave`). El CTA admite `{palabra}`, que se toma de lo dicho en cada vídeo.
+- Tipografías de jose: Inter Bold/ExtraBold, Instrument Serif Italic y Noto Sans Bold, todas OFL y descargadas de Google Fonts. Comprobado con fontTools que tienen los glifos de la prueba "¿ÁÉÍÓÚÑ ÜÇ 300 € 10 %?".
+- Las muletillas se detectan automáticamente (`muletillas_extra` vacío). El glosario irá creciendo con cada vídeo.

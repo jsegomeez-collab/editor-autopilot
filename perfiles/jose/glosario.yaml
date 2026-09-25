@@ -1,0 +1,18 @@
+# Cómo se escriben nombres y términos. Se amplía con cada vídeo.
+terminos:
+  - forma: "Claude Code"
+    variantes: ["cloud code", "clod code", "claude code"]
+  - forma: "Claude"
+    variantes: ["cloud", "clod"]
+  - forma: "OmniRoute"
+    variantes: ["omni route", "omniroute"]
+  - forma: "Ponytail"
+    variantes: ["pony tail", "ponytail"]
+  - forma: "Graphify"
+    variantes: ["graphify", "grafify", "graphy fy"]
+  - forma: "NVIDIA"
+    variantes: ["nvidia"]
+  - forma: "BlackRock"
+    variantes: ["black rock", "blackrock"]
+  - forma: "Wall Street"
+    variantes: ["wall street", "wol street"]

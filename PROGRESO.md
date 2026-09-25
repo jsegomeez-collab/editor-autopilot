@@ -25,7 +25,7 @@
   - Hay tomas repetidas y un falso comienzo marcado con `--`. Material útil para probar el EDL.
   - No se ha podido verificar que conserve las muletillas: la muestra no tiene "eh"/"em" ni eventos de audio.
 
-## Fase 2 — Repo propio + perfil (en curso)
+## ✅ Fase 2 — Repo propio + perfil (2026-09-25)
 - Repo `~/Developer/editor-autopilot` con la estructura de la sección 4, `git init`, `.gitignore` (excluye `.env`, vídeos y audio) y `~/VideoAutopilot/{entrada,trabajos,revision,errores}`.
 - Entorno `uv` con Python 3.12: pydantic, pyyaml, text2num y pytest (dev).
 - `.claude/settings.json`: `model: claude-sonnet-5`, más `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `CLAUDE_CODE_SUBAGENT_MODEL` y `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`. Verificado en headless con un subagente: `modelUsage` solo contiene `claude-sonnet-5`. Sin la variable HAIKU, Claude Code usaba claude-haiku-4-5 para tareas internas.
@@ -33,4 +33,8 @@
 - `pipeline/corregir_transcripcion.py`: aplica el glosario y pasa las cifras en letra a dígitos con su unidad (%, €, $), sin tocar timestamps. En la muestra hizo 18 correcciones (p. ej. "Cloud Code" → "Claude Code", "diez mil dólares" → "10.000 $").
 - `pipeline/perfil.py`: esquema pydantic estricto + CLI de validación que también comprueba los archivos. Perfil de ejemplo en `perfiles/_ejemplo/`.
 - Tests: 13 en verde (`uv run pytest -q tests`).
-- Pendiente: cuestionario y perfil propio.
+- Estilo analizado a partir de JOS1 y JOS12 (`tests/referencias/ANALISIS_ESTILO.md`). Cambios de reglas aprobados: PLAN.md §7.
+- Esquema ampliado: ventanas de layout, subtítulos (mixto, mayúsculas, posición), transición destello, logo opcional, fuente de énfasis y CTA con `{palabra}`. Formato de cifras según idioma.
+- Perfil `perfiles/jose/` validado: perfil.yaml, glosario.yaml (8 términos), correcciones.md y 4 fuentes OFL.
+- Prueba real: `corregir_transcripcion.py` sobre JOSE49 con el perfil jose da, por ejemplo, "diez mil dólares" → "$10.000" y "Cloud Code" → "Claude Code".
+- Tests: 14 en verde.

@@ -52,3 +52,8 @@ def test_timestamps_se_conservan():
     token = res["words"][1]
     assert (token["start"], token["end"]) == (0.5, 1.9)
     assert token["valor"] == 10000 and token["unidad"] == "$"
+
+
+def test_formato_latam():
+    res = corregir(transcripcion("gané treinta mil dólares con un noventa y tres por ciento"), [], "es-LatAm")
+    assert [w["text"] for w in res["words"]] == ["gané", "$30.000", "con", "un", "93%"]

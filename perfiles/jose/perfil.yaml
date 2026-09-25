@@ -1,0 +1,60 @@
+# Perfil de Jose Gomez. Estilo sacado de tests/referencias/ANALISIS_ESTILO.md (JOS1, JOS12).
+identidad:
+  nombre: "Jose Gomez"
+  idioma: es-LatAm         # latinos en EE. UU.: "$30.000", "93%"
+  plataformas: [instagram, tiktok, youtube_shorts]
+
+colores:
+  fondo: "#121827"         # azul marino de los paneles de gráficos
+  primario: "#FFFFFF"
+  acentos: ["#FFDB00"]     # amarillo de cifras, palabra activa y CTA
+
+tipografias:               # libres (OFL), las más parecidas a las de sus vídeos
+  titulares:  { archivo: fuentes/Inter-ExtraBold.ttf,         familia: "Inter ExtraBold" }
+  subtitulos: { archivo: fuentes/Inter-Bold.ttf,              familia: "Inter" }
+  respaldo:   { archivo: fuentes/NotoSans-Bold.ttf,           familia: "Noto Sans" }
+  enfasis:    { archivo: fuentes/InstrumentSerif-Italic.ttf,  familia: "Instrument Serif" }
+
+# Sin logo: en sus vídeos el CTA no lo lleva.
+
+ritmo: rapido
+
+layout:
+  patron: split-hook-oscilante
+  transicion: destello     # corte seco + destello de luz en los cambios de bloque
+  ventanas:                # su ritmo real: un cambio visual cada 1,2–1,6 s
+    gancho_s: [1.2, 2.5]
+    split_s: [1.5, 3.5]
+    full_s: [1.2, 3.0]
+    max_sin_cambio_s: 4.0
+
+subtitulos:
+  estilos_permitidos: [mixto, caja, contorno]
+  estilo_por_defecto: mixto   # caja sobre gráficos, solo sombra sobre la cámara
+  mayusculas: false
+  palabras_por_bloque: 2
+  posicion_full_pct: 50       # a la altura del pecho
+
+audio:
+  musica: true
+  estados_animo_permitidos: [energetica, inspiradora, tension, neutra, emocional]
+  estado_animo_por_defecto: neutra
+  sfx: true
+  estilo_sfx: minimal
+  densidad_sfx: media
+  niveles:
+    voz_lufs: -14
+    musica_db_bajo_voz: 20
+    sfx_db_bajo_pico_voz: 6
+
+cta_por_defecto: "Comenta la palabra {palabra}"   # la palabra sale de lo que dice al final
+ctas_alternativos: ["Sígueme para más", "Guárdalo para después"]
+
+duracion_objetivo_max_s: 90
+
+muletillas_extra: []       # se detectan automáticamente
+palabras_a_no_cortar: []
+
+zonas_seguras: { superior: 220, inferior: 380, derecha: 120 }
+
+plantillas_permitidas: [gancho, cifra, lista, comparativa, pasos, pregunta, palabra_clave, alerta, grafico, cta]

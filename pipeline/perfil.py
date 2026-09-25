@@ -20,9 +20,11 @@ PLANTILLAS = Literal[
     "pregunta", "palabra_clave", "alerta", "grafico", "cta",
 ]
 ESTADOS_ANIMO = Literal["energetica", "inspiradora", "tension", "neutra", "emocional"]
-# caja: bloques de 2 palabras sobre caja oscura semitransparente (6.5, por defecto).
-# contorno: mismos bloques, sin caja, con contorno y sombra (alternativa para variantes).
-ESTILOS_SUBTITULOS = Literal["caja", "contorno"]
+# caja: bloques sobre caja oscura semitransparente siempre (6.5, por defecto).
+# contorno: sin caja, con contorno y sombra.
+# mixto: caja sobre gráficos (split), sin caja y con sombra sobre la cámara (full).
+ESTILOS_SUBTITULOS = Literal["caja", "contorno", "mixto"]
+Rango = tuple[float, float]
 
 
 class Estricto(BaseModel):
@@ -51,21 +53,42 @@ class Tipografias(Estricto):
     titulares: Fuente
     subtitulos: Fuente
     respaldo: Fuente
+    enfasis: Fuente | None = None  # p. ej. serif itálica para `palabra_clave`
 
 
-class Logo(Estricto):
+class Logo(Estricto):  # opcional: si no hay logo, el CTA va sin él
     archivo: str
     uso: Literal["solo_cta"] = "solo_cta"  # nunca al inicio
 
 
+class Ventanas(Estricto):
+    """Duración de las ventanas de layout en segundos (mín, máx). Por defecto, 6.3."""
+    gancho_s: Rango = (2.0, 4.0)
+    split_s: Rango = (3.0, 6.0)
+    full_s: Rango = (2.0, 5.0)
+    max_sin_cambio_s: float = Field(8.0, gt=0)
+
+    @field_validator("gancho_s", "split_s", "full_s")
+    @classmethod
+    def _rango(cls, v: Rango) -> Rango:
+        if not 0 < v[0] <= v[1]:
+            raise ValueError(f"rango no válido: {v}")
+        return v
+
+
 class Layout(Estricto):
     patron: Literal["split-hook-oscilante"] = "split-hook-oscilante"
-    transicion: Literal["corte", "push"] = "corte"
+    # destello: corte seco + destello de luz breve en los cambios de bloque.
+    transicion: Literal["corte", "push", "destello"] = "corte"
+    ventanas: Ventanas = Ventanas()
 
 
 class Subtitulos(Estricto):
-    estilos_permitidos: list[ESTILOS_SUBTITULOS] = ["caja", "contorno"]
+    estilos_permitidos: list[ESTILOS_SUBTITULOS] = ["caja", "contorno", "mixto"]
     estilo_por_defecto: ESTILOS_SUBTITULOS = "caja"
+    mayusculas: bool = True
+    palabras_por_bloque: int = Field(2, ge=1, le=3)
+    posicion_full_pct: float = Field(67.0, ge=40, le=75)  # altura en full, % desde arriba
 
     @model_validator(mode="after")
     def _defecto_permitido(self):
@@ -106,11 +129,13 @@ class Perfil(Estricto):
     identidad: Identidad
     colores: Colores
     tipografias: Tipografias
-    logo: Logo
+    logo: Logo | None = None
     ritmo: Literal["rapido", "natural"] = "rapido"
     layout: Layout = Layout()
     subtitulos: Subtitulos = Subtitulos()
     audio: Audio = Audio()
+    # "{palabra}" se sustituye por la palabra que pides comentar en ese vídeo.
+    # Si no la dices, se usa el primer CTA alternativo.
     cta_por_defecto: str
     ctas_alternativos: list[str] = []
     duracion_objetivo_max_s: int = Field(gt=0)
@@ -137,7 +162,9 @@ def cargar(dir_perfil: Path) -> Perfil:
     datos = yaml.safe_load((dir_perfil / "perfil.yaml").read_text(encoding="utf-8"))
     perfil = Perfil.model_validate(datos)
     t = perfil.tipografias
-    archivos = [t.titulares.archivo, t.subtitulos.archivo, t.respaldo.archivo, perfil.logo.archivo]
+    archivos = [f.archivo for f in (t.titulares, t.subtitulos, t.respaldo, t.enfasis) if f]
+    if perfil.logo:
+        archivos.append(perfil.logo.archivo)
     faltan = [a for a in archivos if not (dir_perfil / a).is_file()]
     if faltan:
         raise FileNotFoundError(f"faltan archivos del perfil: {faltan}")

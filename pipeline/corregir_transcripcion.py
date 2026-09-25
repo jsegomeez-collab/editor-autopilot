@@ -2,15 +2,16 @@
 
 Hace dos cosas, sin alterar ningún timestamp:
   1. Aplica el glosario del perfil ("Cloud Code" -> "Claude Code").
-  2. Convierte cifras dichas en letra a dígitos, con su unidad pegada
-     ("diez mil dólares" -> "10.000 $", "diez por ciento" -> "10 %").
+  2. Convierte cifras dichas en letra a dígitos, con su unidad pegada.
+     es-ES:    "diez mil dólares" -> "10.000 $", "diez por ciento" -> "10 %"
+     es-LatAm: "diez mil dólares" -> "$10.000",  "diez por ciento" -> "10%"
 
 Cuando varias palabras se funden en un token, el token nuevo va del `start`
 de la primera al `end` de la última. La transcripción original (caché de
 video-use) no se toca: se escribe un JSON aparte.
 
 Uso:
-  python pipeline/corregir_transcripcion.py <transcripcion.json> -o <salida.json> [--glosario glosario.yaml]
+  python pipeline/corregir_transcripcion.py <transcripcion.json> -o <salida.json> [--glosario glosario.yaml] [--idioma es-LatAm]
 """
 from __future__ import annotations
 
@@ -151,7 +152,16 @@ def buscar_unidad(palabras: list[dict], j: int) -> tuple[str | None, int]:
     return None, 0
 
 
-def convertir_cifras(palabras: list[dict]) -> list[dict]:
+def con_unidad(numero: str, simbolo: str | None, idioma: str) -> str:
+    """Pega la unidad al número según la convención del idioma."""
+    if not simbolo:
+        return numero
+    if idioma == "es-LatAm":
+        return f"{numero}%" if simbolo == "%" else f"{simbolo}{numero}"
+    return f"{numero} {simbolo}"
+
+
+def convertir_cifras(palabras: list[dict], idioma: str = "es-ES") -> list[dict]:
     salida, i = [], 0
     while i < len(palabras):
         mejor = None  # (fin_exclusivo, valor)
@@ -178,16 +188,16 @@ def convertir_cifras(palabras: list[dict]) -> list[dict]:
             salida.append(palabras[i])
             i += 1
             continue
-        texto = formatear_numero(valor) + (f" {simbolo}" if simbolo else "")
+        texto = con_unidad(formatear_numero(valor), simbolo, idioma)
         salida.append(fundir(palabras[i:j + n_unidad], texto, valor=valor, unidad=simbolo))
         i = j + n_unidad
     return salida
 
 
-def corregir(transcripcion: dict, reglas) -> dict:
+def corregir(transcripcion: dict, reglas, idioma: str = "es-ES") -> dict:
     palabras = [w for w in transcripcion["words"] if w.get("type") in ("word", "audio_event")]
     solo_palabras = [w for w in palabras if w["type"] == "word"]
-    corregidas = convertir_cifras(aplicar_glosario(solo_palabras, reglas))
+    corregidas = convertir_cifras(aplicar_glosario(solo_palabras, reglas), idioma)
     eventos = [w for w in palabras if w["type"] == "audio_event"]
     todas = sorted(corregidas + eventos, key=lambda w: w["start"])
     return {
@@ -203,10 +213,11 @@ def main() -> None:
     ap.add_argument("transcripcion", type=Path)
     ap.add_argument("-o", "--salida", type=Path, required=True)
     ap.add_argument("--glosario", type=Path)
+    ap.add_argument("--idioma", choices=["es-ES", "es-LatAm"], default="es-ES")
     args = ap.parse_args()
 
     datos = json.loads(args.transcripcion.read_text(encoding="utf-8"))
-    resultado = corregir(datos, cargar_glosario(args.glosario))
+    resultado = corregir(datos, cargar_glosario(args.glosario), args.idioma)
     args.salida.parent.mkdir(parents=True, exist_ok=True)
     args.salida.write_text(json.dumps(resultado, ensure_ascii=False, indent=2), encoding="utf-8")
     cambios = [w for w in resultado["words"] if "original" in w]
