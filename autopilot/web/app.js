@@ -5,6 +5,7 @@
 "use strict";
 
 const MAX_ARCHIVOS = 15;
+const MAX_VARIANTES = 6;
 const INTERVALO_SONDEO_MS = 2000;
 
 // Etapas visibles en el stepper (las dos de gráficos se agrupan en un paso).
@@ -61,6 +62,7 @@ const ICONO = {
   cerrar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   flecha: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
   pausa: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6v12M15 6v12"/></svg>',
+  capas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg>',
   alerta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17v.01"/></svg>',
 };
 
@@ -73,6 +75,11 @@ const app = {
   seleccion: [],         // File[] elegidos antes de subir
   subiendo: false,
   perfilTocado: false,   // si el usuario cambió el perfil a mano, no lo pisamos
+  variantes: 1,          // versiones por vídeo para la próxima subida
+  variantesTocado: false,
+  variantesBorrador: 1,  // valor en el panel de ajustes aún sin guardar
+  versionActiva: 0,      // índice de la versión que se ve en el modal
+  verVersion: 0,         // ?v= pedido junto a ?ver=
   tarjetasCola: new Map(),
   tarjetasResultado: new Map(),
   videoAbierto: null,    // id del vídeo en el modal
@@ -87,6 +94,19 @@ function escapar(texto) {
   return String(texto ?? "").replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   })[c]);
+}
+
+function limitarVariantes(n) {
+  const v = parseInt(n, 10);
+  return Number.isFinite(v) ? Math.max(1, Math.min(MAX_VARIANTES, v)) : 1;
+}
+
+function versionesDe(item) {
+  return Array.isArray(item?.versiones) ? item.versiones : [];
+}
+
+function nombreVersion(v, i) {
+  return v?.variante || `V${(v?.indice ?? i) + 1}`;
 }
 
 function formatearTamano(bytes) {
@@ -199,6 +219,7 @@ function pintarTodo() {
   pintarContador();
   pintarAvisoCarpeta();
   pintarPerfiles();
+  pintarVariantesSubida();
   pintarCola();
   pintarResultados();
   pintarVacio();
@@ -207,7 +228,7 @@ function pintarTodo() {
   if (app.verPendiente) {
     const id = app.verPendiente;
     app.verPendiente = null;
-    abrirVideo(id);
+    abrirVideo(id, app.verVersion);
   }
   if (app.videoAbierto) pintarInfoModal();
 }
@@ -272,6 +293,37 @@ function pintarPerfiles() {
   rellenarSelect(select, perfiles, app.perfilTocado ? select.value : porDefecto);
 }
 
+// Selector segmentado 1·2·3·4·5·6 (se monta una vez y se actualiza con fijarSegmentado).
+function montarSegmentado(caja, alCambiar) {
+  caja.innerHTML = Array.from({ length: MAX_VARIANTES }, (_, i) =>
+    `<button type="button" role="radio" class="segmentado__opcion" data-valor="${i + 1}" aria-checked="false">${i + 1}</button>`).join("");
+  caja.addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-valor]");
+    if (!b || b.disabled) return;
+    const valor = Number(b.dataset.valor);
+    fijarSegmentado(caja, valor);
+    alCambiar(valor);
+  });
+}
+
+function fijarSegmentado(caja, valor) {
+  if (caja.dataset.valor === String(valor)) return;
+  caja.dataset.valor = valor;
+  caja.querySelectorAll("[data-valor]").forEach((b) => {
+    const activo = b.dataset.valor === String(valor);
+    b.classList.toggle("activo", activo);
+    b.setAttribute("aria-checked", activo ? "true" : "false");
+  });
+}
+
+function pintarVariantesSubida() {
+  if (!app.variantesTocado) {
+    const porDefecto = limitarVariantes(app.estado?.ajustes?.variantes ?? 1);
+    if (porDefecto !== app.variantes) { app.variantes = porDefecto; pintarSeleccion(); }
+  }
+  fijarSegmentado($("#selectVariantes"), app.variantes);
+}
+
 // ---------------------------------------------------------
 // Cola
 // ---------------------------------------------------------
@@ -305,6 +357,7 @@ function crearTarjetaCola(item) {
       <div class="cola__fila">
         <span class="cola__nombre"></span>
         <span class="cola__perfil"></span>
+        <span class="chip chip--acento cola__variantes" hidden></span>
       </div>
       <div class="cola__fila cola__progreso">
         <span class="cola__etapa"></span>
@@ -350,6 +403,10 @@ function actualizarTarjetaCola(el, item, posicion) {
   el.querySelector(".cola__nombre").textContent = item.nombre;
   el.querySelector(".cola__nombre").title = item.nombre;
   el.querySelector(".cola__perfil").textContent = `Perfil ${item.perfil}`;
+  const nVar = limitarVariantes(item.variantes ?? 1);
+  const chipVar = el.querySelector(".cola__variantes");
+  chipVar.hidden = nVar <= 1;
+  chipVar.textContent = `×${nVar} versiones`;
 
   let etapa = NOMBRE_ETAPA[item.etapa] || item.etapa;
   if (estado === "error") etapa = `Falló en: ${etapa}`;
@@ -374,8 +431,14 @@ function actualizarTarjetaCola(el, item, posicion) {
   if (estado === "pausado_por_limite" && !mensaje) mensaje = "Se ha alcanzado el límite diario. Continuará automáticamente.";
   if (estado === "pendiente" && !mensaje) mensaje = "Empezará en cuanto termine el vídeo anterior.";
   const msg = el.querySelector(".cola__mensaje");
-  msg.textContent = mensaje;
-  msg.title = mensaje;
+  if (msg.title !== mensaje || !msg.hasChildNodes()) {
+    // "Versión 2/4 · <texto>": la versión en curso se resalta aparte.
+    const m = /^(Versión \d+\/\d+)\s*·\s*(.*)$/.exec(mensaje);
+    msg.innerHTML = m && estado === "procesando"
+      ? `<b class="cola__version">${escapar(m[1])}</b>${escapar(m[2])}`
+      : escapar(mensaje);
+    msg.title = mensaje;
+  }
 
   const tiempo = el.querySelector(".cola__tiempo");
   if (estado === "procesando" && item.iniciado) {
@@ -463,6 +526,7 @@ function htmlAvisos(avisos, abierto = false) {
 }
 
 function htmlTarjetaResultado(item) {
+  const nVersiones = versionesDe(item).length;
   const portada = item.tiene_portada
     ? `<img src="${urlPortada(item)}" alt="" loading="lazy">`
     : `<div class="resultado__sin-portada">${ICONO.video}</div>`;
@@ -471,6 +535,7 @@ function htmlTarjetaResultado(item) {
       ${portada}
       ${badgeVeredicto(item, "resultado__badge")}
       <span class="resultado__play">${ICONO.play}</span>
+      ${nVersiones > 1 ? `<span class="resultado__versiones">${ICONO.capas}${nVersiones} versiones</span>` : ""}
       <span class="resultado__duracion">${formatearDuracion(item.duracion_s)}</span>
     </button>
     <div class="resultado__cuerpo">
@@ -491,7 +556,7 @@ function pintarResultados() {
   const elementos = items.map((item) => {
     vivos.add(item.id);
     // Firma: si no cambia, no se toca la tarjeta (se conserva el desplegable abierto).
-    const firma = [item.estado, item.veredicto, item.duracion_s, item.tiene_portada, item.terminado, (item.avisos || []).join("¦"), item.nombre].join("|");
+    const firma = [item.estado, item.veredicto, item.duracion_s, item.tiene_portada, item.terminado, (item.avisos || []).join("¦"), item.nombre, versionesDe(item).length].join("|");
     let el = app.tarjetasResultado.get(item.id);
     if (!el) {
       el = document.createElement("article");
@@ -546,13 +611,20 @@ function buscarItem(id) {
   return (app.estado?.items || []).find((i) => i.id === id);
 }
 
-function abrirVideo(id) {
+function urlVideo(item, indice) {
+  const base = `/api/video/${encodeURIComponent(item.id)}`;
+  return versionesDe(item).length > 1 ? `${base}?v=${indice}` : base;
+}
+
+function abrirVideo(id, indice = 0) {
   if (!app.estado) { app.verPendiente = id; return; }
   const item = buscarItem(id);
   if (!item) { toast("Ese vídeo ya no está disponible", "aviso"); return; }
   app.videoAbierto = id;
+  const n = versionesDe(item).length;
+  app.versionActiva = n > 1 ? Math.max(0, Math.min(n - 1, indice)) : 0;
   const video = $("#modalVideoEl");
-  video.src = `/api/video/${encodeURIComponent(id)}`;
+  video.src = urlVideo(item, app.versionActiva);
   if (item.tiene_portada) video.poster = urlPortada(item);
   else video.removeAttribute("poster");
   pintarInfoModal(true);
@@ -563,23 +635,65 @@ function abrirVideo(id) {
 function pintarInfoModal(forzar = false) {
   const item = buscarItem(app.videoAbierto);
   if (!item) return;
-  const firma = [item.veredicto, item.duracion_s, (item.avisos || []).join("¦"), item.salida].join("|");
+  const versiones = versionesDe(item);
+  const multiple = versiones.length > 1;
+  const activa = multiple ? versiones[app.versionActiva] || versiones[0] : null;
+  const firma = [item.veredicto, item.duracion_s, (item.avisos || []).join("¦"), item.salida,
+    JSON.stringify(versiones), app.versionActiva].join("|");
   const modal = $("#capaVideo");
   if (!forzar && modal.dataset.firma === firma) return;
   modal.dataset.firma = firma;
 
   $("#modalVideoBadge").innerHTML = badgeVeredicto(item);
   $("#modalVideoTitulo").textContent = item.nombre;
+  pintarVersionesModal(versiones, activa);
   const datos = [
-    ["Duración", formatearDuracion(item.duracion_s)],
+    ["Duración", formatearDuracion(activa ? activa.duracion_s : item.duracion_s)],
     ["Perfil", item.perfil],
     ["Terminado", item.terminado ? `${fecha(item.terminado).toLocaleDateString("es-ES", { day: "numeric", month: "short" })}, ${hora(item.terminado)}` : "—"],
-    ["Guardado en", item.salida || "Pendiente de carpeta"],
+    ["Guardado en", (activa ? activa.salida : null) || item.salida || "Pendiente de carpeta"],
   ];
   $("#modalVideoDatos").innerHTML = datos
     .map(([k, v]) => `<dt>${escapar(k)}</dt><dd title="${escapar(v)}">${escapar(v)}</dd>`).join("");
   $("#modalVideoAvisos").innerHTML = htmlAvisos(item.avisos, true);
 }
+
+function pintarVersionesModal(versiones, activa) {
+  const caja = $("#modalVersiones");
+  caja.hidden = !activa;
+  if (!activa) return;
+  $("#modalVersionesPestanas").innerHTML = versiones.map((v, i) => {
+    const sel = i === app.versionActiva;
+    const clase = v.veredicto === "REVISAR" ? "revisar" : "listo";
+    return `<button type="button" role="tab" class="versiones__pestana${sel ? " activa" : ""}" data-version="${i}" aria-selected="${sel}" title="${escapar(v.veredicto === "REVISAR" ? "Revisar" : "Listo")}">
+      <span class="versiones__punto versiones__punto--${clase}"></span>${escapar(nombreVersion(v, i))}</button>`;
+  }).join("");
+  const cambios = activa.cambios || (app.versionActiva === 0 ? "Edición base." : "Sin descripción de cambios.");
+  $("#modalVersionDetalle").innerHTML = `
+    <div class="version-detalle__cabecera">
+      <strong>${escapar(nombreVersion(activa, app.versionActiva))}</strong>
+      ${badgeVeredicto(activa)}
+      <span class="version-detalle__duracion">${ICONO.reloj}${formatearDuracion(activa.duracion_s)}</span>
+    </div>
+    <span class="version-detalle__etiqueta">Qué cambia</span>
+    <p class="version-detalle__cambios">${escapar(cambios)}</p>`;
+}
+
+function cambiarVersion(indice) {
+  const item = buscarItem(app.videoAbierto);
+  if (!item || indice === app.versionActiva) return;
+  const video = $("#modalVideoEl");
+  const reproduciendo = !video.paused && !video.ended;
+  app.versionActiva = indice;
+  video.src = urlVideo(item, indice);
+  if (reproduciendo) video.play().catch(() => { /* el navegador puede bloquearlo */ });
+  pintarInfoModal(true);
+}
+
+$("#modalVersionesPestanas").addEventListener("click", (ev) => {
+  const b = ev.target.closest("[data-version]");
+  if (b) cambiarVersion(Number(b.dataset.version));
+});
 
 function cerrarVideo() {
   const video = $("#modalVideoEl");
@@ -587,6 +701,7 @@ function cerrarVideo() {
   video.removeAttribute("src");
   video.load();
   app.videoAbierto = null;
+  app.versionActiva = 0;
   $("#capaVideo").hidden = true;
   $("#capaVideo").dataset.firma = "";
   document.body.style.overflow = "";
@@ -639,9 +754,11 @@ function pintarSeleccion() {
   $("#listaVacia").hidden = n > 0;
   $("#contadorSeleccion").textContent = `${n} / ${MAX_ARCHIVOS}`;
   $("#botonEditar").disabled = n === 0 || app.subiendo;
+  const v = app.variantes;
+  const sufijo = v > 1 ? ` · ${v} versiones${n > 1 ? " c/u" : ""}` : "";
   $("#botonEditarTexto").textContent = app.subiendo
     ? "Subiendo…"
-    : n === 0 ? "Editar vídeos" : `Editar ${n} ${n === 1 ? "vídeo" : "vídeos"}`;
+    : n === 0 ? "Editar vídeos" : `Editar ${n} ${n === 1 ? "vídeo" : "vídeos"}${sufijo}`;
 }
 
 $("#listaArchivos").addEventListener("click", (ev) => {
@@ -672,6 +789,11 @@ window.addEventListener("dragover", (ev) => ev.preventDefault());
 window.addEventListener("drop", (ev) => ev.preventDefault());
 
 $("#selectPerfil").addEventListener("change", () => { app.perfilTocado = true; });
+montarSegmentado($("#selectVariantes"), (valor) => {
+  app.variantes = valor;
+  app.variantesTocado = true;
+  pintarSeleccion();
+});
 
 function mostrarProgresoSubida(pct, texto) {
   $("#progresoSubida").hidden = false;
@@ -685,6 +807,7 @@ function subir() {
   const perfil = $("#selectPerfil").value;
   const datos = new FormData();
   datos.append("perfil", perfil);
+  datos.append("variantes", String(app.variantes));
   app.seleccion.forEach((f) => datos.append("archivos", f, f.name));
 
   const total = app.seleccion.reduce((s, f) => s + f.size, 0);
@@ -744,14 +867,18 @@ async function abrirAjustes() {
   let ajustes = app.estado?.ajustes;
   try { ajustes = await pedir("/api/ajustes"); } catch (_) { /* usamos los del estado */ }
   if (!app.ajustesAbiertos) return;
-  ajustes = ajustes || { carpeta_salida: null, perfil_por_defecto: "", limite_diario: 10 };
+  ajustes = ajustes || { carpeta_salida: null, perfil_por_defecto: "", limite_diario: 10, variantes: 1 };
 
   app.carpetaBorrador = ajustes.carpeta_salida || null;
   pintarRuta(app.carpetaBorrador);
   const perfiles = app.estado?.perfiles || (ajustes.perfil_por_defecto ? [ajustes.perfil_por_defecto] : []);
   rellenarSelect($("#ajustePerfil"), perfiles, ajustes.perfil_por_defecto);
   $("#ajusteLimite").value = ajustes.limite_diario ?? "";
+  app.variantesBorrador = limitarVariantes(ajustes.variantes ?? 1);
+  fijarSegmentado($("#ajusteVariantes"), app.variantesBorrador);
 }
+
+montarSegmentado($("#ajusteVariantes"), (valor) => { app.variantesBorrador = valor; });
 
 function cerrarAjustes() {
   app.ajustesAbiertos = false;
@@ -793,6 +920,7 @@ $("#botonGuardarAjustes").addEventListener("click", async (ev) => {
     carpeta_salida: app.carpetaBorrador,
     perfil_por_defecto: $("#ajustePerfil").value,
     limite_diario: limite,
+    variantes: app.variantesBorrador,
   };
   const boton = ev.currentTarget;
   boton.disabled = true;
@@ -800,6 +928,7 @@ $("#botonGuardarAjustes").addEventListener("click", async (ev) => {
     const guardados = await postJSON("/api/ajustes", cuerpo);
     if (app.estado && guardados) app.estado.ajustes = guardados;
     app.perfilTocado = false;
+    app.variantesTocado = false;
     toast("Ajustes guardados", "ok");
     cerrarAjustes();
     sondear();
@@ -861,6 +990,7 @@ setInterval(() => {
   const params = new URLSearchParams(location.search);
   if (params.get("captura") === "1") document.documentElement.classList.add("sin-animacion");
   if (params.get("ver")) app.verPendiente = params.get("ver");
+  if (params.get("v")) app.verVersion = parseInt(params.get("v"), 10) || 0;
   pintarSeleccion();
   sondear();
   if (params.get("ajustes") === "1") abrirAjustes();

@@ -89,7 +89,8 @@ def decidir_cortes(transcripcion: dict, perfil, correcciones: str, registro: lis
     estados = list(perfil.audio.estados_animo_permitidos)
     esquema = {
         "type": "object", "additionalProperties": False,
-        "required": ["estrategia", "tramos", "estado_musica", "palabra_cta", "titular_gancho"],
+        "required": ["estrategia", "tramos", "estado_musica", "estado_musica_alternativo", "palabra_cta",
+                     "titular_gancho", "titulares_alternativos"],
         "properties": {
             "estrategia": {"type": "string", "description": "4-8 frases: qué se corta y por qué"},
             "tramos": {"type": "array", "minItems": 1, "items": {
@@ -97,6 +98,9 @@ def decidir_cortes(transcripcion: dict, perfil, correcciones: str, registro: lis
                 "properties": {"desde": {"type": "integer"}, "hasta": {"type": "integer"},
                                "beat": {"type": "string"}, "motivo": {"type": "string"}}}},
             "estado_musica": {"enum": estados},
+            "estado_musica_alternativo": {"enum": estados, "description": "segundo estado que también encaje (variantes)"},
+            "titulares_alternativos": {"type": "array", "minItems": 2, "maxItems": 3, "items": {"type": "string"},
+                                       "description": "otros ganchos de MÁXIMO 4 palabras literales del vídeo, distintos entre sí"},
             "palabra_cta": {"type": ["string", "null"], "description": "palabra que pide comentar, o null"},
             "titular_gancho": {"type": "string", "description": "MÁXIMO 4 palabras literales del gancho (2 líneas en pantalla)"},
         },
@@ -112,6 +116,8 @@ REGLAS (obligatorias):
 - estado_musica según el tono: educativo/informativo → neutra; motivacional/logro → inspiradora; errores/riesgos → tension; historia personal → emocional; ritmo alto/listas rápidas → energetica (solo entre: {", ".join(estados)}; por defecto {perfil.audio.estado_animo_por_defecto}).
 - palabra_cta: la palabra que se pide comentar/escribir al final (tal cual, sin comillas), o null si no hay.
 - titular_gancho: MÁXIMO 4 palabras literales con la idea central del gancho (p. ej. "Nunca uses Claude Code"); en pantalla ocupa como mucho 2 líneas.
+- titulares_alternativos: 2–3 ganchos distintos (máximo 4 palabras cada uno, sacados de lo que se dice en el vídeo) para variantes A/B.
+- estado_musica_alternativo: otro estado de ánimo que también encaje (para variantes).
 
 CORRECCIONES DEL CLIENTE (prioridad sobre el perfil):
 {correcciones.strip() or "(ninguna)"}
@@ -155,7 +161,7 @@ def catalogo_imagenes(perfil_dir: Path) -> str:
 
 
 def decidir_graficos(ventanas_txt: str, perfil, perfil_dir: Path, titular_gancho: str, palabra_cta: str | None,
-                     registro: list, errores_previos: str = "") -> dict:
+                     registro: list, errores_previos: str = "", evitar: str = "") -> dict:
     esquema = {
         "type": "object", "additionalProperties": False, "required": ["graficos", "stickers"],
         "properties": {
@@ -190,8 +196,28 @@ ICONOS (nombre: significado):
 IMÁGENES DE LA MARCA (plantilla imagen, campo archivo):
 {catalogo_imagenes(perfil_dir)}
 {("ERRORES DE TU RESPUESTA ANTERIOR (corrígelos, conserva lo que estaba bien):\n" + errores_previos) if errores_previos else ""}
+{("ESTA ES UNA VARIANTE A/B: tiene que verse CLARAMENTE distinta de la versión anterior. Para cada idea usa otra plantilla u otros iconos y movimientos, y otros momentos para los stickers. Lo que ya se usó (evítalo):\n" + evitar) if evitar else ""}
 VENTANAS DEL VÍDEO (índice, tipo, inicio–fin en segundos del vídeo; palabras con su segundo RELATIVO al inicio de la ventana):
 {ventanas_txt}
 
 Devuelve un gráfico para CADA ventana split y para la ventana del CTA, y los stickers de las ventanas full."""
+    return claude_json(prompt, esquema, registro)
+
+
+# ---------- 3. versión corta (variantes) ----------
+
+def decidir_version_corta(tramos_txt: str, objetivo: tuple[int, int], registro: list, errores_previos: str = "") -> dict:
+    """Elige, de los tramos ya editados, los beats más fuertes para una versión de 15–30 s."""
+    esquema = {"type": "object", "additionalProperties": False, "required": ["tramos", "motivo"],
+               "properties": {"motivo": {"type": "string"}, "tramos": {"type": "array", "minItems": 1, "items": {
+                   "type": "object", "additionalProperties": False, "required": ["desde", "hasta", "beat", "motivo"],
+                   "properties": {"desde": {"type": "integer"}, "hasta": {"type": "integer"},
+                                  "beat": {"type": "string"}, "motivo": {"type": "string"}}}}}}
+    prompt = f"""Haz una versión CORTA ({objetivo[0]}–{objetivo[1]} s) de este reel para una variante A/B.
+REGLAS: usa solo palabras de los tramos de abajo (índices entre paréntesis, ambos incluidos), en el mismo orden y sin
+solaparlos. Empieza por el gancho y termina con el CTA si lo hay. Quédate con los beats más fuertes, con frases completas
+(nunca cortes a mitad de frase) y sin cambiar el sentido. Calcula la duración con los tiempos [inicio-fin] de cada tramo.
+{("ERRORES DE TU RESPUESTA ANTERIOR:\n" + errores_previos) if errores_previos else ""}
+TRAMOS DE LA VERSIÓN COMPLETA:
+{tramos_txt}"""
     return claude_json(prompt, esquema, registro)

@@ -31,7 +31,16 @@ AJUSTES = {
     "carpeta_salida": None if os.environ.get("MOCK_SIN_CARPETA") else "/Users/josegomezkp/Movies/Autopilot",
     "perfil_por_defecto": "jose",
     "limite_diario": 10,
+    "variantes": 2,
 }
+
+# Qué cambia en cada variante (como en variantes.csv).
+CAMBIOS_VARIANTES = [
+    "Edición base: gancho original, gráficos y subtítulos del perfil.",
+    "Otro gancho (abre con la pregunta del minuto 0:31), subtítulos palabra a palabra y música más enérgica.",
+    "Gráficos alternativos con otra paleta, zoom más agresivo en los remates y efectos de sonido distintos.",
+    "Versión corta de 28 s: solo los tres puntos clave y un cierre directo.",
+]
 
 
 def iso(delta_min: float) -> str:
@@ -39,7 +48,26 @@ def iso(delta_min: float) -> str:
 
 
 def item(id_, nombre, estado, etapa, progreso, mensaje="", creado=-5, iniciado=None, terminado=None,
-         duracion=None, veredicto=None, avisos=None, error=None, portada=False):
+         duracion=None, veredicto=None, avisos=None, error=None, portada=False, variantes=1):
+    salida = (f"{AJUSTES['carpeta_salida']}/{'revisar/' if veredicto == 'REVISAR' else ''}{nombre}"
+              if veredicto and AJUSTES["carpeta_salida"] else None)
+    versiones = []
+    if veredicto:
+        if variantes == 1:
+            versiones = [{"indice": 0, "variante": "", "veredicto": veredicto, "duracion_s": duracion,
+                          "cambios": "", "salida": salida}]
+        else:
+            base, ext = os.path.splitext(nombre)
+            for i in range(variantes):
+                ver = "REVISAR" if i == 2 else "LISTO"
+                dur = 28.4 if i == variantes - 1 else round(duracion - i * 1.7, 1)
+                carpeta = AJUSTES["carpeta_salida"]
+                versiones.append({
+                    "indice": i, "variante": f"V{i + 1}", "veredicto": ver, "duracion_s": dur,
+                    "cambios": CAMBIOS_VARIANTES[i % len(CAMBIOS_VARIANTES)],
+                    "salida": (f"{carpeta}/{'revisar/' if ver == 'REVISAR' else ''}{base}_V{i + 1}{ext}"
+                               if carpeta else None),
+                })
     return {
         "id": id_, "nombre": nombre, "perfil": "jose", "estado": estado, "etapa": etapa,
         "progreso": progreso, "mensaje": mensaje, "creado": iso(creado),
@@ -47,8 +75,9 @@ def item(id_, nombre, estado, etapa, progreso, mensaje="", creado=-5, iniciado=N
         "terminado": iso(terminado) if terminado is not None else None,
         "duracion_s": duracion, "veredicto": veredicto, "avisos": avisos or [], "error": error,
         "tiene_portada": portada and PORTADA.exists(),
-        "salida": (f"{AJUSTES['carpeta_salida']}/{'revisar/' if veredicto == 'REVISAR' else ''}{nombre}"
-                   if veredicto and AJUSTES["carpeta_salida"] else None),
+        "salida": salida,
+        "variantes": variantes,
+        "versiones": versiones,
     }
 
 
@@ -59,14 +88,14 @@ def items():
     return [
         item("a9", "error_audio_saturado.mov", "error", "audio", 81, creado=-2, iniciado=-12,
              error="El audio original está saturado y no se pudo limpiar. Prueba con otra toma."),
-        item("a8", "reel_herramientas_ia.mp4", "pendiente", "en_cola", 0, creado=-3),
+        item("a8", "reel_herramientas_ia.mp4", "pendiente", "en_cola", 0, creado=-3, variantes=3),
         item("a7", "tutorial_prompts_parte2.mov", "pendiente", "en_cola", 0, creado=-4),
         item("a6", "como_automatizar_tu_negocio.mp4", "pausado_por_limite", "en_cola", 0, creado=-6,
              mensaje="Límite diario alcanzado. Continúa mañana a las 08:00."),
         item("a5", "3_errores_con_chatgpt.mp4", "procesando", "renderizando_graficos", 64, creado=-8, iniciado=-3.2,
-             mensaje="Renderizando gráfico 4 de 6: «3 errores que cometes»"),
+             mensaje="Versión 2/4 · Renderizando gráfico 4 de 6: «3 errores que cometes»", variantes=4),
         item("a4", "nunca_uses_claude_code_asi.mp4", "listo", "terminado", 100, creado=-60, iniciado=-58, terminado=-50,
-             duracion=48.3, veredicto="LISTO", portada=True),
+             duracion=48.3, veredicto="LISTO", portada=True, variantes=4),
         item("a3", "mi_rutina_de_productividad.mov", "revisar", "terminado", 100, creado=-90, iniciado=-80, terminado=-72,
              duracion=62.0, veredicto="REVISAR", portada=True,
              avisos=["La cara sale del encuadre entre 0:21 y 0:24", "Música 2 dB por encima del objetivo en el final"]),
@@ -133,6 +162,7 @@ class Manejador(SimpleHTTPRequestHandler):
         largo = int(self.headers.get("Content-Length") or 0)
         cuerpo = self.rfile.read(largo) if largo else b""
         if ruta == "/api/subir":
+            # Campo opcional "variantes" (1–6): el mock solo lo acepta.
             n = max(1, cuerpo.count(b'name="archivos"'))
             return self._json({"añadidos": [uuid.uuid4().hex[:8] for _ in range(n)], "duplicados": []})
         if ruta == "/api/ajustes":

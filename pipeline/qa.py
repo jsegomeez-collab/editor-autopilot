@@ -194,7 +194,7 @@ def escribir_informe(inf: Informe, destino: Path, extra: list[str]) -> str:
     return veredicto
 
 
-def entregar(trabajo: Path, perfil: str, exportacion: dict, informe: Path, veredicto: str) -> Path:
+def entregar(trabajo: Path, perfil: str, exportacion: dict, informe: Path, veredicto: str, limpiar: bool = True) -> Path:
     carpeta = REVISION / perfil
     carpeta.mkdir(parents=True, exist_ok=True)
     final = Path(exportacion["final"])
@@ -206,6 +206,8 @@ def entregar(trabajo: Path, perfil: str, exportacion: dict, informe: Path, vered
     shutil.copy2(exportacion["transcripcion"], carpeta / f"{base}_transcripcion.txt")
     # Intermedios regenerables (decisión aprobada): se borran; el original nunca se toca.
     edit = trabajo / "edit"
+    if not limpiar:
+        return _registrar_final(salida_de(trabajo), exportacion, carpeta / f"{base}.mp4")
     # Solo quedan el original y las decisiones (JSON, ASS, transcripciones): todo lo demás se regenera
     # desde el original. Imprescindible con poco disco (decisión aprobada: borrar intermedios).
     salida = trabajo / "salida"
@@ -215,9 +217,29 @@ def entregar(trabajo: Path, perfil: str, exportacion: dict, informe: Path, vered
             shutil.rmtree(p)
         elif p.exists():
             p.unlink()
-    exportacion["final"] = str(carpeta / f"{base}.mp4")
+    return _registrar_final(salida, exportacion, carpeta / f"{base}.mp4")
+
+
+def salida_de(trabajo: Path) -> Path:
+    return trabajo / "salida"
+
+
+def limpiar_trabajo(trabajo: Path) -> None:
+    """Borra los intermedios regenerables de un trabajo (y de sus variantes)."""
+    for t in [trabajo, *sorted((trabajo / "variantes").glob("V*"))]:
+        edit = t / "edit"
+        for p in (edit / "clips", edit / "musica_ajustada.wav", edit / "base.mp4", edit / "compuesto.mp4",
+                  edit / "mezcla.wav", edit / "animations", *(t / "fuente").glob("src_*.mp4")):
+            if p.is_dir():
+                shutil.rmtree(p)
+            elif p.exists():
+                p.unlink()
+
+
+def _registrar_final(salida: Path, exportacion: dict, final: Path) -> Path:
+    exportacion["final"] = str(final)
     (salida / "exportacion.json").write_text(json.dumps(exportacion, ensure_ascii=False, indent=2), encoding="utf-8")
-    return carpeta / f"{base}.mp4"
+    return final
 
 
 def main() -> None:
@@ -225,6 +247,7 @@ def main() -> None:
     ap.add_argument("--trabajo", type=Path, required=True)
     ap.add_argument("--perfil", type=Path, required=True)
     ap.add_argument("--sin-entrega", action="store_true")
+    ap.add_argument("--sin-limpieza", action="store_true", help="no borrar intermedios (quedan variantes por hacer)")
     args = ap.parse_args()
     edit = args.trabajo / "edit"
     leer = lambda p: json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}  # noqa: E731
@@ -257,7 +280,7 @@ def main() -> None:
     veredicto = escribir_informe(inf, informe, extra)
     print(f"{veredicto} — {len(inf.problemas)} avisos, {len(inf.ok)} comprobaciones correctas -> {informe}")
     if not args.sin_entrega:
-        print(f"entregado: {entregar(args.trabajo, args.perfil.name, exportacion, informe, veredicto)}")
+        print(f"entregado: {entregar(args.trabajo, args.perfil.name, exportacion, informe, veredicto, not args.sin_limpieza)}")
 
 
 if __name__ == "__main__":

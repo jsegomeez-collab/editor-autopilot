@@ -6,8 +6,12 @@ exportación → QA → entrega (revision/<perfil>/ y carpeta de salida del usua
 
 Informa del progreso en <trabajo>/estado.json (lo lee el frontend).
 
+Con --variantes N ≥ 2 genera además V2…VN: variantes creativas reales para tests A/B (otro gancho, otros
+gráficos, subtítulos, música, densidad de SFX, zoom y, en V3/V6, versión corta de 15–30 s) + variantes.csv.
+No incluye técnicas para camuflar duplicados ni tocar metadatos (excluido por el encargo).
+
 Uso:
-  python autopilot/editar.py <video> --perfil perfiles/jose [--salida ~/Movies/Reels] [--mover-original]
+  python autopilot/editar.py <video> --perfil perfiles/jose [--salida ~/Movies/Reels] [--variantes 4]
 """
 from __future__ import annotations
 
@@ -24,7 +28,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ / "pipeline"))
 sys.path.insert(0, str(RAIZ / "autopilot"))
-from decidir import LimiteDeUso, decidir_cortes, decidir_graficos  # noqa: E402,F401
+from decidir import LimiteDeUso, decidir_cortes, decidir_graficos, decidir_version_corta  # noqa: E402,F401
 from perfil import cargar  # noqa: E402
 
 BASE = Path.home() / "VideoAutopilot"
@@ -51,12 +55,23 @@ def paso(*args: str | Path) -> str:
 
 
 class Progreso:
+    """Progreso global: con N versiones, cada una ocupa su tramo de 0–100 %."""
+
     def __init__(self, trabajo: Path, avisar=None):
         self.ruta = trabajo / "estado.json"
         self.avisar = avisar
+        self.version, self.total = 1, 1
 
     def __call__(self, etapa: str, mensaje: str = "", progreso: int | None = None) -> None:
-        estado = {"etapa": etapa, "progreso": progreso if progreso is not None else ETAPAS[etapa],
+        local = progreso if progreso is not None else ETAPAS[etapa]
+        comun = ETAPAS["decidiendo_cortes"]  # lo común (normalizar, transcribir) solo cuenta una vez
+        if self.total > 1 and self.version > 1:
+            local = comun + (100 - comun) * ((self.version - 1) + (local - comun) / (100 - comun)) / self.total
+        elif self.total > 1:
+            local = local if local <= comun else comun + (100 - comun) * (local - comun) / (100 - comun) / self.total
+        if self.total > 1 and etapa != "terminado":
+            mensaje = f"Versión {self.version}/{self.total} · {mensaje}"
+        estado = {"etapa": etapa, "progreso": int(min(100 if etapa == "terminado" else 99, local)),
                   "mensaje": mensaje, "hora": time.strftime("%Y-%m-%dT%H:%M:%S"), "trabajo": str(self.ruta.parent)}
         self.ruta.write_text(json.dumps(estado, ensure_ascii=False), encoding="utf-8")
         if self.avisar:
@@ -132,31 +147,169 @@ def respaldo(g: dict, motivo: str) -> dict:
             "nota_qa": f"gráfico de respaldo ({motivo})"}
 
 
+# ---------- variantes ----------
+
+def plan_variante(k: int, perfil, cortes: dict) -> dict:
+    """Qué cambia en la variante k (k ≥ 2). Cada variante cambia varios ejes a la vez y son todas distintas."""
+    alternativos = cortes.get("titulares_alternativos") or [cortes["titular_gancho"]]
+    permitidos = list(perfil.subtitulos.estilos_permitidos)
+    defecto = perfil.subtitulos.estilo_por_defecto
+    estilos = [e for e in permitidos if e != defecto] + [defecto]
+    return {
+        "titular": alternativos[(k - 2) % len(alternativos)],
+        "estilo_subtitulos": estilos[(k - 2) % len(estilos)],
+        "estado_musica": cortes.get("estado_musica_alternativo", cortes["estado_musica"]) if k % 2 else cortes["estado_musica"],
+        "densidad_sfx": "media" if k % 2 == 0 else "alta",
+        "punch_inicio": k % 2,
+        "proporcion_split": 0.5 if k % 3 == 1 else None,
+        "corta": k % 3 == 0,  # V3, V6: versión corta de 15–30 s con los beats más fuertes
+    }
+
+
+def resumen_graficos(edit: Path) -> str:
+    """Lo que ya se usó en una versión (para pedir a Claude algo distinto en la siguiente)."""
+    g = json.loads((edit / "graficos.json").read_text())["graficos"]
+    partes = []
+    for x in g:
+        d = x["datos"]
+        iconos = [v for k, v in d.items() if "icono" in k and isinstance(v, str)] + d.get("iconos", [])
+        partes.append(f"{x['inicio']:.1f}s {x['plantilla']} {'/'.join(iconos)}".strip())
+    return "; ".join(partes)
+
+
+def tramos_con_texto(seleccion: list[dict], trans: dict) -> str:
+    ws = [w for w in trans["words"] if w.get("type") == "word"]
+    return "\n".join(f"[{ws[t['desde']]['start']:.2f}-{ws[t['hasta']]['end']:.2f}] ({t['desde']}-{t['hasta']}) {t['beat']}: "
+                     + " ".join(w["text"] for w in ws[t["desde"]:t["hasta"] + 1]) for t in seleccion)
+
+
+def enlazar(origen: Path, destino: Path) -> None:
+    """Copia ligera (enlace duro) de un archivo o carpeta: no ocupa disco extra."""
+    if origen.is_dir():
+        destino.mkdir(parents=True, exist_ok=True)
+        for f in origen.iterdir():
+            enlazar(f, destino / f.name)
+    elif origen.exists() and not destino.exists():
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            destino.hardlink_to(origen)
+        except OSError:
+            shutil.copy2(origen, destino)
+
+
+# ---------- montaje de una versión ----------
+
+def montar(t: Path, fuente: Path, trans_ruta: Path, corr_ruta: Path, caras: Path, perfil_dir: Path, perfil,
+           cortes: dict, prog: Progreso, uso_claude: list, concurrencia: int, opciones: dict) -> dict:
+    """Monta una versión en la carpeta t (EDL → layout → gráficos → render → subtítulos → SFX → composición →
+    mezcla → exportación → QA). Devuelve veredicto, avisos y rutas. No limpia intermedios."""
+    edit = t / "edit"
+    edit.mkdir(parents=True, exist_ok=True)
+    enlazar(corr_ruta, edit / "transcripts_corregidas" / corr_ruta.name)
+    corr = json.loads(corr_ruta.read_text())
+    edl = json.loads((edit / "edl.json").read_text())
+    titular = opciones.get("titular") or cortes["titular_gancho"]
+
+    prog("cara_y_layout", "Encuadre y alternancia split/full")
+    extra = []
+    if opciones.get("proporcion_split"):
+        extra += ["--proporcion-split", str(opciones["proporcion_split"])]
+    paso(RAIZ / "pipeline/planificar_layout.py", "--edl", edit / "edl.json", "--transcripcion", corr_ruta,
+         "--caras", caras, "--perfil", perfil_dir, "--punch-inicio", str(opciones.get("punch_inicio", 0)),
+         *extra, "-o", edit / "layout.json")
+    layout = json.loads((edit / "layout.json").read_text())
+
+    prog("decidiendo_graficos", "Claude elige los motion graphics")
+    from planificar_layout import palabras_en_salida
+    ventanas_txt = texto_ventanas(layout, palabras_en_salida(edl, corr))
+    errores, fallos = "", []
+    for _ in range(2):
+        dec = decidir_graficos(ventanas_txt, perfil, perfil_dir, titular, cortes["palabra_cta"], uso_claude,
+                               errores, opciones.get("evitar", ""))
+        graficos, notas = construir_graficos(dec, layout)
+        fallos = validar_graficos(graficos, perfil, edl, corr)
+        if not fallos:
+            break
+        errores = "\n".join(fallos)
+    malos = {f.split(" ", 1)[0] for f in fallos}
+    graficos = [respaldo(g, "no pasó la validación") if g["id"] in malos and g["plantilla"] != "sticker" else g
+                for g in graficos if not (g["id"] in malos and g["plantilla"] == "sticker")]
+    con_grafico = {g["id"] for g in graficos}
+    for i, v in enumerate(layout["ventanas"]):  # toda ventana split lleva algo
+        if v["tipo"] == "split" and f"v{i:02d}" not in con_grafico:
+            graficos.append(respaldo({"id": f"v{i:02d}", "inicio": v["inicio"], "duracion": round(v["fin"] - v["inicio"], 3)},
+                                     "ventana sin gráfico"))
+    (edit / "graficos.json").write_text(json.dumps({"graficos": graficos, "notas": notas}, ensure_ascii=False, indent=1))
+
+    prog("renderizando_graficos", f"{len(graficos)} gráficos")
+    paso(RAIZ / "pipeline/render_plantillas.py", edit / "graficos.json", "--perfil", perfil_dir, "--edit", edit,
+         "--edl", edit / "edl.json", "--transcripcion", corr_ruta, "--concurrencia", str(concurrencia))
+
+    prog("montaje", "Subtítulos, capas y composición")
+    estilo = opciones.get("estilo_subtitulos")
+    paso(RAIZ / "pipeline/subtitulos_ass.py", "--edl", edit / "edl.json", "--transcripcion", corr_ruta,
+         "--layout", edit / "layout.json", "--perfil", perfil_dir, *(["--estilo", estilo] if estilo else []),
+         "-o", edit / "subtitulos.ass")
+    dens = opciones.get("densidad_sfx")
+    paso(RAIZ / "pipeline/planificar_sfx.py", "--layout", edit / "layout.json", "--graficos", edit / "graficos.json",
+         "--perfil", perfil_dir, "--edl", edit / "edl.json", "--transcripcion", corr_ruta, "--semilla", t.name,
+         *(["--densidad", dens] if dens else []), "-o", edit / "sfx_timeline.json")
+    paso(RAIZ / "pipeline/componer.py", "--edl", edit / "edl.json", "--layout", edit / "layout.json",
+         "--perfil", perfil_dir, "--overlays", edit / "overlays.json", "--ass", edit / "subtitulos.ass",
+         "--fontsdir", perfil_dir / "fuentes", "-o", edit / "compuesto.mp4")
+
+    estado_musica = opciones.get("estado_musica") or cortes["estado_musica"]
+    prog("audio", f"Voz, música ({estado_musica}) y efectos")
+    paso(RAIZ / "pipeline/mezcla_audio.py", "--video", edit / "base.mp4", "--perfil", perfil_dir,
+         "--estado", estado_musica, "--sfx", edit / "sfx_timeline.json", "--trabajo", t.name,
+         "--registrar-uso", "-o", edit / "mezcla.wav")
+
+    prog("control_calidad", "Exportando y comprobando")
+    paso(RAIZ / "pipeline/exportar.py", "--video", edit / "compuesto.mp4", "--audio", edit / "mezcla.wav",
+         "--edl", edit / "edl.json", "--transcripcion", corr_ruta, "--graficos", edit / "graficos.json",
+         "--perfil", perfil_dir, "--sufijo", opciones.get("sufijo", ""), "-o", t / "salida")
+    salida_qa = paso(RAIZ / "pipeline/qa.py", "--trabajo", t, "--perfil", perfil_dir, "--sin-limpieza")
+    veredicto = "REVISAR" if "REVISAR" in salida_qa.splitlines()[0] else "LISTO"
+    entregado = Path(salida_qa.strip().splitlines()[-1].split("entregado: ", 1)[-1])
+    informe = (t / "salida" / "informe_qa.md").read_text(encoding="utf-8")
+    musica = json.loads((edit / "mezcla.json").read_text()).get("musica", {})
+    return {"veredicto": veredicto, "final": entregado, "portada": t / "salida" / "portada.jpg",
+            "avisos": [l[4:].strip() for l in informe.splitlines() if l.startswith("- ⚠️")],
+            "duracion_s": json.loads((edit / "edl.json").read_text())["total_duration_s"],
+            "titular": titular, "estilo_subtitulos": estilo or perfil.subtitulos.estilo_por_defecto,
+            "estado_musica": estado_musica, "pista": musica.get("archivo"),
+            "densidad_sfx": dens or perfil.audio.densidad_sfx,
+            "graficos": len([g for g in graficos if g["plantilla"] != "sticker"]),
+            "stickers": len([g for g in graficos if g["plantilla"] == "sticker"])}
+
+
 # ---------- flujo ----------
 
 def editar(video: Path, perfil_dir: Path, carpeta_salida: Path | None = None, avisar=None,
-           mover_original: bool = False, concurrencia: int = 2) -> dict:
+           mover_original: bool = False, concurrencia: int = 2, variantes: int = 1) -> dict:
+    from qa import limpiar_trabajo
     perfil = cargar(perfil_dir)
     inicio_total = time.time()
+    variantes = max(1, min(6, int(variantes)))
     trabajo = BASE / "trabajos" / f"{time.strftime('%Y%m%d-%H%M')}_{slug(video.stem)}"
     edit = trabajo / "edit"
     edit.mkdir(parents=True, exist_ok=True)
     prog = Progreso(trabajo, avisar)
+    prog.total = variantes
     uso_claude: list = []
-    resumen = {"trabajo": str(trabajo), "video": video.name, "perfil": perfil_dir.name}
+    resumen = {"trabajo": str(trabajo), "video": video.name, "perfil": perfil_dir.name, "variantes_pedidas": variantes}
 
     # 1) Original: se mueve (nunca se copia ni se borra) a trabajos/<id>/original/.
     prog("normalizando", "Preparando la copia de trabajo")
-    original_dir = trabajo / "original"
-    original_dir.mkdir(exist_ok=True)
-    original = original_dir / video.name
+    original = trabajo / "original" / video.name
+    original.parent.mkdir(exist_ok=True)
     if mover_original:
         shutil.move(str(video), original)
     else:
         original = video
     fuente = Path(paso(RAIZ / "pipeline/preparar_fuente.py", original, "--destino", trabajo / "fuente").strip().splitlines()[-1])
 
-    # 2) Transcripción (caché global por hash).
+    # 2) Transcripción (caché global por hash) + glosario y cifras.
     en_cache = (CACHE / f"{fuente.stem}.json").exists()
     prog("transcribiendo", "Desde la caché" if en_cache else "ElevenLabs Scribe")
     trans_ruta = Path(paso(RAIZ / "pipeline/transcribir.py", fuente, "--edit", edit).strip().splitlines()[-1])
@@ -166,7 +319,6 @@ def editar(video: Path, perfil_dir: Path, carpeta_salida: Path | None = None, av
     paso(RAIZ / "pipeline/corregir_transcripcion.py", trans_ruta, "-o", corr_ruta,
          "--glosario", perfil_dir / "glosario.yaml", "--idioma", perfil.identidad.idioma)
     trans = json.loads(trans_ruta.read_text())
-    corr = json.loads(corr_ruta.read_text())
 
     # 3) Cortes (Claude) → EDL validado por construir_edl.py.
     prog("decidiendo_cortes", "Claude decide qué se queda")
@@ -183,94 +335,108 @@ def editar(video: Path, perfil_dir: Path, carpeta_salida: Path | None = None, av
             errores = str(e)[-600:]
             if intento == 1:
                 raise
+    cortes["titular_gancho"] = con_glosario(cortes["titular_gancho"], perfil_dir, perfil.identidad.idioma)
+    cortes["titulares_alternativos"] = [con_glosario(x, perfil_dir, perfil.identidad.idioma)
+                                        for x in cortes.get("titulares_alternativos", [])]
     (edit / "project.md").write_text(
         f"## Session 1 — {time.strftime('%Y-%m-%d')}\n**Strategy:** {cortes['estrategia']}\n"
         f"**Decisions:** ritmo {perfil.ritmo}; música {cortes['estado_musica']}; CTA «{cortes['palabra_cta']}»; "
-        f"gancho «{cortes['titular_gancho']}». Estrategia aprobada por el perfil (sin conversación, ver PLAN.md).\n"
-        f"**Reasoning log:** {len(cortes['tramos'])} tramos elegidos por Claude.\n**Outstanding:** —\n", encoding="utf-8")
-    edl = json.loads((edit / "edl.json").read_text())
-    cortes["titular_gancho"] = con_glosario(cortes["titular_gancho"], perfil_dir, perfil.identidad.idioma)
-
-    # 4) Cara + layout.
-    prog("cara_y_layout", "Encuadre y alternancia split/full")
+        f"gancho «{cortes['titular_gancho']}»; variantes: {variantes}. Estrategia aprobada por el perfil "
+        f"(sin conversación, ver PLAN.md).\n**Reasoning log:** {len(cortes['tramos'])} tramos elegidos por Claude.\n"
+        f"**Outstanding:** —\n", encoding="utf-8")
     paso(RAIZ / "pipeline/detectar_cara.py", fuente, "-o", edit / "caras.json")
-    paso(RAIZ / "pipeline/planificar_layout.py", "--edl", edit / "edl.json", "--transcripcion", corr_ruta,
-         "--caras", edit / "caras.json", "--perfil", perfil_dir, "-o", edit / "layout.json")
-    layout = json.loads((edit / "layout.json").read_text())
 
-    # 5) Gráficos + stickers (Claude) con validación y un reintento con los errores.
-    prog("decidiendo_graficos", "Claude elige los motion graphics")
-    from planificar_layout import palabras_en_salida
-    ventanas_txt = texto_ventanas(layout, palabras_en_salida(edl, corr))
-    errores = ""
-    for intento in range(2):
-        dec = decidir_graficos(ventanas_txt, perfil, perfil_dir, cortes["titular_gancho"], cortes["palabra_cta"],
-                               uso_claude, errores)
-        graficos, notas = construir_graficos(dec, layout)
-        fallos = validar_graficos(graficos, perfil, edl, corr)
-        if not fallos:
-            break
-        errores = "\n".join(fallos)
-    malos = {f.split(" ", 1)[0] for f in fallos} if fallos else set()
-    graficos = [respaldo(g, "no pasó la validación") if g["id"] in malos and g["plantilla"] != "sticker" else g
-                for g in graficos if not (g["id"] in malos and g["plantilla"] == "sticker")]
-    con_grafico = {g["id"] for g in graficos}
-    for i, v in enumerate(layout["ventanas"]):  # toda ventana split lleva algo
-        if v["tipo"] == "split" and f"v{i:02d}" not in con_grafico:
-            graficos.append(respaldo({"id": f"v{i:02d}", "inicio": v["inicio"], "duracion": round(v["fin"] - v["inicio"], 3)},
-                                     "ventana sin gráfico"))
-    (edit / "graficos.json").write_text(json.dumps({"graficos": graficos, "notas": notas}, ensure_ascii=False, indent=1))
+    # 4) Versión 1 (la edición normal).
+    sufijo = "_V1" if variantes > 1 else ""
+    versiones = [{"variante": "V1" if variantes > 1 else "", "cambios": "edición base",
+                  **montar(trabajo, fuente, trans_ruta, corr_ruta, edit / "caras.json", perfil_dir, perfil, cortes,
+                           prog, uso_claude, concurrencia, {"sufijo": sufijo})}]
 
-    # 6) Render de plantillas (procesos en paralelo).
-    prog("renderizando_graficos", f"{len(graficos)} gráficos")
-    paso(RAIZ / "pipeline/render_plantillas.py", edit / "graficos.json", "--perfil", perfil_dir, "--edit", edit,
-         "--edl", edit / "edl.json", "--transcripcion", corr_ruta, "--concurrencia", str(concurrencia))
+    # 5) Variantes creativas V2…Vn (reutilizan transcripción, EDL y cara; nunca re-transcriben).
+    for k in range(2, variantes + 1):
+        prog.version = k
+        plan = plan_variante(k, perfil, cortes)
+        t = trabajo / "variantes" / f"V{k}"
+        (t / "edit").mkdir(parents=True, exist_ok=True)
+        if plan["corta"]:
+            prog("decidiendo_cortes", "Claude elige los beats para la versión corta")
+            err = ""
+            for intento in range(2):
+                corta = decidir_version_corta(tramos_con_texto(cortes["tramos"], trans), (15, 30), uso_claude, err)
+                (t / "edit" / "seleccion.json").write_text(json.dumps({"tramos": corta["tramos"]}, ensure_ascii=False))
+                try:
+                    paso(RAIZ / "pipeline/construir_edl.py", trans_ruta, t / "edit" / "seleccion.json", "--video", fuente,
+                         "--ritmo", perfil.ritmo, "-o", t / "edit" / "edl.json")
+                    dur = json.loads((t / "edit" / "edl.json").read_text())["total_duration_s"]
+                    if dur <= 35:
+                        break
+                    err = f"La versión dura {dur:.1f} s: tiene que durar entre 15 y 30 s."
+                except RuntimeError as e:
+                    err = str(e)[-600:]
+                if intento == 1:
+                    plan["corta"] = False  # no se consiguió: variante de duración completa
+            if not plan["corta"]:
+                enlazar(edit / "edl.json", t / "edit" / "edl.json")
+        else:
+            enlazar(edit / "edl.json", t / "edit" / "edl.json")
+        if not plan["corta"]:  # mismo EDL: se reutilizan los segmentos ya extraídos (sin disco extra)
+            enlazar(edit / "clips", t / "edit" / "clips")
+        plan.update(sufijo=f"_V{k}", evitar=resumen_graficos(edit))
+        r = montar(t, fuente, trans_ruta, corr_ruta, edit / "caras.json", perfil_dir, perfil, cortes, prog,
+                   uso_claude, concurrencia, plan)
+        cambios = [f"gancho «{plan['titular']}»", f"subtítulos {plan['estilo_subtitulos']}",
+                   f"música {plan['estado_musica']}", f"SFX {plan['densidad_sfx']}",
+                   "zoom invertido" if plan["punch_inicio"] else "zoom base", "gráficos distintos"]
+        if plan.get("proporcion_split"):
+            cambios.append("más cámara")
+        if plan["corta"]:
+            cambios.insert(0, "versión corta")
+        versiones.append({"variante": f"V{k}", "cambios": "; ".join(cambios), **r})
 
-    # 7) Subtítulos + SFX + composición en una pasada.
-    prog("montaje", "Subtítulos, capas y composición")
-    paso(RAIZ / "pipeline/subtitulos_ass.py", "--edl", edit / "edl.json", "--transcripcion", corr_ruta,
-         "--layout", edit / "layout.json", "--perfil", perfil_dir, "-o", edit / "subtitulos.ass")
-    paso(RAIZ / "pipeline/planificar_sfx.py", "--layout", edit / "layout.json", "--graficos", edit / "graficos.json",
-         "--perfil", perfil_dir, "--edl", edit / "edl.json", "--transcripcion", corr_ruta, "--semilla", trabajo.name,
-         "-o", edit / "sfx_timeline.json")
-    paso(RAIZ / "pipeline/componer.py", "--edl", edit / "edl.json", "--layout", edit / "layout.json",
-         "--perfil", perfil_dir, "--overlays", edit / "overlays.json", "--ass", edit / "subtitulos.ass",
-         "--fontsdir", perfil_dir / "fuentes", "-o", edit / "compuesto.mp4")
+    # 6) Entrega a la carpeta del usuario + variantes.csv + limpieza.
+    prog.version = variantes
+    peor = "REVISAR" if any(v["veredicto"] == "REVISAR" for v in versiones) else "LISTO"
+    for v in versiones:
+        v["salida_usuario"] = None
+        if carpeta_salida:
+            carpeta = Path(carpeta_salida).expanduser() / ("revisar" if v["veredicto"] == "REVISAR" else "")
+            carpeta.mkdir(parents=True, exist_ok=True)
+            destino = carpeta / v["final"].name.removeprefix("REVISAR_")
+            shutil.copy2(v["final"], destino)
+            v["salida_usuario"] = destino
+    if variantes > 1:
+        import csv
+        filas = [{"archivo": Path(v["salida_usuario"] or v["final"]).name, "variante": v["variante"],
+                  "veredicto": v["veredicto"], "duracion_s": round(v["duracion_s"], 1), "gancho": v["titular"],
+                  "subtitulos": v["estilo_subtitulos"], "estado_musica": v["estado_musica"], "pista": v["pista"],
+                  "densidad_sfx": v["densidad_sfx"], "graficos": v["graficos"], "stickers": v["stickers"],
+                  "que_cambia": v["cambios"]} for v in versiones]
+        destinos_csv = [trabajo / "variantes.csv"]
+        if carpeta_salida:
+            destinos_csv.append(Path(carpeta_salida).expanduser() / f"{Path(versiones[0]['final']).stem.removeprefix('REVISAR_').removesuffix('_V1')}_variantes.csv")
+        for d in destinos_csv:
+            with d.open("w", newline="", encoding="utf-8") as f:
+                w = csv.DictWriter(f, fieldnames=list(filas[0]))
+                w.writeheader()
+                w.writerows(filas)
+    limpiar_trabajo(trabajo)
 
-    # 8) Audio.
-    prog("audio", f"Voz, música ({cortes['estado_musica']}) y efectos")
-    paso(RAIZ / "pipeline/mezcla_audio.py", "--video", edit / "base.mp4", "--perfil", perfil_dir,
-         "--estado", cortes["estado_musica"], "--sfx", edit / "sfx_timeline.json", "--trabajo", trabajo.name,
-         "--registrar-uso", "-o", edit / "mezcla.wav")
-
-    # 9) Exportación + QA + entrega.
-    prog("control_calidad", "Exportando y comprobando")
-    paso(RAIZ / "pipeline/exportar.py", "--video", edit / "compuesto.mp4", "--audio", edit / "mezcla.wav",
-         "--edl", edit / "edl.json", "--transcripcion", corr_ruta, "--graficos", edit / "graficos.json",
-         "--perfil", perfil_dir, "-o", trabajo / "salida")
-    salida_qa = paso(RAIZ / "pipeline/qa.py", "--trabajo", trabajo, "--perfil", perfil_dir)
-    veredicto = "REVISAR" if "REVISAR" in salida_qa.splitlines()[0] else "LISTO"
-    entregado = Path(salida_qa.strip().splitlines()[-1].split("entregado: ", 1)[-1])
-    informe = (trabajo / "salida" / "informe_qa.md").read_text(encoding="utf-8")
-    avisos = [l[4:].strip() for l in informe.splitlines() if l.startswith("- ⚠️")]
-
-    destino_usuario = None
-    if carpeta_salida:
-        carpeta = Path(carpeta_salida).expanduser() / ("revisar" if veredicto == "REVISAR" else "")
-        carpeta.mkdir(parents=True, exist_ok=True)
-        destino_usuario = carpeta / entregado.name.removeprefix("REVISAR_")
-        shutil.copy2(entregado, destino_usuario)
-
+    v1 = versiones[0]
     resumen.update({
-        "veredicto": veredicto, "avisos": avisos, "final": str(entregado),
-        "salida_usuario": str(destino_usuario) if destino_usuario else None,
-        "portada": str(trabajo / "salida" / "portada.jpg"), "duracion_video_s": edl["total_duration_s"],
+        "veredicto": peor, "avisos": [f"{v['variante'] or 'vídeo'}: {a}" if variantes > 1 else a
+                                      for v in versiones for a in v["avisos"]],
+        "final": str(v1["final"]), "salida_usuario": str(v1["salida_usuario"]) if v1["salida_usuario"] else None,
+        "portada": str(v1["portada"]), "duracion_video_s": v1["duracion_s"],
+        "versiones": [{"variante": v["variante"], "final": str(v["final"]), "veredicto": v["veredicto"],
+                       "salida_usuario": str(v["salida_usuario"]) if v["salida_usuario"] else None,
+                       "duracion_s": v["duracion_s"], "cambios": v["cambios"]} for v in versiones],
         "duracion_ejecucion_s": round(time.time() - inicio_total, 1), "uso_claude": uso_claude,
         "coste_claude_estimado_usd": round(sum(u.get("coste_usd_estimado") or 0 for u in uso_claude), 4),
         "modelos_claude": sorted({m for u in uso_claude for m in u["modelos"]}),
     })
     (trabajo / "resumen.json").write_text(json.dumps(resumen, ensure_ascii=False, indent=2), encoding="utf-8")
-    prog("terminado", f"{'⚠️ Revisar' if veredicto == 'REVISAR' else '✅ Listo'} en {resumen['duracion_ejecucion_s']:.0f} s")
+    txt = f"{variantes} versiones · " if variantes > 1 else ""
+    prog("terminado", f"{txt}{'⚠️ Revisar' if peor == 'REVISAR' else '✅ Listo'} en {resumen['duracion_ejecucion_s']:.0f} s")
     return resumen
 
 
@@ -279,13 +445,15 @@ def main() -> None:
     ap.add_argument("video", type=Path)
     ap.add_argument("--perfil", type=Path, required=True)
     ap.add_argument("--salida", type=Path, help="carpeta donde copiar el vídeo final")
+    ap.add_argument("--variantes", type=int, default=1, help="1 = solo la edición; 2–6 = variantes creativas A/B")
     ap.add_argument("--mover-original", action="store_true")
     args = ap.parse_args()
     r = editar(args.video, args.perfil, args.salida,
                avisar=lambda e: print(f"[{e['progreso']:3d}%] {e['etapa']}: {e['mensaje']}", flush=True),
-               mover_original=args.mover_original)
+               mover_original=args.mover_original, variantes=args.variantes)
     print(json.dumps({k: r[k] for k in ("veredicto", "final", "salida_usuario", "duracion_ejecucion_s",
-                                        "coste_claude_estimado_usd", "modelos_claude", "avisos")}, ensure_ascii=False, indent=1))
+                                        "coste_claude_estimado_usd", "modelos_claude", "avisos", "versiones")},
+                     ensure_ascii=False, indent=1))
 
 
 if __name__ == "__main__":

@@ -50,6 +50,10 @@ app = FastAPI(title="Editor Autopilot", lifespan=ciclo)
 def publico(it: dict) -> dict:
     d = {k: it.get(k) for k in CAMPOS_PUBLICOS}
     d["tiene_portada"] = bool(it.get("portada") and Path(it["portada"]).exists())
+    d["variantes"] = it.get("variantes") or 1
+    d["versiones"] = [{"indice": k, "variante": v["variante"], "veredicto": v["veredicto"],
+                       "duracion_s": v["duracion_s"], "cambios": v["cambios"], "salida": v.get("salida_usuario")}
+                      for k, v in enumerate(it.get("versiones") or [])]
     return d
 
 
@@ -65,7 +69,7 @@ def estado() -> dict:
 
 
 @app.post("/api/subir")
-async def subir(perfil: str = Form(...), archivos: list[UploadFile] = File(...)) -> dict:
+async def subir(perfil: str = Form(...), archivos: list[UploadFile] = File(...), variantes: int | None = Form(None)) -> dict:
     if perfil not in perfiles():
         raise HTTPException(400, f"perfil desconocido: {perfil}")
     carpeta = BASE / "entrada" / perfil
@@ -90,6 +94,10 @@ async def subir(perfil: str = Form(...), archivos: list[UploadFile] = File(...))
             destino.unlink()  # la copia recién subida sobra: el mismo vídeo ya está en la cola (el original no se toca)
             duplicados.append(nombre)
         else:
+            if variantes:
+                with cola.cerrojo:
+                    it["variantes"] = max(1, min(6, variantes))
+                    cola._guardar()
             anadidos.append(it["id"])
     return {"añadidos": anadidos, "duplicados": duplicados}
 
@@ -124,9 +132,10 @@ def _item(id_: str) -> dict:
 
 
 @app.get("/api/video/{id_}")
-def video(id_: str):
+def video(id_: str, v: int = 0):
     it = _item(id_)
-    ruta = it.get("final") or it.get("salida")
+    versiones = it.get("versiones") or []
+    ruta = versiones[v]["final"] if 0 <= v < len(versiones) else (it.get("final") or it.get("salida"))
     if not ruta or not Path(ruta).exists():
         raise HTTPException(404, "vídeo no disponible")
     return FileResponse(ruta, media_type="video/mp4")

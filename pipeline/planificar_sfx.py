@@ -239,8 +239,10 @@ def asignar_variantes(ev: list[dict], biblioteca: Path, semilla: str) -> list[di
 
 
 def planificar(layout: dict, graficos: list[dict], perfil_dir: Path, semilla: str,
-               palabras: list[dict] | None = None) -> dict:
+               palabras: list[dict] | None = None, densidad: str | None = None) -> dict:
     perfil = cargar(perfil_dir)
+    if densidad:  # variantes: otra densidad de efectos
+        perfil.audio.densidad_sfx = densidad
     if not perfil.audio.sfx:
         return {"eventos": [], "descartados": [], "sin_archivo": [], "densidad": "ninguna"}
     ev = eventos_brutos(layout, graficos, alta=perfil.audio.densidad_sfx == "alta")
@@ -263,6 +265,7 @@ def main() -> None:
     ap.add_argument("--edl", type=Path)
     ap.add_argument("--transcripcion", type=Path)
     ap.add_argument("--semilla", default="0")
+    ap.add_argument("--densidad", choices=["baja", "media", "alta"], help="sustituye la del perfil (variantes)")
     ap.add_argument("-o", "--salida", type=Path, required=True)
     args = ap.parse_args()
     leer = lambda p: json.loads(p.read_text(encoding="utf-8"))  # noqa: E731
@@ -270,7 +273,8 @@ def main() -> None:
     if args.edl and args.transcripcion:
         from planificar_layout import palabras_en_salida
         palabras = palabras_en_salida(leer(args.edl), leer(args.transcripcion))
-    plan = planificar(leer(args.layout), leer(args.graficos)["graficos"], args.perfil, args.semilla, palabras)
+    plan = planificar(leer(args.layout), leer(args.graficos)["graficos"], args.perfil, args.semilla, palabras,
+                      args.densidad)
     args.salida.write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"guardado: {args.salida} — {len(plan['eventos'])} efectos (densidad {plan['densidad']}), "
           f"{len(plan['descartados'])} descartados, {len(plan['sin_archivo'])} sin archivo en la biblioteca")

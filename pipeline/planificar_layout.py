@@ -194,7 +194,10 @@ def inicio_cta(ws: list[dict], cands: list[dict], duracion: float) -> float:
     return max(0.0, duracion - 3.0)
 
 
-def planificar(edl: dict, transcripcion: dict, caras: dict, perfil: Perfil, momentos: list[dict] | None) -> dict:
+def planificar(edl: dict, transcripcion: dict, caras: dict, perfil: Perfil, momentos: list[dict] | None,
+               proporcion_split: float | None = None, punch_inicio: int = 0) -> dict:
+    if proporcion_split is not None:  # variantes: más o menos cámara
+        perfil.layout.ventanas.proporcion_split = proporcion_split
     ws = palabras_en_salida(edl, transcripcion)
     duracion = round(edl["total_duration_s"], 3)
     cands = limites(ws, cortes_edl(edl))
@@ -263,7 +266,7 @@ def planificar(edl: dict, transcripcion: dict, caras: dict, perfil: Perfil, mome
 
     # 3b) Punch-in alterno: cada ventana full cambia de zoom respecto a la full anterior.
     if v.punch_alterno:
-        k = 0
+        k = punch_inicio  # variantes: el patrón de zoom empieza al revés
         for w in ventanas:
             if w["tipo"] == "full" and w["zoom"] == 1.0:
                 w["zoom"] = ZOOM_PUNCH if k % 2 else 1.0
@@ -307,11 +310,14 @@ def main() -> None:
     ap.add_argument("--caras", type=Path, required=True)
     ap.add_argument("--perfil", type=Path, required=True)
     ap.add_argument("--momentos", type=Path)
+    ap.add_argument("--proporcion-split", type=float, help="sustituye la del perfil (variantes)")
+    ap.add_argument("--punch-inicio", type=int, default=0, choices=[0, 1], help="1 = el primer full va con zoom")
     ap.add_argument("-o", "--salida", type=Path, required=True)
     args = ap.parse_args()
     leer = lambda p: json.loads(p.read_text(encoding="utf-8"))  # noqa: E731
     momentos = leer(args.momentos)["momentos"] if args.momentos else None
-    plan = planificar(leer(args.edl), leer(args.transcripcion), leer(args.caras), cargar(args.perfil), momentos)
+    plan = planificar(leer(args.edl), leer(args.transcripcion), leer(args.caras), cargar(args.perfil), momentos,
+                      args.proporcion_split, args.punch_inicio)
     args.salida.write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"guardado: {args.salida} — {len(plan['ventanas'])} ventanas, gancho hasta {plan['fin_gancho']} s")
     for w in plan["ventanas"]:

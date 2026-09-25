@@ -82,10 +82,16 @@
         <p class="lista-vacia" id="listaVacia">Todavía no has elegido ningún vídeo.</p>
 
         <div class="panel-subida__pie">
-          <label class="campo">
-            <span class="campo__etiqueta">Perfil de edición</span>
-            <select id="selectPerfil" class="select"></select>
-          </label>
+          <div class="fila-campos">
+            <label class="campo fila-campos__principal">
+              <span class="campo__etiqueta">Perfil de edición</span>
+              <select id="selectPerfil" class="select"></select>
+            </label>
+            <div class="campo">
+              <span class="campo__etiqueta" id="etiquetaVariantesSubida">Versiones</span>
+              <div class="segmentado segmentado--compacto" id="selectVariantes" role="radiogroup" aria-labelledby="etiquetaVariantesSubida" title="Versiones de cada vídeo"></div>
+            </div>
+          </div>
 
           <div class="progreso-subida" id="progresoSubida" hidden>
             <div class="progreso-subida__texto">
@@ -168,6 +174,12 @@
           <input type="number" id="ajusteLimite" class="input" min="1" max="200" step="1">
           <p class="nota">Al llegar al límite, el motor se pausa y continúa al día siguiente.</p>
         </label>
+
+        <div class="bloque-ajuste campo">
+          <span class="campo__etiqueta" id="etiquetaVariantesAjuste">Versiones por vídeo</span>
+          <div class="segmentado" id="ajusteVariantes" role="radiogroup" aria-labelledby="etiquetaVariantesAjuste"></div>
+          <p class="nota">1 = solo la edición. Con 2 o más se generan variantes creativas reales (otro gancho, otros gráficos, subtítulos, música, efectos, zoom y una versión corta) para probarlas en Trial Reels. Se guardan como <code>_V1</code>, <code>_V2</code>… con un <code>variantes.csv</code> que explica qué cambia en cada una.</p>
+        </div>
       </form>
 
       <div class="drawer__pie">
@@ -189,6 +201,10 @@
         </button>
         <div id="modalVideoBadge"></div>
         <h2 id="modalVideoTitulo">Vídeo</h2>
+        <div class="versiones" id="modalVersiones" hidden>
+          <div class="versiones__pestanas" id="modalVersionesPestanas" role="tablist" aria-label="Versiones del vídeo"></div>
+          <div class="version-detalle" id="modalVersionDetalle"></div>
+        </div>
         <dl class="datos" id="modalVideoDatos"></dl>
         <div id="modalVideoAvisos"></div>
         <button class="boton boton--primario" id="modalVideoFinder" type="button">

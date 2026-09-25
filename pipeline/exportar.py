@@ -47,11 +47,11 @@ def texto_limpio(edl: dict, transcripcion: dict) -> str:
 
 
 def exportar(video: Path, audio: Path, edl: dict, transcripcion: dict, graficos: list[dict], perfil: str,
-             destino: Path) -> dict:
+             destino: Path, sufijo: str = "") -> dict:
     destino.mkdir(parents=True, exist_ok=True)
     gancho = next((g for g in graficos if g["plantilla"] == "gancho"), None)
     titulo = gancho["datos"]["titular"] if gancho else texto_limpio(edl, transcripcion).split(".")[0]
-    nombre = f"{time.strftime('%Y%m%d')}_{perfil}_{slug(titulo)}"
+    nombre = f"{time.strftime('%Y%m%d')}_{perfil}_{slug(titulo)}{sufijo}"
     final = destino / f"{nombre}.mp4"
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(video), "-i", str(audio),
                     "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy",
@@ -75,11 +75,12 @@ def main() -> None:
     ap.add_argument("--graficos", type=Path)
     ap.add_argument("--perfil", type=Path, required=True)
     ap.add_argument("-o", "--destino", type=Path, required=True)
+    ap.add_argument("--sufijo", default="", help="p. ej. _V2 en las variantes")
     args = ap.parse_args()
     leer = lambda p: json.loads(p.read_text(encoding="utf-8"))  # noqa: E731
     graficos = leer(args.graficos)["graficos"] if args.graficos else []
     r = exportar(args.video, args.audio, leer(args.edl), leer(args.transcripcion), graficos,
-                 args.perfil.name, args.destino)
+                 args.perfil.name, args.destino, args.sufijo)
     (args.destino / "exportacion.json").write_text(json.dumps(r, ensure_ascii=False, indent=2), encoding="utf-8")
     print(r["final"])
 

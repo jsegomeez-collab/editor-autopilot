@@ -186,6 +186,26 @@ svg { display: block; }
   vertical-align: middle;
 }
 
+.chip--acento { background: var(--acento-suave); color: var(--acento); border: 1px solid rgba(255, 219, 0, .28); }
+
+/* Selector segmentado 1·2·3·4·5·6 */
+.segmentado {
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px;
+  padding: 4px; border-radius: 12px;
+  background: var(--fondo-2); border: 1px solid var(--borde-fuerte);
+}
+.segmentado__opcion {
+  padding: 8px 0; border-radius: 9px; border: 1px solid transparent;
+  background: transparent; color: var(--texto-2); cursor: pointer;
+  font-family: var(--display); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums;
+  transition: background .2s, color .2s, box-shadow .2s;
+}
+.segmentado__opcion:hover:not(.activo) { color: var(--texto); background: rgba(255, 255, 255, .06); }
+.segmentado__opcion.activo { background: var(--acento); color: #0B1020; box-shadow: 0 4px 16px -6px var(--acento-glow); }
+.segmentado__opcion:focus-visible { outline: 2px solid rgba(255, 219, 0, .6); outline-offset: 1px; }
+.segmentado--compacto { width: 204px; height: 44px; padding: 3px; gap: 2px; }
+.segmentado--compacto .segmentado__opcion { padding: 0; font-size: 13px; }
+
 /* ---------------- Aviso carpeta ---------------- */
 .aviso-carpeta {
   display: flex; align-items: center; gap: 16px;
@@ -251,6 +271,9 @@ svg { display: block; }
 .panel-subida__cabecera { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .panel-subida__cabecera h3 { font-size: 15px; }
 .panel-subida__pie { display: flex; flex-direction: column; gap: 14px; margin-top: auto; padding-top: 16px; }
+
+.fila-campos { display: flex; align-items: flex-end; gap: 12px; }
+.fila-campos__principal { flex: 1; min-width: 0; }
 
 .lista-archivos {
   list-style: none; margin: 0; padding: 0;
@@ -375,6 +398,12 @@ svg { display: block; }
 .cola__nombre { font-family: var(--display); font-weight: 700; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .cola__perfil { font-size: 12px; color: var(--texto-3); white-space: nowrap; }
 .cola__perfil::before { content: "·"; margin-right: 8px; }
+.cola__variantes { flex: none; font-size: 11.5px; padding: 1px 8px; }
+.cola__version {
+  display: inline-block; margin-right: 8px; padding: 0 7px; border-radius: 6px;
+  font-family: var(--display); font-weight: 700; font-size: 11.5px;
+  background: var(--acento-suave); color: var(--acento);
+}
 .cola__etapa { font-family: var(--display); font-weight: 700; font-size: 13.5px; color: var(--texto-2); white-space: nowrap; }
 .tarjeta-cola[data-estado="procesando"] .cola__etapa { color: var(--acento); }
 .cola__pct { margin-left: auto; font-family: var(--display); font-weight: 800; font-size: 14px; font-variant-numeric: tabular-nums; }
@@ -452,6 +481,15 @@ svg { display: block; }
   font-family: var(--display); font-weight: 700; font-size: 12px;
   background: rgba(11, 16, 32, .7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
 }
+.resultado__versiones {
+  position: absolute; top: 12px; right: 12px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 9px; border-radius: 999px;
+  font-family: var(--display); font-weight: 700; font-size: 12px; color: var(--acento);
+  background: rgba(11, 16, 32, .72); border: 1px solid rgba(255, 219, 0, .35);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.resultado__versiones svg { width: 13px; height: 13px; }
 .resultado__play {
   position: absolute; left: 50%; top: 50%; z-index: 2;
   width: 58px; height: 58px; margin: -29px 0 0 -29px; border-radius: 50%;
@@ -565,6 +603,34 @@ svg { display: block; }
 .modal-video__info h2 { font-size: 20px; line-height: 1.25; padding-right: 40px; overflow-wrap: anywhere; }
 .modal-video__cerrar { position: absolute; top: 16px; right: 16px; }
 .modal-video__info > .boton { margin-top: auto; }
+/* Versiones en el modal */
+.versiones { display: flex; flex-direction: column; gap: 10px; }
+.versiones__pestanas { display: flex; flex-wrap: wrap; gap: 6px; }
+.versiones__pestana {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: 10px; cursor: pointer;
+  background: var(--superficie); border: 1px solid var(--borde-fuerte); color: var(--texto-2);
+  font-family: var(--display); font-weight: 700; font-size: 13px;
+  transition: background .2s, color .2s, border-color .2s, box-shadow .2s;
+}
+.versiones__pestana:hover:not(.activa) { color: var(--texto); border-color: rgba(255, 219, 0, .45); }
+.versiones__pestana.activa { background: var(--acento); border-color: var(--acento); color: #0B1020; box-shadow: 0 6px 20px -8px var(--acento-glow); }
+.versiones__punto { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+.versiones__punto--listo { background: var(--listo); }
+.versiones__punto--revisar { background: var(--revisar); }
+.versiones__pestana.activa .versiones__punto { box-shadow: 0 0 0 2px rgba(11, 16, 32, .35); }
+.version-detalle {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 14px; border-radius: 14px;
+  background: var(--superficie); border: 1px solid rgba(255, 219, 0, .22);
+}
+.version-detalle__cabecera { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.version-detalle__cabecera strong { font-family: var(--display); font-weight: 800; font-size: 16px; color: var(--acento); }
+.version-detalle__duracion { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-family: var(--display); font-weight: 700; font-size: 13px; color: var(--texto-2); font-variant-numeric: tabular-nums; }
+.version-detalle__duracion svg { width: 13px; height: 13px; }
+.version-detalle__etiqueta { font-family: var(--display); font-weight: 700; font-size: 11px; color: var(--texto-3); text-transform: uppercase; letter-spacing: .06em; }
+.version-detalle__cambios { margin: 0; color: var(--texto-2); font-size: 13px; line-height: 1.5; }
+
 .datos { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 13px; }
 .datos dt { color: var(--texto-3); }
 .datos dd { margin: 0; text-align: right; font-family: var(--display); font-weight: 700; overflow-wrap: anywhere; }
