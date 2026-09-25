@@ -39,7 +39,7 @@
 - Prueba real: `corregir_transcripcion.py` sobre JOSE49 con el perfil jose da, por ejemplo, "diez mil dólares" → "$10.000" y "Cloud Code" → "Claude Code".
 - Tests: 14 en verde.
 
-## 🛑 Fase 3 — Normalización + cara + layout (2026-09-25, pendiente de revisión)
+## ✅ Fase 3 — Normalización + cara + layout (2026-09-25, aprobada: encuadre, destello y ritmo sin cambios)
 - `pipeline/preparar_fuente.py`: espera tamaño estable, ficha ffprobe y copia `src_<sha1-12>.mp4` (CFR 25/30, HDR→SDR con zscale+tonemap, 48 kHz, rotación aplicada, lado corto ≤ 1080, CRF 14). Probado con JOSE49 y con un clip sintético HLG 4K rotado a 29,97 fps → SDR BT.709 1080×1920 a 30 fps.
 - `pipeline/transcribir.py`: helper de video-use (`--language es`) + caché global `~/VideoAutopilot/cache_transcripciones/` indexada por hash. Caché sembrada con la transcripción de JOSE49 (misma duración, mismo audio): 0 s transcritos en esta fase.
 - `pipeline/construir_edl.py`: el LLM elige tramos de palabras y el script calcula los cortes (bordes de palabra, padding 40/60, silencios ≥ 300 ms, alineado a fotogramas, prohibido reordenar). JOSE49: 68 s → 51,0 s en 14 rangos.
