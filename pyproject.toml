@@ -1,0 +1,15 @@
+[project]
+name = "editor-autopilot"
+version = "0.1.0"
+description = "Editor de vídeo automático construido sobre video-use"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.13.5",
+    "pyyaml>=6.0.3",
+    "text2num>=3.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

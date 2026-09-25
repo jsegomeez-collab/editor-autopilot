@@ -1,0 +1,22 @@
+# Secretos
+.env
+.env.*
+
+# Entorno Python
+.venv/
+__pycache__/
+*.pyc
+
+# Vídeo, audio pesado y renders
+*.mp4
+*.MP4
+*.mov
+*.MOV
+*.webm
+*.mkv
+*.wav
+tests/muestras/edit/
+plantillas/*/preview.mp4
+
+# Sistema
+.DS_Store

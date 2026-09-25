@@ -1,0 +1,8 @@
+# Glosario de prueba para JOSE49.mp4. El definitivo va en perfiles/<marca>/glosario.yaml
+terminos:
+  - forma: "Claude Code"
+    variantes: ["cloud code", "clod code", "claude code"]
+  - forma: "Claude"
+    variantes: ["cloud", "clod"]
+  - forma: "OmniRoute"
+    variantes: ["omni route", "omniroute"]

@@ -1,0 +1,5 @@
+# Cómo se escriben nombres y términos de la marca.
+# Cada variante (lo que entiende el transcriptor) se sustituye por la forma correcta.
+terminos:
+  - forma: "Claude Code"
+    variantes: ["cloud code", "clod code"]
