@@ -39,7 +39,7 @@ from perfil import Perfil, cargar  # noqa: E402
 
 SALIDA_W, SALIDA_H = 1080, 1920
 PANEL_H = 960
-BANDA_H = 520  # estilo «título»: franja superior con el título; la cámara ocupa 1080x1400 debajo
+BANDA_H = 0  # estilo «título»: el título va encima de la cámara, que ocupa el 9:16 completo (sin franja)
 ZOOM_PUNCH = 1.12
 FIN_FRASE = re.compile(r"[.?!…]»?$")
 PISTAS_VISUALES = re.compile(
@@ -158,7 +158,7 @@ def recorte_estatico(caras: dict, edl: dict, ini: float, fin: float, tipo: str, 
     barbilla = statistics.median(m["caja"][1] + m["caja"][3] for m in ms)
     W, H = caras["ancho"], caras["alto"]
     if tipo == "banda":
-        # Cámara en 1080x1400 bajo la franja del título; ojos al 30 % de esa zona.
+        # Cámara en 1080x(1920-BANDA_H); con BANDA_H=0 y fuente 9:16 sin zoom, el recorte es el cuadro entero.
         alto_zona = SALIDA_H - BANDA_H
         w = min(W, H * SALIDA_W / alto_zona) / zoom
         h = w * alto_zona / SALIDA_W
@@ -224,8 +224,11 @@ def planificar_titulo(edl: dict, ws: list[dict], cands: list[dict], caras: dict,
         rec = recorte_estatico(caras, edl, w["inicio"], w["fin"], "banda", w["zoom"], perfil.zonas_seguras.inferior)
         if rec is None:
             avisos.append(f"{w['inicio']:.2f}-{w['fin']:.2f}s: sin cara, recorte centrado")
-            alto = SALIDA_H - BANDA_H
-            rec = [0, int((caras["alto"] - alto) / 2) // 2 * 2, caras["ancho"] // 2 * 2, alto]
+            # Recorte centrado con la proporción de la zona de cámara (y el zoom de la ventana).
+            proporcion = SALIDA_W / (SALIDA_H - BANDA_H)
+            aw = min(caras["ancho"], caras["alto"] * proporcion) / w["zoom"]
+            ah = aw / proporcion
+            rec = [int(round(v / 2) * 2) for v in ((caras["ancho"] - aw) / 2, (caras["alto"] - ah) / 2, aw, ah)]
         w["recorte"] = rec
         w["destello"] = False
     return {"ancho": SALIDA_W, "alto": SALIDA_H, "duracion": duracion, "fin_gancho": 0.0, "estilo": "titulo",

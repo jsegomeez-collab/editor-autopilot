@@ -116,8 +116,8 @@ def comprobar_caras(inf: Informe, final: Path, layout: dict) -> None:
         if not ok:
             continue
         _, caras = det.detect(cv2.resize(frame, (540, 960)))
-        # En split la cara va en el panel inferior (y ≥ 960); en «título», bajo la franja (y ≥ 520).
-        minimo = {"split": 960, "banda": 520}.get(v["tipo"], 0)
+        # En split la cara va en el panel inferior (y ≥ 960); en «título», bajo la franja si la hay.
+        minimo = {"split": 960, "banda": layout.get("banda_h", 0)}.get(v["tipo"], 0)
         caras = [] if caras is None else [c for c in caras if c[1] * 2 >= minimo]
         if not len(caras):
             fallos.append(f"{t:.2f} s ({v['tipo']})")

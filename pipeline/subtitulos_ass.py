@@ -33,7 +33,7 @@ PAUSA_CORTE = 0.30
 HUECO_MAX_SOSTENER = 0.30  # un bloque se sostiene hasta el siguiente si el hueco es menor
 Y_SPLIT = 960
 Y_BANDA = 1400          # estilo «título»: bajo la cara, por encima de la zona segura inferior
-TITULO_Y = (235, 505)   # franja del título (la zona segura superior acaba en 220; la banda en 520)
+TITULO_Y = (235, 505)   # zona del título, encima del vídeo (la zona segura superior acaba en 220)
 TITULO_X = (120, 960)   # respeta la zona segura derecha
 TITULO_MAX = 118
 ANCHO_LETRA_TITULO = 0.50  # ancho medio de un carácter de Inter ExtraBold (fracción del cuerpo)
@@ -118,7 +118,7 @@ def estilo_de(ventana: dict, estilo: str) -> str:
 
 
 def titulo_ass(titulo: str, destacado: str, perfil: Perfil) -> tuple[str, int]:
-    """Texto ASS del título en la franja superior: tamaño que cabe en ≤ 3 líneas y saltos de línea manuales."""
+    """Texto ASS del título sobre el vídeo: tamaño que cabe en ≤ 3 líneas y saltos de línea manuales."""
     ancho = TITULO_X[1] - TITULO_X[0]
     alto = TITULO_Y[1] - TITULO_Y[0]
     # Las palabras destacadas (p. ej. "Claude Code") no se parten entre líneas: van unidas por un espacio duro.
@@ -126,6 +126,8 @@ def titulo_ass(titulo: str, destacado: str, perfil: Perfil) -> tuple[str, int]:
     if len(destacado.split()) > 1 and destacado.lower() in titulo.lower():
         i = titulo.lower().index(destacado.lower())
         unido = titulo[:i] + titulo[i:i + len(destacado)].replace(" ", "\u00a0") + titulo[i + len(destacado):]
+    if perfil.subtitulos.mayusculas:
+        unido, destacado = unido.upper(), destacado.upper()
     palabras = unido.split(" ")
     for tam in range(TITULO_MAX, 40, -2):
         lineas, actual = [], []
@@ -146,8 +148,6 @@ def titulo_ass(titulo: str, destacado: str, perfil: Perfil) -> tuple[str, int]:
     fmt = lambda w: " ".join(f"{{\\c{acento}}}{x}{{\\c{blanco}}}" if x.lower().strip(".,¿?¡!") in marcar else x  # noqa: E731
                              for x in w.split("\u00a0"))
     texto = "\\N".join(" ".join(fmt(w) for w in l) for l in lineas)
-    if perfil.subtitulos.mayusculas:
-        texto = texto.upper()
     return texto, tam
 
 
@@ -171,7 +171,7 @@ Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour,
 Style: Caja,{comun},{caja},{caja},1,0,0,0,100,100,0,0,3,14,0,5,60,180,0,1
 Style: Sombra,{comun},{negro},{sombra},1,0,0,0,100,100,0,0,1,0,4,5,60,180,0,1
 Style: Contorno,{comun},{negro},{sombra},1,0,0,0,100,100,0,0,1,4,2,5,60,180,0,1
-Style: Titulo,{perfil.tipografias.titulares.familia},{TITULO_MAX},{blanco},{blanco},{negro},{sombra},1,0,0,0,100,100,0,0,1,0,3,5,0,0,0,1
+Style: Titulo,{perfil.tipografias.titulares.familia},{TITULO_MAX},{blanco},{blanco},{negro},{sombra},1,0,0,0,100,100,0,0,1,5,3,5,0,0,0,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -213,7 +213,7 @@ def generar(edl: dict, transcripcion: dict, layout: dict, perfil: Perfil, estilo
             partes = textos if basico else [(f"{{\\c{acento}}}{t}{{\\c{blanco}}}" if i == j else t) for i, t in enumerate(textos)]
             texto = f"{{\\an5\\pos({W // 2},{posicion_y(v, perfil)})}}" + " ".join(partes)
             lineas.append(f"Dialogue: 0,{tiempo_ass(t0)},{tiempo_ass(t1)},{estilo_de(v, estilo)},,0,0,0,,{texto}")
-    if titulo:  # título fijo en la franja superior durante todo el vídeo (estilo «título»)
+    if titulo:  # título fijo encima del vídeo durante todo el vídeo (estilo «título»), con contorno como los subtítulos
         texto, tam = titulo_ass(titulo, destacado, perfil)
         cy = (TITULO_Y[0] + TITULO_Y[1]) // 2
         lineas.append(f"Dialogue: 1,{tiempo_ass(0)},{tiempo_ass(layout['duracion'])},Titulo,,0,0,0,,"
@@ -229,7 +229,7 @@ def main() -> None:
     ap.add_argument("--perfil", type=Path, required=True)
     ap.add_argument("--estilo", choices=["caja", "contorno", "mixto"])
     ap.add_argument("--basico", action="store_true", help="sin palabra activa resaltada (estilo «título»)")
-    ap.add_argument("--titulo", default="", help="título fijo en la franja superior (estilo «título»)")
+    ap.add_argument("--titulo", default="", help="título fijo encima del vídeo (estilo «título»)")
     ap.add_argument("--destacado", default="", help="palabras del título en color de acento")
     ap.add_argument("-o", "--salida", type=Path, required=True)
     args = ap.parse_args()

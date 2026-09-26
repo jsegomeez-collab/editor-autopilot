@@ -90,7 +90,7 @@ def texto_ventanas(layout: dict, palabras: list[dict]) -> str:
     return "\n".join(lineas)
 
 
-STICKER_Y = {"motions": 470, "titulo": 760}  # en «título», junto a la cara bajo la franja
+STICKER_Y = {"motions": 470, "titulo": 760}  # en «título», junto a la cara, por debajo del título
 
 
 def construir_graficos(dec: dict, layout: dict, sticker_y: int = 470) -> tuple[list[dict], list[str]]:

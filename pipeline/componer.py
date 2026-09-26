@@ -9,7 +9,7 @@ El layout se aplica con tres cadenas que avanzan a la vez sobre una sola decodif
   full   : recorte 9:16 (x,y variables por ventana, tamaño fijo) -> 1080x1920
   punch  : recorte 9:16 con zoom 1,12 -> 1080x1920, visible solo en ventanas con zoom
   split  : recorte 9:8 de la cara -> panel inferior 1080x960 sobre el color de fondo
-  banda  : estilo «título»: franja superior de 520 px con el título y la cámara debajo
+  banda  : estilo «título»: cámara a pantalla completa (banda_h=0) con el título encima (en el ASS)
 Cada cadena tiene un recorte de tamaño fijo y posición por ventana, así no hay que
 trocear el vídeo en N ramas (lo que obligaría a ffmpeg a acumular frames en memoria).
 
@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from perfil import cargar  # noqa: E402
 
 W, H, PANEL_H = 1080, 1920, 960
-BANDA_H = 520  # estilo «título»: franja superior con el título (la zona segura acaba en 220)
+BANDA_H = 0  # estilo «título»: sin franja; layouts antiguos traen su propio banda_h
 FADE_AUDIO = 0.03
 DESTELLO_S = (0.08, 0.22)  # subida y bajada del destello
 COLOR_DESTELLO = "0xFFE3A3"
@@ -95,7 +95,7 @@ def filtro_layout(layout: dict, fondo: str, fps: float = 30) -> tuple[str, str]:
     Un grupo por tipo de ventana (recorte de tamaño fijo, posición por ventana):
       full / full con zoom  -> 1080x1920
       split                 -> cara en el panel inferior 1080x960 sobre el color de marca
-      banda / banda con zoom-> estilo «título»: cámara en 1080x(1920-BANDA_H) bajo la franja del título
+      banda / banda con zoom-> estilo «título»: cámara en 1080x(1920-banda_h); con 0, a pantalla completa
     """
     vs = layout["ventanas"]
     alto_banda = layout.get("banda_h", BANDA_H)
